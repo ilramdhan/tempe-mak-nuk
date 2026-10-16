@@ -6,9 +6,9 @@
 
 ## Ringkasan
 
-- **Fase aktif:** 0 — Discovery & Fondasi Brand
+- **Fase aktif:** 4 + 5 (Fase 0–3 selesai)
 - **Terakhir diperbarui:** 2026-10-16
-- **Branch / commit terakhir:** —
+- **Branch / commit terakhir:** main / lihat `git log`
 - **Preview URL:** —
 
 ## Keputusan & Data Terkunci
@@ -90,3 +90,4 @@
 | Tanggal | Sesi/Akun | Yang dikerjakan | Lanjut dari |
 |---|---|---|---|
 | 2026-10-16 | init | PROMPT.md, PLAN.md, STATE.md dibuat | P0.1 |
+| 2026-10-16 | sesi 1 | Fase 0–3 selesai (brand, scaffold, infra, design system, motion, DB+RLS, data layer, seed). HANDOVER.md dibuat | P4.1 + P5.1 |
