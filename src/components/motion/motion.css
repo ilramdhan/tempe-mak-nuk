@@ -1,0 +1,104 @@
+/*
+ * Motion kit pre-states.
+ *
+ * Content is ONLY pre-hidden when (a) scripting is enabled and (b) the user
+ * allows motion. Without JS or with reduced motion, everything renders as-is.
+ * Once a component takes over it sets [data-motion-ready] and GSAP owns the
+ * inline styles. A failsafe animation reveals content if hydration never
+ * happens (e.g. a JS error) so nothing stays invisible.
+ */
+@keyframes motion-failsafe {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  [data-reveal]:not([data-motion-ready]) {
+    opacity: 0;
+    transform: translate3d(0, var(--reveal-y, 24px), 0);
+    animation: motion-failsafe 0.6s ease-out 4s forwards;
+  }
+
+  [data-reveal="group"]:not([data-motion-ready]) {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  [data-reveal="group"]:not([data-motion-ready]) > * {
+    opacity: 0;
+    transform: translate3d(0, var(--reveal-y, 24px), 0);
+    animation: motion-failsafe 0.6s ease-out 4s forwards;
+  }
+
+  [data-split="scroll"]:not([data-motion-ready]) {
+    opacity: 0;
+    animation: motion-failsafe 0.6s ease-out 4s forwards;
+  }
+
+  /* Hero headline: stays painted (counts for LCP) but starts subtle. */
+  [data-split="hero"]:not([data-motion-ready]) {
+    opacity: 0.2;
+    transform: translate3d(0, 0.12em, 0);
+    animation: motion-failsafe 0.6s ease-out 2.5s forwards;
+  }
+}
+
+/* ---------------- Marquee ---------------- */
+@keyframes motion-marquee {
+  to {
+    transform: translate3d(calc(-100% - var(--marquee-gap)), 0, 0);
+  }
+}
+
+.motion-marquee {
+  --marquee-gap: 3rem;
+  --marquee-duration: 40s;
+  display: flex;
+  gap: var(--marquee-gap);
+  overflow: clip;
+  user-select: none;
+}
+
+.motion-marquee__group {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--marquee-gap);
+  min-width: 100%;
+  justify-content: space-around;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .motion-marquee__group {
+    animation: motion-marquee var(--marquee-duration) linear infinite;
+    will-change: transform;
+  }
+
+  .motion-marquee[data-direction="right"] .motion-marquee__group {
+    animation-direction: reverse;
+  }
+
+  .motion-marquee[data-pause-on-hover]:hover .motion-marquee__group,
+  .motion-marquee[data-pause-on-hover]:focus-within .motion-marquee__group {
+    animation-play-state: paused;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-marquee {
+    flex-wrap: wrap;
+  }
+
+  .motion-marquee__group {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 1rem;
+  }
+
+  .motion-marquee__group[aria-hidden="true"] {
+    display: none;
+  }
+}
