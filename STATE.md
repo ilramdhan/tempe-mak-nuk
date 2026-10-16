@@ -48,7 +48,7 @@
 | P3.2 | RLS policies + fungsi `is_admin()` + test RLS (anon vs editor vs owner) | O | P3.1 | done | opus | Policy via Drizzle `pgPolicy` (di 0001); `is_admin()`/`has_role()` di `drizzle/0000_rls_helpers.sql`; trigger auth.users→profiles (first=owner) + grants di `0002_auth_profile_trigger.sql`; `tests/rls` 17/17 lulus di supabase/postgres 15.19 & postgres:16 + `auth-stub.sql` |
 | P3.3 | Zod schema section blocks (hero, richText, featureGrid, compare, steps, cta, faqList, testimonialList, gallery, stats) + renderer server | O | P3.1, P2.3 | todo | | |
 | P3.4 | Data layer per domain: `queries.ts` (cache + tags) & `actions.ts` (guarded) | O | P3.1 | todo | | |
-| P3.5 | Seed: settings, 2 varian, bentuk/ukuran, FAQ (≥ 20), testimoni placeholder, 8 artikel draft, 6 resep, nav, halaman | S | P3.1, P0.2 | todo | | |
+| P3.5 | Seed: settings, 2 varian, bentuk/ukuran, FAQ (≥ 20), testimoni placeholder, 8 artikel draft, 6 resep, nav, halaman | S | P3.1, P0.2 | done | pnpm db:seed ×2 idempotent; section data = plain objects (validate vs blocks schemas) | |
 | P4.1 | Header (sticky, glass on scroll, mobile full-screen), footer, announcement bar, floating WA, breadcrumb | O | P2.3, P3.4 | todo | | |
 | P4.2 | Beranda `/` (hero split-text, trust marquee, pinned process story, untuk siapa, CTA) | O | P4.1, P2.4 | todo | | |
 | P4.3 | `/produk` + `/produk/[slug]` (tabel perbandingan, galeri, gizi bersumber) | S | P4.1 | todo | | |
