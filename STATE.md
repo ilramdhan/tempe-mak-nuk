@@ -56,7 +56,7 @@
 | P4.5 | `/cara-pesan` + kalender slot publik (komponen dipakai ulang di beranda) | S | P4.4 | todo | | |
 | P4.6 | `/kemitraan` (B2B) + form inquiry → WA | S | P4.1 | todo | | |
 | P4.7 | `/proses`, `/manfaat-tempe`, `/halal-kualitas`, `/tentang` | S | P4.1 | done | sonnet | 4 halaman render dari tabel pages via BlockRenderer (editable admin) + JSON-LD (HowTo/Article/WebPage+Organization/AboutPage) + Breadcrumb; tanpa hero/PinnedStory khusus. File: src/app/(site)/{proses,manfaat-tempe,halal-kualitas,tentang}/page.tsx |
-| P4.8 | `/jurnal` (list, kategori, detail, TOC, related, waktu baca) | S | P4.1 | todo | | |
+| P4.8 | `/jurnal` (list, kategori, detail, TOC, related, waktu baca) | S | P4.1 | done | sonnet | `src/app/(site)/jurnal/**`: list, `kategori/[slug]`, detail (TOC dari extractHeadings, waktu baca, related, BlogPosting JSON-LD) |
 | P4.9 | `/resep` (list, filter, detail, JSON-LD Recipe) | S | P4.1 | todo | | |
 | P4.10 | `/faq` (search, grup), `/kontak` (peta lazy), legal, 404/500 | S | P4.1 | todo | | |
 | P4.11 | Cookie consent & halaman legal | S | P4.1 | todo | | |
