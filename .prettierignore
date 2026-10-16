@@ -1,0 +1,11 @@
+.next
+node_modules
+pnpm-lock.yaml
+next-env.d.ts
+drizzle/meta
+PROMPT.md
+PLAN.md
+STATE.md
+docs
+public/brand
+src/components/brand

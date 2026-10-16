@@ -31,10 +31,10 @@
 | P0.1 | Lengkapi §0 Data Bisnis bersama pemilik; tulis `docs/business.md` | S | — | done | orchestrator | dummy data, editable via admin |
 | P0.2 | Brand: 8 tagline + skor, tone of voice, kamus kata (dipakai/dilarang) | O | — | todo | | |
 | P0.3 | Logo SVG (wordmark, stacked, monogram, favicon) light/dark | O | P0.2 | todo | | |
-| P0.4 | Photo brief + prompt AI image per shot | S | P0.2 | todo | | |
-| P0.5 | Riset keyword & peta keyword → halaman | S | — | todo | | |
+| P0.4 | Photo brief + prompt AI image per shot | S | P0.2 | done | sonnet | 26 shot (S01–S26), prompt AI Inggris, panduan foto HP: docs/photo-brief.md |
+| P0.5 | Riset keyword & peta keyword → halaman | S | — | done | sonnet | peta keyword per route, 8 pilar, 6 resep, linking, JSON-LD, off-page: docs/seo.md |
 | P0.6 | Install/aktifkan skills §13, catat yang gagal | S | — | todo | | |
-| P1.1 | Scaffold Next.js 16 + TS strict + Tailwind v4 + pnpm + ESLint/Prettier + struktur folder §11 | O | — | todo | | |
+| P1.1 | Scaffold Next.js 16 + TS strict + Tailwind v4 + pnpm + ESLint/Prettier + struktur folder §11 | O | — | done | opus | Next 16.4.2 (Turbopack, cacheComponents+partialPrefetching on), React 19.3.0, Tailwind 4.3.3 via @tailwindcss/turbopack, TS 5.9.3, ESLint 9, Vitest 5, Drizzle 0.45/kit 0.31; typecheck/lint/build/test hijau |
 | P1.2 | `lib/env.ts` (Zod), Supabase clients (`@supabase/ssr`), security headers | O | P1.1 | todo | | |
 | P1.3 | Drizzle setup: client pooler (`prepare:false`), drizzle.config, script migrate/seed | O | P1.1 | todo | | |
 | P1.4 | CI: GitHub Actions (typecheck, lint, test, build); Vercel project + env | S | P1.1 | todo | | |
