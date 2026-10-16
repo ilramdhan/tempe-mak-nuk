@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Logo } from "@/components/brand/logo";
+import { ConsentSettingsButton } from "@/features/consent/consent-settings-button";
 import { MyceliumPattern } from "@/components/brand/textures";
 import { Container, Divider, Grid, Stack } from "@/components/site/primitives";
 import type { Navigation, NavLink } from "@/features/navigation/queries";
@@ -265,22 +266,23 @@ export function SiteFooter({
             {s["legal.nib"] ? <> NIB {s["legal.nib"]}.</> : null}
             {s["legal.pirt"] ? <> P-IRT {s["legal.pirt"]}.</> : null}
           </p>
-          {navigation.legal.length ? (
-            <nav aria-label="Legal">
-              <ul className="flex flex-wrap gap-x-5">
-                {navigation.legal.map((link) => (
-                  <li key={link.id}>
-                    <Link
-                      href={link.href}
-                      className="inline-flex min-h-11 items-center rounded-sm transition-colors hover:text-foreground sm:min-h-8"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          ) : null}
+          <nav aria-label="Legal">
+            <ul className="flex flex-wrap gap-x-5">
+              {navigation.legal.map((link) => (
+                <li key={link.id}>
+                  <Link
+                    href={link.href}
+                    className="inline-flex min-h-11 items-center rounded-sm transition-colors hover:text-foreground sm:min-h-8"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <ConsentSettingsButton className="inline-flex min-h-11 cursor-pointer items-center rounded-sm transition-colors hover:text-foreground sm:min-h-8" />
+              </li>
+            </ul>
+          </nav>
         </div>
       </Container>
     </footer>

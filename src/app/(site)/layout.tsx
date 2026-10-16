@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import { LenisProvider } from "@/components/motion";
 import {
   AnnouncementBar,
@@ -8,6 +10,7 @@ import {
   WaLink,
 } from "@/components/site/layout";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ConsentManager } from "@/features/consent";
 import {
   getActiveAnnouncement,
   getNavigation,
@@ -85,6 +88,9 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
             hideOn={HIDE_FLOATING_WA_ON}
           />
         ) : null}
+        <Suspense fallback={null}>
+          <ConsentManager />
+        </Suspense>
       </TooltipProvider>
     </LenisProvider>
   );
