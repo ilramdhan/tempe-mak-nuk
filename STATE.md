@@ -50,9 +50,9 @@
 | P3.4 | Data layer per domain: `queries.ts` (cache + tags) & `actions.ts` (guarded) | O | P3.1 | done | opus | `src/features/{settings,pages,navigation,products,posts,recipes,taxonomy,faqs,testimonials,slots,legal,media,analytics}` schema/queries("use cache"+cacheTag, fallback tanpa DB)/queries.admin/actions(requireRole→Zod→tx→audit→updateTag, ActionResult); tags `src/lib/cache-tags.ts`; `src/lib/{dates,wa-link,audit}.ts`, `src/lib/auth/require-role.ts`; slot engine `features/slots/availability.ts` (+tests); build hijau dengan & tanpa DATABASE_URL |
 | P3.5 | Seed: settings, 2 varian, bentuk/ukuran, FAQ (≥ 20), testimoni placeholder, 8 artikel draft, 6 resep, nav, halaman | S | P3.1, P0.2 | done | pnpm db:seed ×2 idempotent; section data = plain objects (validate vs blocks schemas) | |
 | P4.1 | Header (sticky, glass on scroll, mobile full-screen), footer, announcement bar, floating WA, breadcrumb | O | P2.3, P3.4 | done | opus | `src/app/(site)/layout.tsx` (Lenis+Tooltip, skip link, `<main id="main">`); `src/components/site/layout/*` barrel: SiteHeader (glass+hide-on-scroll, Radix Dialog full-screen menu, lenis.stop), AnnouncementBar (localStorage + pre-paint script), SiteFooter (nav cols + settings facts, © via "use cache"), FloatingWhatsApp, WaLink (trackWaClick), Breadcrumb (+BreadcrumbList JSON-LD). Note: `cn()` drops custom `text-*` sizes (Eyebrow affected); jsonb numeric strings parse as numbers (contact.whatsapp) → WA hidden until fixed |
-| P4.2 | Beranda `/` (hero split-text, trust marquee, pinned process story, untuk siapa, CTA) | O | P4.1, P2.4 | todo | | |
-| P4.3 | `/produk` + `/produk/[slug]` (tabel perbandingan, galeri, gizi bersumber) | S | P4.1 | todo | | |
-| P4.4 | **Order Builder** `/custom-order` + lib `wa-link` + validasi lead time (Asia/Jakarta) + unit test | O | P4.1, P3.4 | todo | | |
+| P4.2 | Beranda `/` (hero split-text, trust marquee, pinned process story, untuk siapa, CTA) | O | P4.1, P2.4 | doing | opus | |
+| P4.3 | `/produk` + `/produk/[slug]` (tabel perbandingan, galeri, gizi bersumber) | S | P4.1 | done | sonnet | `src/app/(site)/produk/{page.tsx,[slug]/page.tsx,_components/*}`; CTA ke `/custom-order?produk=<slug>` (param belum dibaca P4.4); gizi TKPI diberi catatan perlu verifikasi |
+| P4.4 | **Order Builder** `/custom-order` + lib `wa-link` + validasi lead time (Asia/Jakarta) + unit test | O | P4.1, P3.4 | doing | opus | |
 | P4.5 | `/cara-pesan` + kalender slot publik (komponen dipakai ulang di beranda) | S | P4.4 | todo | | |
 | P4.6 | `/kemitraan` (B2B) + form inquiry → WA | S | P4.1 | todo | | |
 | P4.7 | `/proses`, `/manfaat-tempe`, `/halal-kualitas`, `/tentang` | S | P4.1 | todo | | |
@@ -62,9 +62,9 @@
 | P4.11 | Cookie consent & halaman legal | S | P4.1 | todo | | |
 | P5.1 | Auth (login, magic link, logout), guard proxy/middleware, layout sidebar, role gate, audit log helper | O | P3.2, P2.2 | done | opus | `/login` (tab sandi + magic link `shouldCreateUser:false`, RHF+Zod, sonner, error generik), `/auth/callback` (PKCE code / token_hash), `/akses-ditolak`, logout = Server Action `signOut` (`src/lib/auth/actions.ts`); `guardAdminRoute` di `src/lib/supabase/proxy.ts` (anon → `/login?next=`, tanpa env → `?pesan=config`); `sanitizeNextPath` (`/admin*` saja); `requireRole` redirect → `/login` / `/akses-ditolak`, `getAuthState` (React cache); `src/app/(admin)/admin/layout.tsx` (Suspense + noindex) + `src/components/admin/shell/*` (sidebar, mobile sheet, user menu, `PageHeader`, `RoleGate`, `useAdminUser`, `navForRole`); 43 unit test; `audit.ts` tidak diubah. E2E butuh Supabase Auth nyata |
 | P5.2 | Dashboard ringkasan (slot minggu ini, klik WA 30 hari, konten draft) | S | P5.1 | todo | | |
-| P5.3 | Page builder: edit/urut/hide section blocks per halaman + preview | O | P5.1, P3.3 | todo | | |
+| P5.3 | Page builder: edit/urut/hide section blocks per halaman + preview | O | P5.1, P3.3 | doing | opus | |
 | P5.4 | Produk, bentuk, ukuran, gizi, galeri | S | P5.1 | todo | | |
-| P5.5 | Slot & PO: kalender kapasitas, libur, aturan lead/cutoff | O | P5.1 | todo | | |
+| P5.5 | Slot & PO: kalender kapasitas, libur, aturan lead/cutoff | O | P5.1 | doing | opus | |
 | P5.6 | Jurnal & Resep: Tiptap editor, draft/publish/schedule, SEO fields | O | P5.1 | todo | | |
 | P5.7 | FAQ (dnd urutan), Testimoni, Navigasi/Footer/Announcement/CTA | S | P5.1 | todo | | |
 | P5.8 | Media library: upload Storage, resize/WebP, alt wajib | O | P5.1 | todo | | |
@@ -92,3 +92,4 @@
 | 2026-10-16 | init | PROMPT.md, PLAN.md, STATE.md dibuat | P0.1 |
 | 2026-10-16 | sesi 1 | Fase 0–3 selesai (brand, scaffold, infra, design system, motion, DB+RLS, data layer, seed). HANDOVER.md dibuat | P4.1 + P5.1 |
 | 2026-10-16 | sesi 2 | P4.1 + P5.1 done (diverifikasi orkestrator). Fix: drizzle jsonb double-parse (`src/db/client.ts` parser raw text utk oid 114/3802 → string angka spt nomor WA tidak lagi jadi number), `cn()` extendTailwindMerge utk token custom (text-h1…eyebrow, spacing, container), placeholder `/` tanpa `<main>` ganda. HANDOVER.md diperbarui | Gelombang 2: P4.2–P4.11 + P5.2–P5.10 |
+| 2026-10-16 | sesi 3 | DB Supabase (remote) di-seed + tabel jejak drizzle dibuat; `.env.local` diarahkan ke Supabase; dep tanstack-table + dnd-kit. Gelombang 2 prio 1 diluncurkan: P4.2, P4.3, P4.4, P5.3, P5.5 | P4.5–P4.11, P5.2–P5.10 |
