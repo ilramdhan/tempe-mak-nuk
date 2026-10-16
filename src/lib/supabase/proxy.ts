@@ -1,24 +1,58 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { DEFAULT_AFTER_LOGIN, sanitizeNextPath } from "@/lib/auth/next-path";
 import { getClientEnv, isEnvValidationSkipped } from "@/lib/env";
 
 type SessionClaims = Record<string, unknown> | null;
 
+/** `/admin` and everything below it (not `/administrator`). */
+export function isAdminPath(pathname: string): boolean {
+  return pathname === "/admin" || pathname.startsWith("/admin/");
+}
+
 /**
- * HOOK POINT for P5.1 (admin route guard).
- * Return a NextResponse (e.g. redirect to /admin/login) to short-circuit, or
- * `null` to continue. Currently a no-op: this proxy only refreshes the session.
- * Remember: proxy checks are optimistic only — every Server Action / admin page
- * must re-verify session + role.
+ * Optimistic admin guard (P5.1): unauthenticated `/admin/**` → `/login?next=…`.
+ * Signed-in users hitting `/login` are sent on to their `next` admin path.
+ * Proxy checks are optimistic only (JWT claims, no DB role lookup) — every admin page
+ * and Server Action re-verifies session + role via `requireRole()`.
  */
 export function guardAdminRoute(
   request: NextRequest,
   claims: SessionClaims,
 ): NextResponse | null {
-  void request;
-  void claims;
+  const { pathname, search } = request.nextUrl;
+  const signedIn = typeof claims?.sub === "string" && claims.sub.length > 0;
+
+  if (isAdminPath(pathname) && !signedIn) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.search = "";
+    const next = sanitizeNextPath(`${pathname}${search}`, DEFAULT_AFTER_LOGIN);
+    if (next !== DEFAULT_AFTER_LOGIN) url.searchParams.set("next", next);
+    return NextResponse.redirect(url);
+  }
+
+  if (pathname === "/login" && signedIn) {
+    const url = request.nextUrl.clone();
+    const next = sanitizeNextPath(
+      request.nextUrl.searchParams.get("next"),
+      DEFAULT_AFTER_LOGIN,
+    );
+    const target = new URL(next, url);
+    return NextResponse.redirect(target);
+  }
+
   return null;
+}
+
+/** Without Supabase env every admin route goes to the login page (which explains the state). */
+function guardWithoutAuth(request: NextRequest): NextResponse | null {
+  if (!isAdminPath(request.nextUrl.pathname)) return null;
+  const url = request.nextUrl.clone();
+  url.pathname = "/login";
+  url.search = "?pesan=config";
+  return NextResponse.redirect(url);
 }
 
 /** Refreshes the Supabase auth session cookies on every matched request. */
@@ -30,7 +64,7 @@ export async function updateSession(
     isEnvValidationSkipped() &&
     (!env.NEXT_PUBLIC_SUPABASE_URL || !env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
   ) {
-    return NextResponse.next({ request });
+    return guardWithoutAuth(request) ?? NextResponse.next({ request });
   }
 
   let response = NextResponse.next({ request });
