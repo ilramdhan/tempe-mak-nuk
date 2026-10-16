@@ -13,6 +13,7 @@ import {
   Stack,
   type HeadingSize,
 } from "@/components/site/primitives";
+import { ComponentsDemo } from "./components-demo";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { cn } from "@/lib/utils";
 
@@ -443,6 +444,14 @@ export default function DevUiPage() {
                 Inline <code>tabular-nums</code> untuk angka.
               </p>
             </Prose>
+          </Stack>
+        </Container>
+      </Section>
+      <Section id="components" tone="surface" spacing="tight">
+        <Container size="wide">
+          <Stack gap="lg">
+            <Heading level={2}>Komponen UI (shadcn) &amp; tekstur</Heading>
+            <ComponentsDemo />
           </Stack>
         </Container>
       </Section>
