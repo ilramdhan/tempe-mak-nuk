@@ -15,7 +15,7 @@
 
 | Kunci | Nilai | Sumber |
 |---|---|---|
-| Tagline | — | P0.2 |
+| Tagline | "Tiga bahan, tanpa jalan pintas." | P0.2 |
 | Nomor WA | 6281234567890 (dummy, settings) | P0.1 |
 | No. Halal | ID33110012345670124 (dummy) | P0.1 |
 | Lead time / cutoff | 4 hari / 15:00 WIB | P0.1 |
@@ -29,15 +29,15 @@
 | ID | Task | Model | Dep | Status | Agent | Catatan / file utama |
 |---|---|---|---|---|---|---|
 | P0.1 | Lengkapi §0 Data Bisnis bersama pemilik; tulis `docs/business.md` | S | — | done | orchestrator | dummy data, editable via admin |
-| P0.2 | Brand: 8 tagline + skor, tone of voice, kamus kata (dipakai/dilarang) | O | — | todo | | |
-| P0.3 | Logo SVG (wordmark, stacked, monogram, favicon) light/dark | O | P0.2 | todo | | |
+| P0.2 | Brand: 8 tagline + skor, tone of voice, kamus kata (dipakai/dilarang) | O | — | done | opus | `docs/brand.md`: tagline, tone, kamus, microcopy, token OKLCH + kontras terhitung (+ `--accent-strong`, `--input`, slot tokens), Fraunces + Geist fluid scale |
+| P0.3 | Logo SVG (wordmark, stacked, monogram, favicon) light/dark | O | P0.2 | done | opus | `public/brand/*.svg`, `src/components/brand/logo.tsx`; teks di-outline jadi path, currentColor, cek render 16–400px |
 | P0.4 | Photo brief + prompt AI image per shot | S | P0.2 | done | sonnet | 26 shot (S01–S26), prompt AI Inggris, panduan foto HP: docs/photo-brief.md |
 | P0.5 | Riset keyword & peta keyword → halaman | S | — | done | sonnet | peta keyword per route, 8 pilar, 6 resep, linking, JSON-LD, off-page: docs/seo.md |
 | P0.6 | Install/aktifkan skills §13, catat yang gagal | S | — | todo | | |
 | P1.1 | Scaffold Next.js 16 + TS strict + Tailwind v4 + pnpm + ESLint/Prettier + struktur folder §11 | O | — | done | opus | Next 16.4.2 (Turbopack, cacheComponents+partialPrefetching on), React 19.3.0, Tailwind 4.3.3 via @tailwindcss/turbopack, TS 5.9.3, ESLint 9, Vitest 5, Drizzle 0.45/kit 0.31; typecheck/lint/build/test hijau |
 | P1.2 | `lib/env.ts` (Zod), Supabase clients (`@supabase/ssr`), security headers | O | P1.1 | todo | | |
 | P1.3 | Drizzle setup: client pooler (`prepare:false`), drizzle.config, script migrate/seed | O | P1.1 | todo | | |
-| P1.4 | CI: GitHub Actions (typecheck, lint, test, build); Vercel project + env | S | P1.1 | todo | | |
+| P1.4 | CI: GitHub Actions (typecheck, lint, test, build); Vercel project + env | S | P1.1 | review | sonnet | CI ready; Vercel link pending user account |
 | P1.5 | Vercel Cron keepalive Supabase | S | P1.3 | todo | | |
 | P2.1 | Token warna/tipografi/spacing/radius (`@theme`, OKLCH), next-themes tanpa flash | O | P1.1, P0.2 | todo | | |
 | P2.2 | shadcn init + primitives (button, input, select, dialog, sheet, accordion, tabs, calendar, toast, badge, card) disesuaikan token | S | P2.1 | todo | | |

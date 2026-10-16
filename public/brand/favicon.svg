@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Tempe Mak Nuk" fill="currentColor">
+<style>svg{color:#2F4A2C}@media (prefers-color-scheme:dark){svg{color:#9CC28F}}</style>
+<defs><mask id="tmn-f" maskUnits="userSpaceOnUse" x="0" y="0" width="32" height="32"><rect width="32" height="32" fill="#fff"/><path fill="#000" d="M4 8L6.4 8L6.4 24L4 24ZM14.8 8L17.2 8L17.2 24L14.8 24ZM25.6 8L28 8L28 24L25.6 24ZM4 8L8.32 8L11.98 24L7.66 24ZM16 8L17.2 8L11.98 24L10.78 24ZM14.8 8L19.12 8L28 24L23.68 24Z"/></mask></defs>
+<rect width="32" height="32" rx="5.12" mask="url(#tmn-f)"/>
+</svg>

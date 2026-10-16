@@ -38,3 +38,4 @@ npm-debug.log*
 next-env.d.ts
 
 # drizzle: migrations and meta/ are committed (not ignored)
+scripts/brand/fonts/
