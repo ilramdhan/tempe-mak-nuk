@@ -23,6 +23,10 @@ function connect() {
     idle_timeout: 20,
     connect_timeout: 10,
   });
+  // drizzle's jsonb column JSON.parses the driver value itself; postgres-js parsing it first
+  // turns a stored JSON string like "6281…" into a number. Hand drizzle the raw text instead.
+  for (const oid of [114, 3802])
+    sql.options.parsers[oid] = (raw: string) => raw;
   return { sql, db: drizzle(sql, { schema }) };
 }
 
