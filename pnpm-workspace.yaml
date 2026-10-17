@@ -1,6 +1,6 @@
 allowBuilds:
   esbuild: true
-  sharp: false
+  sharp: true
   unrs-resolver: false
 minimumReleaseAgeExclude:
   - "@next/env@16.4.2"
