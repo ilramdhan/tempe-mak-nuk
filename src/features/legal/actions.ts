@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { legalDocuments } from "@/db/schema";
@@ -9,7 +9,7 @@ import { adminAction } from "@/features/_shared/admin-action";
 import { uuidSchema } from "@/features/_shared/schema";
 import { tags } from "@/lib/cache-tags";
 
-import { legalDocumentInputSchema, type LegalDocumentInput } from "./schema";
+import { legalDocumentInputSchema, legalSlugSchema, type LegalDocumentInput } from "./schema";
 
 /** Legal texts are owner-only. Create a new version rather than editing a published one. */
 export async function createLegalDocument(input: LegalDocumentInput): Promise<ActionResult<{ id: string }>> {
@@ -58,6 +58,26 @@ export async function deleteLegalDocument(id: string): Promise<ActionResult> {
       const [row] = await tx.delete(legalDocuments).where(eq(legalDocuments.id, id)).returning({ slug: legalDocuments.slug, version: legalDocuments.version });
       if (!row) return fail("Dokumen tidak ditemukan.");
       return { result: undefined, entityId: id, diff: row, tags: [tags.legal, tags.legalDoc(row.slug)] };
+    },
+  });
+}
+
+/** Owner-only: copy the highest version of `slug` into a new draft (version + 1, no effective date). */
+export async function createLegalVersion(slug: LegalDocumentInput["slug"]): Promise<ActionResult<{ id: string }>> {
+  return adminAction({
+    role: "owner",
+    schema: z.object({ slug: legalSlugSchema }),
+    input: { slug },
+    entity: "legal_documents",
+    action: "create",
+    run: async ({ slug }, { tx }) => {
+      const [latest] = await tx.select().from(legalDocuments).where(eq(legalDocuments.slug, slug)).orderBy(desc(legalDocuments.version)).limit(1);
+      if (!latest) return fail("Dokumen tidak ditemukan.");
+      const [row] = await tx
+        .insert(legalDocuments)
+        .values({ slug, title: latest.title, content: latest.content, version: latest.version + 1, status: "draft", effectiveAt: null })
+        .returning({ id: legalDocuments.id });
+      return { result: row, entityId: row.id, diff: { slug, version: latest.version + 1 }, tags: [tags.legal, tags.legalDoc(slug)] };
     },
   });
 }
