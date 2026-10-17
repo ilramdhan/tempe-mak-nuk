@@ -138,7 +138,14 @@ export function parseTime(value: string): { hour: number; minute: number } {
 /** Offset (ms) of `timeZone` from UTC at the given instant. */
 function tzOffsetMs(instant: number, timeZone: string): number {
   const p = zonedParts(new Date(instant), timeZone);
-  const asUtc = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+  const asUtc = Date.UTC(
+    p.year,
+    p.month - 1,
+    p.day,
+    p.hour,
+    p.minute,
+    p.second,
+  );
   return asUtc - Math.floor(instant / 1000) * 1000;
 }
 
@@ -214,4 +221,18 @@ export function formatTime(date: Date): string {
 /** "Jumat, 17 Okt 2026 pukul 15.00 WIB" */
 export function formatDeadline(date: Date): string {
   return `${formatDateLong(date)} pukul ${formatTime(date)} WIB`;
+}
+
+/**
+ * DateKey → browser-local `Date` at local noon. For date-picker widgets (react-day-picker)
+ * that work in the viewer's local zone: the calendar day is preserved whatever the zone.
+ */
+export function dateKeyToLocalDate(key: DateKey): Date {
+  const [y, m, d] = assertDateKey(key);
+  return new Date(y, m - 1, d, 12);
+}
+
+/** Inverse of `dateKeyToLocalDate`: local calendar day of a picker `Date` → DateKey. */
+export function localDateToDateKey(date: Date): DateKey {
+  return `${pad(date.getFullYear(), 4)}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
