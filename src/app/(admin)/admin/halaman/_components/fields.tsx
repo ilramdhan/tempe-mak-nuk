@@ -3,13 +3,11 @@
 /**
  * Field kit for block forms. Every field reads/writes through `BlockFormContext` by `path`
  * (relative to the block's `data`) and shows its own error from the validation map.
- * Swap `RichTextField` for the Tiptap editor in P5.6 without touching block forms.
  */
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import {
   createContext,
   useContext,
-  useId,
   useMemo,
   useState,
   type ReactNode,
@@ -34,7 +32,8 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import type { TiptapDoc } from "@/lib/rich-text/schema";
+import { RichTextEditor } from "@/components/admin/editor";
+import { emptyDoc, type TiptapDoc } from "@/lib/rich-text/schema";
 import { cn } from "@/lib/utils";
 
 import type { FieldErrors } from "../_lib/editor-state";
@@ -46,11 +45,6 @@ import {
   removeAt,
   type Path,
 } from "../_lib/path";
-import {
-  docToMarkdown,
-  markdownToDoc,
-  unsupportedNodes,
-} from "../_lib/rich-text-markdown";
 import type { BuilderOptions } from "./types";
 
 type Ctx = {
@@ -704,10 +698,7 @@ export function PickListField({
   );
 }
 
-/**
- * Rich text (Tiptap JSON) edited as light markdown until the Tiptap editor ships (P5.6).
- * Keeps its own text buffer so typing isn't re-serialised on every keystroke.
- */
+/** Rich text (Tiptap JSON) via the shared admin editor. */
 export function RichTextField({
   path,
   label,
@@ -715,47 +706,15 @@ export function RichTextField({
   nullable,
 }: BaseProps & { nullable?: boolean }) {
   const f = useField<TiptapDoc | null>(path);
-  const [text, setText] = useState(() => docToMarkdown(f.value));
-  const lost = useMemo(() => unsupportedNodes(f.value), [f.value]);
-  const hint = useId();
   return (
-    <Wrap
-      id={f.id}
-      label={label}
-      error={f.error}
-      description={
-        <>
-          {description ? <>{description} </> : null}
-          <span id={hint}>
-            Format: <code>## Subjudul</code>, <code>- daftar</code>,{" "}
-            <code>1. langkah</code>, <code>&gt; kutipan</code>,{" "}
-            <code>**tebal**</code>, <code>*miring*</code>,{" "}
-            <code>[teks](/tautan)</code>. Baris kosong = paragraf baru.
-          </span>
-          {lost.length ? (
-            <span className="mt-1 block text-destructive">
-              Konten ini memuat elemen yang belum didukung editor teks (
-              {lost.join(", ")}); elemen tsb. akan hilang jika teks diubah.
-            </span>
-          ) : null}
-        </>
-      }
-    >
-      <Textarea
+    <Wrap id={f.id} label={label} error={f.error} description={description}>
+      <RichTextEditor
         id={f.id}
-        rows={10}
-        value={text}
-        className="font-mono text-sm"
-        aria-invalid={f.error ? true : undefined}
-        aria-describedby={describedBy(f.id, true, f.error)}
-        onChange={(e) => {
-          setText(e.target.value);
-          f.set(
-            nullable && e.target.value.trim() === ""
-              ? null
-              : markdownToDoc(e.target.value),
-          );
-        }}
+        value={f.value ?? null}
+        media={f.ctx.options.media}
+        invalid={!!f.error}
+        ariaDescribedBy={describedBy(f.id, !!description, f.error)}
+        onChange={(v) => f.set(nullable ? v : (v ?? emptyDoc()))}
       />
     </Wrap>
   );
