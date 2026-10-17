@@ -13,12 +13,10 @@ type DbGlobal = { __tmnDb?: { db: Database; sql: postgres.Sql } };
 const globalForDb = globalThis as unknown as DbGlobal;
 
 function connect() {
-  const env = getServerEnv();
-  // `next build` prerenders in many workers at once. Through the transaction pooler (6543)
-  // some "use cache" reads stall until the prerender timeout fires, so the build uses the
-  // session connection (DIRECT_URL) with one connection per worker.
+  const url = getServerEnv().DATABASE_URL;
+  // `next build` prerenders in many workers at once; one connection each keeps the total
+  // under the pooler's client limit (otherwise "use cache" reads queue past the timeout).
   const isBuild = process.env.NEXT_PHASE === "phase-production-build";
-  const url = (isBuild && env.DIRECT_URL) || env.DATABASE_URL;
   if (!url)
     throw new Error("DATABASE_URL is not set — cannot connect to Postgres.");
   // Supabase transaction pooler (port 6543) does not support prepared statements.
