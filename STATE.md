@@ -81,7 +81,7 @@
 | P7.5 | Deploy produksi Vercel, domain, Search Console, Google Business Profile checklist | S | P7.2, P7.3 | done | sonnet | docs/deploy.md selesai ditulis (8 bagian); menunggu review orkestrator, deploy butuh akun user |
 | P8.0 | CI hijau: prettier --write . terisolasi + .git-blame-ignore-revs; job Test+Build jalan di GitHub | S | — | done | sonnet | `.prettierignore`, `ci.yml`, `scripts/ci/bootstrap.sql` |
 | P8.1 | /produk, /faq, /kontak baca getPage+BlockRenderer/SEO dari DB; halaman CMS baru (catch-all aman atau blokir) | O | P8.0 | doing | opus | `src/app/(site)/{produk,faq,kontak}`, `features/pages` |
-| P8.2 | Route dinamis [slug] 404 sejak request pertama (bukan soft-404 streaming) | O | P8.0 | doing | opus | route `[slug]` + `/jurnal/kategori/[slug]` |
+| P8.2 | Route dinamis [slug] 404 sejak request pertama (bukan soft-404 streaming) | O | P8.0 | done | opus | `ensureStatic="navigation"` di 4 page `[slug]` (404 nyata, slug dikenal tetap statis); judul kategori `categoryTopic()` (`jurnal/kategori/[slug]/category-label.ts` + test); JSON-LD `image` cover (fallback `/og-default.png`) |
 | P8.3 | SEO kecil: judul ganda, 'Tips Tempe Tempe', sitemap noindex, JSON-LD image, /favicon.ico, description legal | S | P8.0 | done | sonnet | `src/lib/seo/*`, `sitemap.ts` |
 | P8.4 | Cache: updateMediaAlt expire tag pemakai; konten terjadwal via cron+CRON_SECRET | S | P8.0 | todo |  | `features/media/actions.ts`, `vercel.json`, `src/app/api/cron/*` |
 | P8.5 | /admin/kategori: kelola kategori FAQ/jurnal/resep + tag | S | P8.0 | todo |  | `src/app/(admin)/admin/kategori/**`, nav admin |

@@ -32,6 +32,13 @@ import {
   totalMinutes,
 } from "../_components/recipe-card";
 
+/**
+ * Unlisted slugs must wait for the full render (no App Shell flush) so
+ * `notFound()` yields a real HTTP 404 on the first request. Everything here is
+ * `"use cache"`, so known and newly visited slugs stay fully static.
+ */
+export const ensureStatic = "navigation";
+
 export async function generateStaticParams() {
   const slugs = await getRecipeSlugs();
   return slugs.map(({ slug }) => ({ slug }));
@@ -88,7 +95,7 @@ export default async function RecipePage({
       name: recipe.title,
       path: `/resep/${recipe.slug}`,
       description: recipe.seo.description ?? recipe.excerpt,
-      images: recipe.cover ? [recipe.cover.url] : [],
+      image: recipe.cover?.url ?? "/og-default.png",
       publishedAt: recipe.publishedAt,
       modifiedAt: recipe.updatedAt,
       authorName: settings["business.name"],

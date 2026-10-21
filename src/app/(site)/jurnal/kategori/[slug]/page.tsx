@@ -18,6 +18,14 @@ import { pageMetadata } from "@/lib/seo/server";
 
 import { CategoryNav } from "../../_components/category-nav";
 import { PostGrid } from "../../_components/post-grid";
+import { categoryTopic } from "./category-label";
+
+/**
+ * Unlisted slugs must wait for the full render (no App Shell flush) so
+ * `notFound()` yields a real HTTP 404 on the first request. Everything here is
+ * `"use cache"`, so known and newly visited slugs stay fully static.
+ */
+export const ensureStatic = "navigation";
 
 export async function generateStaticParams() {
   const cats = await getCategories("post");
@@ -31,8 +39,8 @@ export async function generateMetadata({
   const cat = (await getCategories("post")).find((c) => c.slug === slug);
   if (!cat) return {};
   return pageMetadata({
-    title: `${cat.name} Tempe: Artikel dan Panduan — Mak Nuk`,
-    description: `Kumpulan artikel ${cat.name.toLowerCase()} tempe dari Tempe Mak Nuk, Klaten. Panduan praktis, bersumber, dan mudah dipraktikkan.`,
+    title: `${categoryTopic(cat.name)}: Artikel dan Panduan — Mak Nuk`,
+    description: `Kumpulan artikel ${categoryTopic(cat.name).toLowerCase()} dari Tempe Mak Nuk, Klaten. Panduan praktis, bersumber, dan mudah dipraktikkan.`,
     path: `/jurnal/kategori/${cat.slug}`,
     titleAbsolute: true,
   });
@@ -54,7 +62,7 @@ export default async function KategoriPage({
   const jsonLd = webPageJsonLd(
     {
       type: "CollectionPage",
-      name: `${cat.name} Tempe`,
+      name: categoryTopic(cat.name),
       path: `/jurnal/kategori/${cat.slug}`,
     },
     base,

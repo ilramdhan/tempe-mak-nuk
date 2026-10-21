@@ -33,6 +33,13 @@ import { buildWaLink } from "@/lib/wa-link";
 
 import { PostCard, PostMeta } from "../_components/post-card";
 
+/**
+ * Unlisted slugs must wait for the full render (no App Shell flush) so
+ * `notFound()` yields a real HTTP 404 on the first request. Everything here is
+ * `"use cache"`, so known and newly visited slugs stay fully static.
+ */
+export const ensureStatic = "navigation";
+
 export async function generateStaticParams() {
   const slugs = await getPostSlugs();
   return slugs.map(({ slug }) => ({ slug }));
@@ -94,7 +101,7 @@ export default async function PostPage({
       headline: post.title,
       path: `/jurnal/${post.slug}`,
       description: post.seo.description ?? post.excerpt,
-      images: post.cover ? [post.cover.url] : [],
+      image: post.cover?.url ?? "/og-default.png",
       publishedAt: post.publishedAt,
       modifiedAt: post.updatedAt,
       authorName: post.author?.name,

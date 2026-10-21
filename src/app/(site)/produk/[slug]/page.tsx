@@ -39,6 +39,13 @@ import { RichText, type TiptapDoc } from "@/lib/rich-text";
 import { JsonLd, productJsonLd, siteBaseUrl } from "@/lib/seo";
 import { pageMetadata } from "@/lib/seo/server";
 
+/**
+ * Unlisted slugs must wait for the full render (no App Shell flush) so
+ * `notFound()` yields a real HTTP 404 on the first request. Everything here is
+ * `"use cache"`, so known and newly visited slugs stay fully static.
+ */
+export const ensureStatic = "navigation";
+
 export async function generateStaticParams() {
   const slugs = await getProductSlugs();
   return slugs.map(({ slug }) => ({ slug }));
@@ -58,6 +65,9 @@ export async function generateMetadata({
     seo: p.seo,
   });
 }
+
+/** Used when there is no cover; Google requires `image` on Product. */
+const FALLBACK_IMAGE = "/og-default.png";
 
 const fmt = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 });
 const num = (v: number | null, unit: string) =>
@@ -86,6 +96,7 @@ export default async function ProductPage({
         name: product.name,
         description: product.short,
         path: `/produk/${product.slug}`,
+        image: product.cover?.url ?? FALLBACK_IMAGE,
         images: product.gallery.map((g) => g.url),
         brand: settings["business.name"],
         price: showPrice ? product.priceFrom : null,
