@@ -9,18 +9,8 @@ import { fail } from "@/features/_shared/action";
 import { adminAction } from "@/features/_shared/admin-action";
 import { tags } from "@/lib/cache-tags";
 
+import { requiredSettingsRole } from "./roles";
 import { settingsUpdateSchema, type SettingsUpdate } from "./schema";
-
-/** Owner-only keys (business identity, ordering rules, consent). Editors may change the rest. */
-const OWNER_GROUPS = new Set([
-  "business",
-  "legal",
-  "halal",
-  "order",
-  "consent",
-  "private",
-  "site",
-]);
 
 /** Upsert any subset of settings keys. */
 export async function updateSettings(
@@ -30,9 +20,8 @@ export async function updateSettings(
     (k): k is SettingKey => k in SETTINGS_KEYS,
   );
   if (keys.length === 0) return fail("Tidak ada pengaturan yang diubah.");
-  const needsOwner = keys.some((k) => OWNER_GROUPS.has(SETTINGS_KEYS[k].group));
   return adminAction({
-    role: needsOwner ? "owner" : "editor",
+    role: requiredSettingsRole(keys),
     schema: settingsUpdateSchema,
     input,
     entity: "settings",

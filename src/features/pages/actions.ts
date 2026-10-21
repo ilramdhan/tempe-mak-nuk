@@ -3,7 +3,7 @@
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 
-import { pages, pageSections, redirects } from "@/db/schema";
+import { pages, pageSections } from "@/db/schema";
 import { fail, type ActionResult } from "@/features/_shared/action";
 import { adminAction } from "@/features/_shared/admin-action";
 import { applyOrder } from "@/features/_shared/reorder";
@@ -18,11 +18,9 @@ import {
 } from "./blocks/schema";
 import {
   pageInputSchema,
-  redirectInputSchema,
   sectionReorderSchema,
   sectionVisibilitySchema,
   type PageInput,
-  type RedirectInput,
 } from "./schema";
 
 const idSchema = z.object({ id: uuidSchema });
@@ -256,46 +254,6 @@ export async function reorderSections(
   });
 }
 
-// ── Redirects ────────────────────────────────────────────────────────────
-export async function upsertRedirect(
-  input: RedirectInput,
-): Promise<ActionResult> {
-  return adminAction({
-    role: "owner",
-    schema: redirectInputSchema,
-    input,
-    entity: "redirects",
-    action: "update",
-    run: async (data, { tx }) => {
-      await tx
-        .insert(redirects)
-        .values(data)
-        .onConflictDoUpdate({
-          target: redirects.from,
-          set: { to: data.to, permanent: data.permanent },
-        });
-      return { result: undefined, entityId: data.from, tags: [tags.redirects] };
-    },
-  });
-}
-
-export async function deleteRedirect(id: string): Promise<ActionResult> {
-  return adminAction({
-    role: "owner",
-    schema: idSchema,
-    input: { id },
-    entity: "redirects",
-    action: "delete",
-    run: async ({ id }, { tx }) => {
-      const rows = await tx
-        .delete(redirects)
-        .where(eq(redirects.id, id))
-        .returning({ id: redirects.id });
-      if (!rows.length) return fail("Redirect tidak ditemukan.");
-      return { result: undefined, entityId: id, tags: [tags.redirects] };
-    },
-  });
-}
 // ── Page builder (P5.3) ──────────────────────────────────────────────────
 const builderSectionSchema = z
   .object({

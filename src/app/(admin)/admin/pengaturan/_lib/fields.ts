@@ -184,7 +184,7 @@ export const TABS: TabDef[] = [
     id: "seo",
     label: "SEO & situs",
     description: "Default metadata, URL situs, dan tombol ajakan (CTA).",
-    ownerOnly: true,
+    ownerOnly: false,
     sections: [
       {
         title: "Situs",

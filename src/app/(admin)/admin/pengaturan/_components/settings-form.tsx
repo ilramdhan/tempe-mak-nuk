@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { updateSettings } from "@/features/settings/actions";
+import { isOwnerOnlySetting } from "@/features/settings/roles";
 import type { Settings } from "@/features/settings/schema";
 
 import { useAdminMutation } from "../../slot/_components/use-action";
@@ -61,7 +62,8 @@ export function SettingsForm({
   settings: Settings;
 }) {
   const isOwner = useHasRole("owner");
-  const canEdit = !tab.ownerOnly || isOwner;
+  const fieldLocked = (key: FieldDef["key"]) =>
+    !isOwner && (tab.ownerOnly || isOwnerOnlySetting(key));
   const fields = useMemo(() => tab.sections.flatMap((s) => s.fields), [tab]);
   const initial = useMemo(
     () =>
@@ -75,6 +77,8 @@ export function SettingsForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { pending, run } = useAdminMutation();
 
+  const canEdit = fields.some((d) => !fieldLocked(d.key));
+  const partlyLocked = canEdit && fields.some((d) => fieldLocked(d.key));
   const dirty = fields.some((d) => values[d.key] !== base[d.key]);
   useUnsavedGuard(dirty);
 
@@ -130,7 +134,15 @@ export function SettingsForm({
           mode baca.
         </p>
       ) : null}
-      <fieldset disabled={!canEdit || pending} className="contents">
+      {partlyLocked ? (
+        <p
+          role="note"
+          className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground"
+        >
+          Beberapa isian (mis. URL situs) hanya dapat diubah oleh pemilik.
+        </p>
+      ) : null}
+      <fieldset disabled={pending} className="contents">
         {tab.sections.map((section, i) => (
           <FieldSet key={section.title ?? i}>
             {section.title ? <FieldLegend>{section.title}</FieldLegend> : null}
@@ -139,6 +151,7 @@ export function SettingsForm({
                 const id = `set-${d.key.replace(/\./g, "-")}`;
                 const err = errors[d.key];
                 const hintId = d.hint ? `${id}-hint` : undefined;
+                const locked = fieldLocked(d.key);
                 if (d.kind === "boolean") {
                   return (
                     <Field
@@ -148,6 +161,7 @@ export function SettingsForm({
                     >
                       <Switch
                         id={id}
+                        disabled={locked}
                         checked={values[d.key] === true}
                         onCheckedChange={(c) => set(d.key, c)}
                         aria-describedby={hintId}
@@ -189,6 +203,7 @@ export function SettingsForm({
                     {multi ? (
                       <Textarea
                         id={id}
+                        disabled={locked}
                         value={String(values[d.key])}
                         rows={
                           d.kind === "json" ? 14 : d.kind === "textarea" ? 3 : 4
@@ -203,6 +218,7 @@ export function SettingsForm({
                     ) : (
                       <Input
                         id={id}
+                        disabled={locked}
                         {...inputProps(d.kind)}
                         value={String(values[d.key])}
                         placeholder={d.placeholder}

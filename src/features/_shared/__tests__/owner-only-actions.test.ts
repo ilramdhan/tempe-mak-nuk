@@ -93,18 +93,6 @@ describe("owner-only server actions", () => {
       () => import("@/features/pages/actions").then((m) => m.deletePage(ID)),
     ],
     [
-      "upsertRedirect",
-      () =>
-        import("@/features/pages/actions").then((m) =>
-          m.upsertRedirect({ from: "/a", to: "/b", permanent: true }),
-        ),
-    ],
-    [
-      "deleteRedirect",
-      () =>
-        import("@/features/pages/actions").then((m) => m.deleteRedirect(ID)),
-    ],
-    [
       "removeRedirect",
       () =>
         import("@/features/redirects/actions").then((m) =>
