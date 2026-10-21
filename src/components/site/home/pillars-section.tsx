@@ -51,7 +51,7 @@ export function PillarsSection({
               >
                 <span
                   aria-hidden
-                  className="row-span-2 font-display text-h3 leading-none text-accent-strong tabular-nums"
+                  className="row-span-2 min-w-[1.5em] font-display text-h3 leading-none text-accent-strong tabular-nums"
                 >
                   {String(i + 1).padStart(2, "0")}
                 </span>

@@ -27,7 +27,11 @@ import { QUANTITY_MAX, QUANTITY_MIN, type OrderFormValues } from "../schema";
 
 const errId = (name: string) => `order-${name}-error`;
 
-/** Selectable card option (label wraps the radio → whole card is the hit area). */
+/**
+ * Selectable card option (label wraps the radio → whole card is the hit area).
+ * The radio is a <button role="radio">, so its name comes from aria-labelledby
+ * (axe `button-name` does not count <label for>); description/meta → aria-describedby.
+ */
 function OptionCard({
   id,
   value,
@@ -44,14 +48,25 @@ function OptionCard({
   return (
     <FieldLabel htmlFor={id}>
       <Field orientation="horizontal">
-        <RadioGroupItem value={value} id={id} />
+        <RadioGroupItem
+          value={value}
+          id={id}
+          aria-labelledby={`${id}-title`}
+          aria-describedby={
+            [description ? `${id}-desc` : null, meta ? `${id}-meta` : null]
+              .filter(Boolean)
+              .join(" ") || undefined
+          }
+        />
         <FieldContent>
-          <FieldTitle>{title}</FieldTitle>
+          <FieldTitle id={`${id}-title`}>{title}</FieldTitle>
           {description ? (
-            <FieldDescription>{description}</FieldDescription>
+            <FieldDescription id={`${id}-desc`}>{description}</FieldDescription>
           ) : null}
           {meta ? (
-            <FieldDescription className="tabular-nums">{meta}</FieldDescription>
+            <FieldDescription id={`${id}-meta`} className="tabular-nums">
+              {meta}
+            </FieldDescription>
           ) : null}
         </FieldContent>
       </Field>

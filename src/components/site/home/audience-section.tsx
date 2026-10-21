@@ -60,7 +60,7 @@ export function AudienceSection({
                     : "lg:col-span-2",
                 )}
               >
-                <span className="inline-flex size-11 items-center justify-center rounded-full bg-surface text-primary">
+                <span className="inline-flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <BlockIcon name={item.icon} />
                 </span>
                 <h3 className="font-display text-h3 text-balance">

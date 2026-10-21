@@ -107,14 +107,14 @@ export default async function KontakPage() {
       <Section spacing="tight">
         <Container>
           <Stack gap="md">
-            <Eyebrow>Kontak</Eyebrow>
+            <Eyebrow rule tone="accent">Kontak</Eyebrow>
             <Heading level={1} size="display">
               Kontak dan alamat
             </Heading>
             <Lead muted>{DESCRIPTION}</Lead>
             {waHref ? (
               <div>
-                <Button asChild variant="accent" size="lg">
+                <Button asChild size="lg">
                   <WaLink href={waHref} source="kontak:cta" kind="general">
                     Chat via WhatsApp
                   </WaLink>

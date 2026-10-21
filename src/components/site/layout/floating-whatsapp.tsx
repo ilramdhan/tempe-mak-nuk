@@ -40,7 +40,8 @@ function FloatingWhatsAppInner({
         "right-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] sm:right-6 sm:bottom-6",
         "transition-[background-color,transform] duration-200 hover:-translate-y-0.5 hover:bg-[color-mix(in_oklch,var(--primary),var(--foreground)_12%)] motion-reduce:transition-none motion-reduce:hover:translate-y-0",
         "focus-visible:outline-offset-4",
-        "motion-safe:animate-in motion-safe:delay-700 motion-safe:duration-500 motion-safe:fade-in-0 motion-safe:fill-mode-both motion-safe:slide-in-from-bottom-4",
+        // Slide only (no opacity fade): a mid-fade label fails color-contrast (axe, WCAG 1.4.3).
+        "motion-safe:animate-in motion-safe:delay-700 motion-safe:duration-500 motion-safe:fill-mode-both motion-safe:slide-in-from-bottom-4",
         "print:hidden",
       )}
     >

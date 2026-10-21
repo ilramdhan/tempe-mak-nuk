@@ -20,7 +20,7 @@ import { buildWaLink } from "@/lib/wa-link";
 import { FaqBrowser, type FaqBrowserItem } from "./_components/faq-browser";
 
 const DESCRIPTION =
-  "Jawaban pertanyaan umum tentang pesan, PO, kirim, simpan, dan varian Tempe Mak Nuk. Cari pertanyaanmu atau tanya langsung via WhatsApp.";
+  "Jawaban pertanyaan umum tentang pesan, PO, kirim, simpan, dan varian Tempe Mak Nuk. Cari pertanyaan Anda atau tanya langsung via WhatsApp.";
 
 export async function generateMetadata(): Promise<Metadata> {
   return pageMetadata({
@@ -73,7 +73,7 @@ export default async function FaqPage() {
       <Section spacing="tight">
         <Container size="prose">
           <Stack gap="md">
-            <Eyebrow>FAQ</Eyebrow>
+            <Eyebrow rule tone="accent">FAQ</Eyebrow>
             <Heading level={1} size="display">
               Pertanyaan yang sering ditanyakan
             </Heading>
@@ -100,7 +100,7 @@ export default async function FaqPage() {
               <Heading level={2} size="h3">
                 Masih ada yang mau ditanyakan?
               </Heading>
-              <Button asChild variant="accent" size="lg">
+              <Button asChild size="lg">
                 <WaLink href={waHref} source="faq:cta" kind="general">
                   Chat Mak Nuk via WhatsApp
                 </WaLink>

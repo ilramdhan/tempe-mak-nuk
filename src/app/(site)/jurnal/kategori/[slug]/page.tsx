@@ -75,7 +75,7 @@ export default async function KategoriPage({
       <Section spacing="tight">
         <Container>
           <Stack gap="md">
-            <Eyebrow>Kategori</Eyebrow>
+            <Eyebrow rule tone="accent">Kategori</Eyebrow>
             <Heading level={1} size="display">
               {cat.name}
             </Heading>

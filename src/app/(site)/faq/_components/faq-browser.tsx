@@ -140,7 +140,7 @@ export function FaqBrowser({
             WhatsApp, kami balas di jam kerja.
           </p>
           {waHref ? (
-            <Button asChild variant="accent">
+            <Button asChild>
               <WaLink href={waHref} source="faq:empty" kind="general">
                 Tanya via WhatsApp
               </WaLink>

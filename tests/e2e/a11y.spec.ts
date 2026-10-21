@@ -18,23 +18,10 @@ const ROUTES = [
 ];
 
 /**
- * Real violations in app code found by P7.1 (not fixed here: outside test ownership).
- * Allow-listed so the suite is green; run with E2E_AXE_STRICT=1 to fail on them.
+ * Allow-list for known serious/critical violations (route → rule ids). Empty since P7.2
+ * fixed every P7.1 finding (see docs/qa.md). Run with E2E_AXE_STRICT=1 to ignore it.
  */
-const KNOWN: Record<string, string[]> = {
-  // pinned process section (inactive step opacity/transition) - probably animation-state
-  "/": ["color-contrast"],
-  // product card <a aria-label="Name"> does not contain visible text
-  "/produk": ["label-content-name-mismatch", "color-contrast"],
-  // radio buttons (order-product-*, role=radio inside label) have no discernible name per axe
-  "/custom-order": ["button-name"],
-  // header CTA "Cek slot via WhatsApp" text contrast (sticky header CTA, intermittent)
-  "/kontak": ["color-contrast"],
-  "/jurnal": ["color-contrast"],
-  "/kebijakan-privasi": ["color-contrast"],
-  "/faq": ["color-contrast"],
-  "/resep": ["color-contrast"],
-};
+const KNOWN: Record<string, string[]> = {};
 const STRICT = process.env.E2E_AXE_STRICT === "1";
 
 for (const path of ROUTES) {

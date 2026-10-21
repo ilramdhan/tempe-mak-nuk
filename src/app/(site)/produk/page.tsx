@@ -69,7 +69,7 @@ export default async function ProdukPage() {
       <Section spacing="tight">
         <Container>
           <Stack gap="md" className="max-w-measure">
-            <Eyebrow>Produk</Eyebrow>
+            <Eyebrow rule tone="accent">Produk</Eyebrow>
             <Heading level={1} size="display">
               Dua tempe, satu cara buat: pelan dan jujur
             </Heading>
@@ -89,7 +89,8 @@ export default async function ProdukPage() {
               <article key={p.id} className="flex flex-col gap-4">
                 <Link
                   href={`/produk/${p.slug}`}
-                  aria-label={p.name}
+                  tabIndex={-1}
+                  aria-hidden
                   className="block rounded-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   <ProductImage

@@ -34,16 +34,17 @@ export function ProcessStory({
   return (
     <PinnedStory
       aria-label="Tahapan membuat tempe"
-      stepClassName="transition-opacity duration-500 md:motion-safe:data-[active=false]:opacity-35 md:motion-reduce:grid-cols-2 md:motion-reduce:items-center"
+      // Inactive steps dim via colour (muted-foreground passes AA), not opacity.
+      stepClassName="group/step md:motion-reduce:grid-cols-2 md:motion-reduce:items-center"
       steps={steps.map((step, i) => (
         <div key={i} className="flex max-w-measure flex-col gap-4">
           <span
             aria-hidden
-            className="font-display text-display leading-none text-accent-strong"
+            className="font-display text-display leading-none text-accent-strong transition-colors duration-500 md:motion-safe:group-data-[active=false]/step:text-muted-foreground"
           >
             {String(i + 1).padStart(2, "0")}
           </span>
-          <H className="font-display text-h2 text-balance">
+          <H className="font-display text-h2 text-balance transition-colors duration-500 md:motion-safe:group-data-[active=false]/step:text-muted-foreground">
             {step.title.replace(/^\d+\.\s*/, "")}
           </H>
           {step.body ? (

@@ -91,7 +91,7 @@ export async function TestimonialListBlock({ data, ctx }: BlockProps<BlockDataMa
                     <span className="font-medium text-foreground">{t.name}</span>
                     {[t.role, t.city].filter(Boolean).join(" · ")}
                     {t.verified ? <Badge variant="outline">Terverifikasi</Badge> : null}
-                    {t.isPlaceholder ? <Badge variant="secondary">Contoh testimoni</Badge> : null}
+                    {t.isPlaceholder ? <Badge variant="secondary" className="dark:bg-foreground/10">Contoh testimoni</Badge> : null}
                   </figcaption>
                 </figure>
               </li>

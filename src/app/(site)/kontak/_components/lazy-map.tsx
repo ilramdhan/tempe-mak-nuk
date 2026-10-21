@@ -32,7 +32,7 @@ export function LazyMap({
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
             <MapPinIcon aria-hidden className="size-8 text-muted-foreground" />
             <p className="max-w-sm text-sm text-muted-foreground">
-              Peta Google Maps dimuat setelah kamu klik, supaya halaman tetap
+              Peta Google Maps dimuat setelah Anda klik, supaya halaman tetap
               ringan.
             </p>
             <Button

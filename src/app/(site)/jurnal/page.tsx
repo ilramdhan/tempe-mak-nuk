@@ -61,7 +61,7 @@ export default async function JurnalPage() {
       <Section spacing="tight">
         <Container>
           <Stack gap="md">
-            <Eyebrow>Jurnal</Eyebrow>
+            <Eyebrow rule tone="accent">Jurnal</Eyebrow>
             <Heading level={1} size="display">
               Jurnal Tempe
             </Heading>
