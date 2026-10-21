@@ -65,9 +65,11 @@
   --foreground: oklch(95% 0.014 84.6); /* #F3EEE4 */
   --surface: oklch(20.9% 0.01 88.8); /* #1A1813 */
 
-  --card: oklch(20.9% 0.01 88.8);
+  /* One step above surface so cards (and bg-surface chips inside them) read as
+     raised. #201E18; fg 14.4:1, muted 6.4:1, primary 8.4:1 on card (docs/qa.md V7). */
+  --card: oklch(23.5% 0.011 88.8);
   --card-foreground: var(--foreground);
-  --popover: oklch(20.9% 0.01 88.8);
+  --popover: var(--card);
   --popover-foreground: var(--foreground);
 
   --primary: oklch(77.3% 0.082 137.8); /* #9CC28F */
@@ -85,7 +87,7 @@
   --destructive-foreground: oklch(16.8% 0.006 91.7);
 
   --border: oklch(27.7% 0.015 89.9); /* #2B2820 */
-  --input: oklch(51.6% 0.024 86); /* #6E6758 */
+  --input: oklch(53% 0.024 86); /* #726B5C — ≥3:1 on card (1.4.11) */
   --ring: var(--primary);
 
   --halal: oklch(73.8% 0.115 152); /* #6FBF86 */
