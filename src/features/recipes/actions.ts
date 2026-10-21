@@ -77,6 +77,8 @@ export async function updateRecipe(
 
 export async function deleteRecipe(id: string): Promise<ActionResult> {
   return adminAction({
+    // P8.14: owner-only by default; the owner may grant `recipes.delete` via /admin/akses.
+    role: "owner",
     schema: z.object({ id: uuidSchema }),
     input: { id },
     entity: "recipes",

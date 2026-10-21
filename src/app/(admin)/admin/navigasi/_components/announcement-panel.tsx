@@ -140,7 +140,7 @@ export function AnnouncementPanel({ items }: { items: AnnouncementRow[] }) {
                 >
                   <Pencil />
                 </Button>
-                <RoleGate role="owner">
+                <RoleGate permission="announcements.delete">
                   <Button
                     type="button"
                     variant="ghost"

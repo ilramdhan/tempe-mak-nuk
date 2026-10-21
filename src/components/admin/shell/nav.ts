@@ -11,6 +11,7 @@ import {
   Quote,
   Scale,
   Settings,
+  ShieldCheck,
   Users,
   type LucideIcon,
 } from "lucide-react";
@@ -55,6 +56,12 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         href: "/admin/pengguna",
         label: "Pengguna",
         icon: Users,
+        role: "owner",
+      },
+      {
+        href: "/admin/akses",
+        label: "Hak Akses",
+        icon: ShieldCheck,
         role: "owner",
       },
       {

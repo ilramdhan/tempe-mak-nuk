@@ -24,6 +24,7 @@ describe("admin nav", () => {
       "/admin/media",
       "/admin/pengaturan",
       "/admin/pengguna",
+      "/admin/akses",
       "/admin/legal",
     ]);
   });
@@ -32,6 +33,7 @@ describe("admin nav", () => {
     const editor = hrefs("editor");
     expect(editor).not.toContain("/admin/pengguna");
     expect(editor).not.toContain("/admin/legal");
+    expect(editor).not.toContain("/admin/akses");
     expect(editor).toContain("/admin/pengaturan");
   });
 

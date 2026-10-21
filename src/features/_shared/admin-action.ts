@@ -4,6 +4,7 @@ import type { z } from "zod";
 
 import { getDb, type Database } from "@/db/client";
 import { writeAudit, type AuditAction } from "@/lib/audit";
+import { userCan } from "@/lib/auth/permissions";
 import {
   AuthError,
   requireRole,
@@ -32,10 +33,16 @@ export type AdminActionOutcome<R> = {
 
 /**
  * Standard admin mutation pipeline:
- *   requireRole → Zod parse → transaction(run) → audit_log → updateTag(tags) → ActionResult.
+ *   requireRole("editor") + permission `<entity>.<action>` (dynamic RBAC, P8.14) → Zod parse → transaction(run) → audit_log → updateTag(tags) → ActionResult.
  * Returns `{ ok:false }` for auth / validation / DB errors; redirect/notFound are re-thrown.
  */
 export async function adminAction<S extends z.ZodType, R>(opts: {
+  /**
+   * Minimum role at the call site. For keys in the permission registry the registry default +
+   * owner-managed overrides decide; `role` only acts as a hard floor when it is STRICTER than the
+   * registry default (e.g. owner-only settings groups). For unknown keys it is the rule (default
+   * "editor").
+   */
   role?: AdminRole;
   schema: S;
   input: unknown;
@@ -48,7 +55,10 @@ export async function adminAction<S extends z.ZodType, R>(opts: {
 }): Promise<ActionResult<R>> {
   let user: SessionUser;
   try {
-    user = await requireRole(opts.role ?? "editor");
+    user = await requireRole("editor");
+    const permission = `${opts.entity}.${opts.action}`;
+    if (!(await userCan(user, permission, opts.role ?? "editor")))
+      throw new AuthError("forbidden");
   } catch (error) {
     if (error instanceof AuthError) return fail(error.message);
     return handleActionError(error, `${opts.entity}.${opts.action}:auth`);

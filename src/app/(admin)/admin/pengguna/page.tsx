@@ -17,7 +17,7 @@ export default function UsersAdminPage() {
       <PageHeader
         eyebrow="Sistem"
         title="Pengguna"
-        description="Kelola akses admin. Pemilik dapat mengundang pengguna dan mengubah peran."
+        description="Kelola akses admin. Pemilik dapat mengundang pengguna, mengubah peran, dan mengatur hak akses per pengguna."
       />
       <Suspense
         fallback={

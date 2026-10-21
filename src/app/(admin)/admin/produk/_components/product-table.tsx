@@ -212,7 +212,7 @@ export function ProductTable({ products }: { products: ProductListItem[] }) {
                             <Pencil /> Edit
                           </Link>
                         </Button>
-                        <RoleGate role="owner">
+                        <RoleGate permission="products.delete">
                           <Button
                             type="button"
                             variant="ghost"

@@ -106,6 +106,8 @@ export async function updatePost(
 
 export async function deletePost(id: string): Promise<ActionResult> {
   return adminAction({
+    // P8.14: owner-only by default; the owner may grant `posts.delete` via /admin/akses.
+    role: "owner",
     schema: z.object({ id: uuidSchema }),
     input: { id },
     entity: "posts",

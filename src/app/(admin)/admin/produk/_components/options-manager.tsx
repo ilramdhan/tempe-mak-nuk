@@ -112,7 +112,7 @@ function ShapesPanel({ shapes }: { shapes: ShapeRow[] }) {
             >
               <Pencil />
             </Button>
-            <RoleGate role="owner">
+            <RoleGate permission="product_shapes.delete">
               <Button
                 type="button"
                 variant="ghost"
@@ -322,7 +322,7 @@ function SizesPanel({ sizes }: { sizes: SizeRow[] }) {
             >
               <Pencil />
             </Button>
-            <RoleGate role="owner">
+            <RoleGate permission="product_sizes.delete">
               <Button
                 type="button"
                 variant="ghost"

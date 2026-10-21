@@ -128,6 +128,7 @@ export function RecipeEditor({
               entityLabel: "resep",
               listHref: "/admin/resep",
               onDelete: () => deleteRecipe(id),
+              permission: "recipes.delete",
             }
           : undefined
       }

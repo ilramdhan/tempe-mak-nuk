@@ -1,6 +1,7 @@
 "use client";
 
-import { LoaderCircle, MailPlus } from "lucide-react";
+import { LoaderCircle, MailPlus, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 import { useAdminUser } from "@/components/admin/shell";
@@ -108,6 +109,7 @@ export function UserTable({ rows }: { rows: UserRow[] }) {
               <TableHead>Pengguna</TableHead>
               <TableHead>Bergabung</TableHead>
               <TableHead className="w-48">Peran</TableHead>
+              <TableHead className="w-36">Hak akses</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -168,6 +170,22 @@ export function UserTable({ rows }: { rows: UserRow[] }) {
                           : "Pemilik terakhir."}
                       </p>
                     ) : null}
+                  </TableCell>
+                  <TableCell>
+                    {r.role === "editor" ? (
+                      <Button asChild variant="ghost" size="sm">
+                        <Link
+                          href={`/admin/akses?pengguna=${r.id}`}
+                          aria-label={`Atur hak akses ${name}`}
+                        >
+                          <ShieldCheck aria-hidden="true" /> Atur akses
+                        </Link>
+                      </Button>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        Semua akses
+                      </span>
+                    )}
                   </TableCell>
                 </TableRow>
               );

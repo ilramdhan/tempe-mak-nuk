@@ -21,8 +21,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useCan } from "@/components/admin/shell";
 import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field";
+
+import type { PermissionKey } from "@/features/permissions/registry";
 
 import type { FieldErrors } from "../lib/form";
 
@@ -50,6 +53,8 @@ export function EditorFrame({
     entityLabel: string;
     listHref: string;
     onDelete: () => Promise<{ ok: boolean; error?: string }>;
+    /** Delete button hidden without this permission (server re-checks). */
+    permission: PermissionKey;
   };
   main: ReactNode;
   aside: ReactNode;
@@ -118,6 +123,19 @@ export function EditorFrame({
 }
 
 function DeleteButton({
+  permission,
+  ...props
+}: {
+  title: string;
+  entityLabel: string;
+  listHref: string;
+  onDelete: () => Promise<{ ok: boolean; error?: string }>;
+  permission: PermissionKey;
+}) {
+  return useCan(permission) ? <DeleteButtonInner {...props} /> : null;
+}
+
+function DeleteButtonInner({
   title,
   entityLabel,
   listHref,

@@ -42,6 +42,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useCan } from "@/components/admin/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,6 +65,7 @@ import {
 
 import { formatWib, VISIBILITY_LABEL, type Visibility } from "../lib/publish";
 import type { Option } from "./types";
+import type { PermissionKey } from "@/features/permissions/registry";
 
 export type ContentRow = {
   id: string;
@@ -112,6 +114,7 @@ export function ContentTable({
   categories,
   extraLabel,
   onDelete,
+  deletePermission,
 }: {
   rows: ContentRow[];
   /** "artikel" / "resep" */
@@ -123,7 +126,10 @@ export function ContentTable({
   categories: readonly Option[];
   extraLabel?: string;
   onDelete: (id: string) => Promise<ActionResult>;
+  /** Permission key for the delete action (button hidden without it; server re-checks). */
+  deletePermission: PermissionKey;
 }) {
+  const canDelete = useCan(deletePermission);
   const router = useRouter();
   const [sorting, setSorting] = useState<SortingState>([
     { id: "updatedAt", desc: true },
@@ -398,15 +404,17 @@ export function ContentTable({
                             </a>
                           </Button>
                         ) : null}
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label={`Hapus ${entityLabel} ${r.title}`}
-                          onClick={() => setDeleting(r)}
-                        >
-                          <Trash2 />
-                        </Button>
+                        {canDelete ? (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label={`Hapus ${entityLabel} ${r.title}`}
+                            onClick={() => setDeleting(r)}
+                          >
+                            <Trash2 />
+                          </Button>
+                        ) : null}
                       </div>
                     </TableCell>
                   </TableRow>

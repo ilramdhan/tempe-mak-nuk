@@ -337,6 +337,67 @@ describe.skipIf(!url)("RLS policies", () => {
     });
   });
 
+  describe("permission overrides (P8.14)", () => {
+    it("anon and non-admins see nothing", async () => {
+      await sql`insert into public.role_permissions (role, permission, allowed) values ('editor', ${`t.${tag}`}, true)`;
+      try {
+        for (const who of [anon, stranger]) {
+          const rows = await as(
+            who,
+            (tx) =>
+              tx`select 1 from public.role_permissions where permission = ${`t.${tag}`}`,
+          ).catch(() => []);
+          expect(rows).toHaveLength(0);
+        }
+        const editorRows = await as(
+          editor,
+          (tx) =>
+            tx`select 1 from public.role_permissions where permission = ${`t.${tag}`}`,
+        );
+        expect(editorRows).toHaveLength(1);
+      } finally {
+        await sql`delete from public.role_permissions where permission = ${`t.${tag}`}`;
+      }
+    });
+
+    it("editor cannot grant themselves permissions", async () => {
+      await expect(
+        as(
+          editor,
+          (tx) =>
+            tx`insert into public.role_permissions (role, permission, allowed) values ('editor', 'posts.delete', true)`,
+        ),
+      ).rejects.toThrow(DENIED);
+      await expect(
+        as(
+          editor,
+          (tx) =>
+            tx`insert into public.user_permissions (user_id, permission, allowed) values (${editorId}, 'posts.delete', true)`,
+        ),
+      ).rejects.toThrow(DENIED);
+    });
+
+    it("owner manages role and user overrides; editor reads only their own", async () => {
+      await as(owner, async (tx) => {
+        await tx`insert into public.role_permissions (role, permission, allowed) values ('editor', 'posts.delete', true)`;
+        await tx`insert into public.user_permissions (user_id, permission, allowed) values (${editorId}, 'faqs.create', false)`;
+      });
+      await sql`insert into public.user_permissions (user_id, permission, allowed) values (${editorId}, ${`t.${tag}`}, true), (${ownerId}, ${`t.${tag}`}, true)`;
+      try {
+        const rows = await as(
+          editor,
+          (tx) =>
+            tx<
+              { user_id: string }[]
+            >`select user_id from public.user_permissions where permission = ${`t.${tag}`}`,
+        );
+        expect(rows.map((r) => r.user_id)).toEqual([editorId]);
+      } finally {
+        await sql`delete from public.user_permissions where permission = ${`t.${tag}`}`;
+      }
+    });
+  });
+
   describe("auth trigger", () => {
     it("creates NO profile (no admin access) for a new auth user once an owner exists", async () => {
       const id = randomUUID();

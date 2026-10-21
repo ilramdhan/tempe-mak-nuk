@@ -83,6 +83,7 @@ export function PostEditor({
               entityLabel: "artikel",
               listHref: "/admin/jurnal",
               onDelete: () => deletePost(id),
+              permission: "posts.delete",
             }
           : undefined
       }

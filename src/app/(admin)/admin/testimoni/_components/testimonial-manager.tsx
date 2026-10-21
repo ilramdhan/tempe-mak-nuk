@@ -127,7 +127,7 @@ export function TestimonialManager({ items }: { items: TestimonialRow[] }) {
             >
               <Pencil />
             </Button>
-            <RoleGate role="owner">
+            <RoleGate permission="testimonials.delete">
               <Button
                 type="button"
                 variant="ghost"

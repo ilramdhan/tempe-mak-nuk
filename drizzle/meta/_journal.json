@@ -29,6 +29,13 @@
       "when": 1792553773842,
       "tag": "0003_signup_no_access",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792574735022,
+      "tag": "0004_rbac_permissions",
+      "breakpoints": true
     }
   ]
 }

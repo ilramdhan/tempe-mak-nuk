@@ -10,3 +10,4 @@ export * from "./content";
 export * from "./slots";
 export * from "./legal";
 export * from "./analytics";
+export * from "./permissions";

@@ -221,7 +221,7 @@ export function MediaLibrary({
                   >
                     <Pencil />
                   </Button>
-                  <RoleGate role="owner">
+                  <RoleGate permission="media.delete">
                     <Button
                       type="button"
                       variant="ghost"

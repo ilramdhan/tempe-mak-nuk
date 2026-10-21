@@ -50,6 +50,21 @@ Severity: **Kritis / Tinggi / Sedang / Rendah / Info**. Status: **fixed** (diper
 | 18 | Info (OK) | `next.config.ts` | HSTS 2 tahun + preload, `nosniff`, `Referrer-Policy strict-origin-when-cross-origin`, `X-Frame-Options DENY` + `frame-ancestors 'none'`, `Permissions-Policy` ketat, `object-src 'none'`, `base-uri`/`form-action 'self'`, `poweredByHeader:false`. `frame-src` hanya Google Maps. | OK | Daftarkan domain ke hstspreload.org **hanya** setelah yakin semua subdomain HTTPS. |
 | 19 | Info (OK) | `src/app/api/cron/_lib/auth.ts` | Cron memakai `Bearer CRON_SECRET` dengan perbandingan constant-time dan fail-closed. | OK | — |
 
+## 3a. RBAC dinamis (P8.14)
+
+- **Kunci izin** = `<entity>.<action>`, sama dengan pasangan audit di `adminAction({ entity, action })`. Daftar lengkap ada di `src/features/permissions/registry.ts` (label Indonesia, grup, `defaultRole`, `grantable`). Test `src/features/permissions/__tests__/registry.test.ts` memindai `src/features/**` dan gagal bila ada `adminAction` yang belum terdaftar.
+- **Bawaan** sama dengan role di call site sebelum P8.14, kecuali **hapus artikel (`posts.delete`) dan hapus resep (`recipes.delete`) yang sekarang khusus pemilik**.
+- **Override (DB, migrasi `drizzle/0004_rbac_permissions.sql`)**: `role_permissions(role, permission, allowed)` untuk peran Editor, dan `user_permissions(user_id, permission, allowed)` untuk Izinkan/Tolak per pengguna. RLS aktif: pemilik baca/tulis, admin membaca `role_permissions`, editor hanya membaca baris `user_permissions` miliknya. Anon tidak punya akses.
+- **Urutan resolusi** (`src/features/permissions/resolve.ts`, diuji unit):
+  1. Pemilik selalu diizinkan (tidak bisa mengunci diri sendiri).
+  2. Kunci tidak dikenal memakai role call site.
+  3. Bila role call site lebih ketat dari bawaan registry (mis. grup pengaturan khusus pemilik → `settings.update` dengan `role:"owner"`), role tersebut menjadi batas bawah yang tidak bisa di-override.
+  4. Izin `grantable:false` (pengguna/peran, manajemen hak akses, legal) hanya memakai bawaan registry.
+  5. Override pengguna → override peran → bawaan registry.
+- **Penegakan**: `adminAction` memanggil `requireRole("editor")` lalu `userCan(user, "<entity>.<action>", role)`. Override dibaca per request (React `cache`, tanpa `"use cache"`), dan pemilik tidak memicu query. Helper server: `can()`, `requirePermission()`, `getEffectivePermissions()` di `src/lib/auth/permissions.ts`.
+- **UI** (kosmetik, server tetap sumber kebenaran): layout admin mengirim izin efektif ke `AdminUserProvider`, `useCan()` dan `<RoleGate permission="…">` menyembunyikan tombol (mis. hapus artikel/resep/FAQ/produk/media).
+- **Kelola via web**: **Admin → Sistem → Hak Akses** (`/admin/akses`, khusus pemilik) berisi matriks peran Editor dan override per pengguna (juga bisa dibuka dari tombol "Atur akses" di **Pengguna**). Action `setRolePermission` / `setUserPermission` memakai owner-only + Zod (kunci registry yang `grantable`) dan tercatat di `audit_log`.
+
 ## 4. File yang diubah (P7.3)
 
 - `drizzle/0003_signup_no_access.sql`, `drizzle/meta/_journal.json`, `drizzle/meta/0003_snapshot.json` (dibuat oleh `drizzle-kit generate --custom`, **belum** di-migrate)

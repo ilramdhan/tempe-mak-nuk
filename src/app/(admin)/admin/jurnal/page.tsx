@@ -44,6 +44,7 @@ async function JournalList() {
       basePath="/admin/jurnal"
       publicBasePath="/jurnal"
       onDelete={deletePost}
+      deletePermission="posts.delete"
     />
   );
 }

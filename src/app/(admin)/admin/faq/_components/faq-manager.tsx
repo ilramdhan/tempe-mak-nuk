@@ -145,7 +145,7 @@ export function FaqManager({
                 >
                   <Pencil />
                 </Button>
-                <RoleGate role="owner">
+                <RoleGate permission="faqs.delete">
                   <Button
                     type="button"
                     variant="ghost"

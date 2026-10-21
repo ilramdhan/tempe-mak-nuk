@@ -45,6 +45,7 @@ async function RecipeList() {
       publicBasePath="/resep"
       extraLabel="Produk"
       onDelete={deleteRecipe}
+      deletePermission="recipes.delete"
     />
   );
 }

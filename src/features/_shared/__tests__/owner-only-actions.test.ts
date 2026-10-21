@@ -100,6 +100,37 @@ describe("owner-only server actions", () => {
         ),
     ],
     [
+      "deletePost",
+      () => import("@/features/posts/actions").then((m) => m.deletePost(ID)),
+    ],
+    [
+      "deleteRecipe",
+      () =>
+        import("@/features/recipes/actions").then((m) => m.deleteRecipe(ID)),
+    ],
+    [
+      "setRolePermission",
+      () =>
+        import("@/features/permissions/actions").then((m) =>
+          m.setRolePermission({
+            role: "editor",
+            permission: "posts.delete",
+            allowed: true,
+          }),
+        ),
+    ],
+    [
+      "setUserPermission",
+      () =>
+        import("@/features/permissions/actions").then((m) =>
+          m.setUserPermission({
+            userId: ID,
+            permission: "posts.delete",
+            allowed: false,
+          }),
+        ),
+    ],
+    [
       "deleteMediaAndFile",
       () =>
         import("@/features/media/library-actions").then((m) =>

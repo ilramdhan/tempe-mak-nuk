@@ -2,7 +2,7 @@
  * Admin shell public API (P5.1). Import from "@/components/admin/shell".
  * - PageHeader     — title/description/actions header for every admin page (server-safe).
  * - RoleGate       — hide UI for roles below `role` (client; UI only, re-check server-side).
- * - useAdminUser / useHasRole — current admin in client components inside the admin layout.
+ * - useAdminUser / useHasRole / useCan — current admin in client components inside the admin layout.
  * - ADMIN_NAV / navForRole    — sidebar definition (owner-only items filtered for editors).
  */
 export { PageHeader, type PageHeaderProps } from "./page-header";
@@ -17,6 +17,7 @@ export {
 export {
   adminDisplayName,
   useAdminUser,
+  useCan,
   useHasRole,
   type AdminUser,
 } from "./user-context";

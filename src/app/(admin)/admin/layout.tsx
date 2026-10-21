@@ -5,6 +5,7 @@ import {
   AdminShell,
   AdminShellFallback,
 } from "@/components/admin/shell/admin-shell";
+import { getEffectivePermissions } from "@/lib/auth/permissions";
 import { requireRole } from "@/lib/auth/require-role";
 
 export const metadata: Metadata = {
@@ -28,6 +29,7 @@ export default function AdminLayout({ children }: LayoutProps<"/admin">) {
 
 async function AuthorizedShell({ children }: { children: React.ReactNode }) {
   const user = await requireRole("editor", { onFail: "redirect" });
+  const permissions = await getEffectivePermissions();
   return (
     <AdminShell
       user={{
@@ -35,6 +37,7 @@ async function AuthorizedShell({ children }: { children: React.ReactNode }) {
         email: user.email,
         displayName: user.displayName,
         role: user.role,
+        permissions,
       }}
     >
       {children}

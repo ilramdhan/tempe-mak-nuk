@@ -195,7 +195,7 @@ function LocationList({
             >
               <Pencil />
             </Button>
-            <RoleGate role="owner">
+            <RoleGate permission="nav_items.delete">
               <Button
                 type="button"
                 variant="ghost"
