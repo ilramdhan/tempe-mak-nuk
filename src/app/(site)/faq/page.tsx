@@ -10,7 +10,11 @@ import {
   Stack,
 } from "@/components/site/primitives";
 import { Button } from "@/components/ui/button";
-import { faqAnswerPlainText, getFaqs } from "@/features/faqs/queries";
+import { faqAnswerPlainText, queryFaqs } from "@/features/faqs/queries";
+import { BlockRenderer } from "@/features/pages/blocks/block-renderer";
+import { CtaButton, CtaRow } from "@/features/pages/blocks/shared";
+import { splitPageSections } from "@/features/pages/layout";
+import { getPage, getPageMeta } from "@/features/pages/queries";
 import { getSettings } from "@/features/settings/queries";
 import { renderLightMarkdown } from "@/lib/rich-text/inline";
 import { faqPageJsonLd, JsonLd, siteBaseUrl } from "@/lib/seo";
@@ -19,15 +23,31 @@ import { buildWaLink } from "@/lib/wa-link";
 
 import { FaqBrowser, type FaqBrowserItem } from "./_components/faq-browser";
 
-const DESCRIPTION =
-  "Jawaban pertanyaan umum tentang pesan, PO, kirim, simpan, dan varian Tempe Mak Nuk. Cari pertanyaan Anda atau tanya langsung via WhatsApp.";
+const SLUG = "faq";
+
+/** Fallback copy when the `pages` row "faq" is missing/unpublished (admin: Halaman → FAQ). */
+const FALLBACK = {
+  title: "FAQ Tempe Mak Nuk: Pesan, Simpan, Kirim, Halal",
+  description:
+    "Jawaban pertanyaan umum tentang pesan, PO, kirim, simpan, dan varian Tempe Mak Nuk. Cari pertanyaan Anda atau tanya langsung via WhatsApp.",
+  intro: {
+    eyebrow: "FAQ",
+    headline: "Pertanyaan yang sering ditanyakan",
+    subheadline:
+      "Jawaban pertanyaan umum tentang pesan, PO, kirim, simpan, dan varian Tempe Mak Nuk. Cari pertanyaan Anda atau tanya langsung via WhatsApp.",
+    primaryCta: null,
+    secondaryCta: null,
+  },
+};
 
 export async function generateMetadata(): Promise<Metadata> {
+  const meta = await getPageMeta(SLUG);
   return pageMetadata({
-    title: "FAQ Tempe Mak Nuk: Pesan, Simpan, Kirim, Halal",
-    description: DESCRIPTION,
+    title: meta ? meta.title : FALLBACK.title,
+    description: meta?.seo.description || FALLBACK.description,
     path: "/faq",
-    titleAbsolute: true,
+    seo: meta?.seo ?? { title: FALLBACK.title },
+    titleAbsolute: !meta,
   });
 }
 
@@ -40,7 +60,18 @@ function hostOf(url: string): string[] {
 }
 
 export default async function FaqPage() {
-  const [faqs, settings] = await Promise.all([getFaqs(), getSettings()]);
+  const [page, settings] = await Promise.all([getPage(SLUG), getSettings()]);
+  // CMS sections: hero → intro; `faqList` marks where the searchable FAQ browser goes
+  // (its category/source filter applies; default = all FAQs).
+  const layout = splitPageSections(page?.sections, "faqList");
+  const intro = layout.intro ?? FALLBACK.intro;
+  const list = layout.marker;
+  const faqs = await queryFaqs({
+    source: list?.source ?? "all",
+    category: list?.category,
+    ids: list?.ids,
+    limit: list?.limit,
+  });
   const siteUrl = settings["site.url"];
   const internalHosts = hostOf(siteUrl);
   const waHref = buildWaLink(
@@ -73,18 +104,39 @@ export default async function FaqPage() {
       <Section spacing="tight">
         <Container size="prose">
           <Stack gap="md">
-            <Eyebrow rule tone="accent">
-              FAQ
-            </Eyebrow>
+            {intro.eyebrow ? (
+              <Eyebrow rule tone="accent">
+                {intro.eyebrow}
+              </Eyebrow>
+            ) : null}
             <Heading level={1} size="display">
-              Pertanyaan yang sering ditanyakan
+              {intro.headline}
             </Heading>
-            <Lead muted>{DESCRIPTION}</Lead>
+            {intro.subheadline ? <Lead muted>{intro.subheadline}</Lead> : null}
+            {intro.primaryCta || intro.secondaryCta ? (
+              <CtaRow className="pt-2">
+                <CtaButton cta={intro.primaryCta} />
+                <CtaButton cta={intro.secondaryCta} variant="secondary" />
+              </CtaRow>
+            ) : null}
           </Stack>
         </Container>
       </Section>
-      <Section spacing="tight">
+      {layout.before.length ? (
+        <BlockRenderer blocks={layout.before} firstHeadingLevel={2} />
+      ) : null}
+      <Section spacing="tight" id={list?.anchor ?? undefined}>
         <Container size="prose">
+          {list?.heading || list?.intro ? (
+            <Stack gap="sm" className="mb-6">
+              {list.heading ? (
+                <Heading level={2} size="h3">
+                  {list.heading}
+                </Heading>
+              ) : null}
+              {list.intro ? <Lead muted>{list.intro}</Lead> : null}
+            </Stack>
+          ) : null}
           {items.length ? (
             <FaqBrowser items={items} waHref={waHref} />
           ) : (
@@ -95,6 +147,9 @@ export default async function FaqPage() {
           )}
         </Container>
       </Section>
+      {layout.after.length ? (
+        <BlockRenderer blocks={layout.after} firstHeadingLevel={2} />
+      ) : null}
       {waHref ? (
         <Section spacing="tight">
           <Container size="prose">

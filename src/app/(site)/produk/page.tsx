@@ -21,6 +21,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatPriceFrom } from "@/features/_shared/format";
+import { BlockRenderer } from "@/features/pages/blocks/block-renderer";
+import { CtaButton, CtaRow } from "@/features/pages/blocks/shared";
+import { splitPageSections } from "@/features/pages/layout";
+import { getPage, getPageMeta } from "@/features/pages/queries";
 import { getProductBySlug, getProducts } from "@/features/products/queries";
 import { getSettings } from "@/features/settings/queries";
 import { itemListJsonLd, JsonLd, siteBaseUrl, webPageJsonLd } from "@/lib/seo";
@@ -29,17 +33,50 @@ import { pageMetadata } from "@/lib/seo/server";
 import { ProductCta } from "./_components/product-cta";
 import { ProductImage, productVariantLabel } from "./_components/product-image";
 
+const SLUG = "produk";
+
+/** Fallback copy when the `pages` row "produk" is missing/unpublished (admin: Halaman → Produk). */
+const FALLBACK = {
+  title: "Jenis Tempe: Klasik dan Tanpa Kulit",
+  description:
+    "Kenali dua varian Tempe Mak Nuk: Klasik dengan kulit ari dan Original Tanpa Kulit yang lebih putih dan padat. Pilih bentuk dan ukuran sesuai kebutuhan.",
+  intro: {
+    eyebrow: "Produk",
+    headline: "Dua tempe, satu cara buat: pelan dan jujur",
+    subheadline:
+      "Bahannya sama: kedelai, air, dan ragi. Bedanya di kulit ari. Pilih yang sesuai selera, lalu tentukan bentuk dan ukurannya. Tanpa minimum order.",
+    primaryCta: null,
+    secondaryCta: null,
+  },
+};
+
 export async function generateMetadata(): Promise<Metadata> {
+  const meta = await getPageMeta(SLUG);
   return pageMetadata({
-    title: "Jenis Tempe: Klasik dan Tanpa Kulit",
-    description:
-      "Kenali dua varian Tempe Mak Nuk: Klasik dengan kulit ari dan Original Tanpa Kulit yang lebih putih dan padat. Pilih bentuk dan ukuran sesuai kebutuhan.",
+    title: meta ? meta.title : FALLBACK.title,
+    description: meta?.seo.description || FALLBACK.description,
     path: "/produk",
+    seo: meta?.seo ?? { title: FALLBACK.title },
   });
 }
 
 export default async function ProdukPage() {
-  const [list, settings] = await Promise.all([getProducts(), getSettings()]);
+  const [page, all, settings] = await Promise.all([
+    getPage(SLUG),
+    getProducts(),
+    getSettings(),
+  ]);
+  // CMS sections: hero → intro; `productTeaser` marks where the product grid goes.
+  const layout = splitPageSections(page?.sections, "productTeaser");
+  const intro = layout.intro ?? FALLBACK.intro;
+  const grid = layout.marker;
+  const nameLevel = grid?.heading ? 3 : 2;
+  // Optional product selection/order from the CMS block (empty = all active products).
+  const list = grid?.productSlugs?.length
+    ? grid.productSlugs
+        .map((slug) => all.find((p) => p.slug === slug))
+        .filter((p): p is (typeof all)[number] => Boolean(p))
+    : all;
   const details = (
     await Promise.all(list.map((p) => getProductBySlug(p.slug)))
   ).filter((d) => d !== null);
@@ -50,8 +87,9 @@ export default async function ProdukPage() {
   const jsonLd = webPageJsonLd(
     {
       type: "CollectionPage",
-      name: "Jenis Tempe Mak Nuk",
+      name: page?.seo.title || "Jenis Tempe Mak Nuk",
       path: "/produk",
+      description: page?.seo.description || FALLBACK.description,
     },
     base,
   );
@@ -70,23 +108,40 @@ export default async function ProdukPage() {
       <Section spacing="tight">
         <Container>
           <Stack gap="md" className="max-w-measure">
-            <Eyebrow rule tone="accent">
-              Produk
-            </Eyebrow>
+            {intro.eyebrow ? (
+              <Eyebrow rule tone="accent">
+                {intro.eyebrow}
+              </Eyebrow>
+            ) : null}
             <Heading level={1} size="display">
-              Dua tempe, satu cara buat: pelan dan jujur
+              {intro.headline}
             </Heading>
-            <Lead muted>
-              Bahannya sama: kedelai, air, dan ragi. Bedanya di kulit ari. Pilih
-              yang sesuai selera, lalu tentukan bentuk dan ukurannya. Tanpa
-              minimum order.
-            </Lead>
+            {intro.subheadline ? <Lead muted>{intro.subheadline}</Lead> : null}
+            {intro.primaryCta || intro.secondaryCta ? (
+              <CtaRow className="pt-2">
+                <CtaButton cta={intro.primaryCta} />
+                <CtaButton cta={intro.secondaryCta} variant="secondary" />
+              </CtaRow>
+            ) : null}
           </Stack>
         </Container>
       </Section>
 
-      <Section spacing="tight">
+      {layout.before.length ? (
+        <BlockRenderer blocks={layout.before} firstHeadingLevel={2} />
+      ) : null}
+
+      <Section spacing="tight" id={grid?.anchor ?? undefined}>
         <Container>
+          {grid?.eyebrow || grid?.heading || grid?.intro ? (
+            <Stack gap="sm" className="mb-8 max-w-measure">
+              {grid.eyebrow ? <Eyebrow>{grid.eyebrow}</Eyebrow> : null}
+              {grid.heading ? (
+                <Heading level={2}>{grid.heading}</Heading>
+              ) : null}
+              {grid.intro ? <Lead muted>{grid.intro}</Lead> : null}
+            </Stack>
+          ) : null}
           <Grid cols={2} gap="lg">
             {list.map((p, i) => (
               <article key={p.id} className="flex flex-col gap-4">
@@ -106,7 +161,7 @@ export default async function ProdukPage() {
                 </Link>
                 <Stack gap="xs">
                   <Eyebrow>{productVariantLabel(p.variant)}</Eyebrow>
-                  <Heading level={2} size="h2">
+                  <Heading level={nameLevel} size="h2">
                     <Link
                       href={`/produk/${p.slug}`}
                       className="underline-offset-4 hover:underline"
@@ -124,7 +179,9 @@ export default async function ProdukPage() {
                 </Stack>
                 <div>
                   <Button asChild variant="secondary">
-                    <Link href={`/produk/${p.slug}`}>Lihat detail</Link>
+                    <Link href={`/produk/${p.slug}`}>
+                      {grid?.ctaLabel || "Lihat detail"}
+                    </Link>
                   </Button>
                 </div>
               </article>
@@ -195,6 +252,10 @@ export default async function ProdukPage() {
             </Stack>
           </Container>
         </Section>
+      ) : null}
+
+      {layout.after.length ? (
+        <BlockRenderer blocks={layout.after} firstHeadingLevel={2} />
       ) : null}
 
       <Section>

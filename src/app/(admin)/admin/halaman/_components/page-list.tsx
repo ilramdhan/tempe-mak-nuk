@@ -271,9 +271,8 @@ function CreatePageDialog() {
           <DialogHeader>
             <DialogTitle>Halaman baru</DialogTitle>
             <DialogDescription>
-              Dibuat sebagai draf. Halaman baru hanya tampil di situs bila
-              rutenya sudah tersedia di kode (mis. halaman CMS umum) — tanyakan
-              ke developer bila ragu.
+              Dibuat sebagai draf. Setelah diterbitkan, halaman tampil di situs
+              pada alamat /&lt;slug&gt;.
             </DialogDescription>
           </DialogHeader>
           <FieldGroup className="my-5">

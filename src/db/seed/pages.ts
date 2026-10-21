@@ -246,24 +246,27 @@ const PAGES: PageSeed[] = [
         type: "hero",
         data: {
           eyebrow: "Produk",
-          headline: "Dua varian tempe, satu dapur.",
+          headline: "Dua tempe, satu cara buat: pelan dan jujur",
           subheadline:
-            "Klasik dengan kulit ari, atau Original Tanpa Kulit yang dikupas bersih. Bahannya sama: kedelai, air, ragi.",
-          primaryCta: WA,
+            "Bahannya sama: kedelai, air, dan ragi. Bedanya di kulit ari. Pilih yang sesuai selera, lalu tentukan bentuk dan ukurannya. Tanpa minimum order.",
+          primaryCta: null,
           secondaryCta: null,
           image: null,
         },
       },
       {
+        // /produk renders its product grid + comparison table here (marker section).
         type: "productTeaser",
         data: {
-          heading: "Pilih varian",
+          heading: null,
           intro: null,
-          productSlugs: ["tempe-klasik", "tempe-original-tanpa-kulit"],
-          ctaLabel: "Pilih varian ini",
+          productSlugs: null,
+          ctaLabel: "Lihat detail",
         },
       },
       {
+        // Hidden: /produk already shows a comparison table built from product data.
+        visible: false,
         type: "compare",
         data: {
           heading: "Klasik atau Original Tanpa Kulit?",
@@ -297,6 +300,7 @@ const PAGES: PageSeed[] = [
         },
       },
       {
+        visible: false,
         type: "featureGrid",
         data: {
           heading: "Bentuk dan ukuran",
@@ -320,6 +324,7 @@ const PAGES: PageSeed[] = [
         },
       },
       {
+        visible: false,
         type: "postTeaser",
         data: {
           heading: "Masih bingung memilih?",
@@ -331,11 +336,18 @@ const PAGES: PageSeed[] = [
           },
         },
       },
-      { type: "faqList", data: { heading: "Soal produk", category: "produk" } },
-      closing(
-        "Belum yakin? Coba ukuran kecil.",
-        "Tidak ada minimum order. Pesan dua varian dan bandingkan sendiri.",
-      ),
+      {
+        visible: false,
+        type: "faqList",
+        data: { heading: "Soal produk", category: "produk" },
+      },
+      {
+        ...closing(
+          "Belum yakin? Coba ukuran kecil.",
+          "Tidak ada minimum order. Pesan dua varian dan bandingkan sendiri.",
+        ),
+        visible: false,
+      },
     ],
   },
   {
@@ -845,28 +857,33 @@ const PAGES: PageSeed[] = [
     title: "FAQ",
     seoTitle: "FAQ Tempe Mak Nuk: Pesan, Simpan, Kirim, Halal",
     seoDescription:
-      "Jawaban pertanyaan umum tentang pesan, PO, kirim, simpan, dan varian Tempe Mak Nuk. Cari pertanyaanmu atau tanya langsung via WhatsApp.",
+      "Jawaban pertanyaan umum tentang pesan, PO, kirim, simpan, dan varian Tempe Mak Nuk. Cari pertanyaan Anda atau tanya langsung via WhatsApp.",
     sections: [
       {
         type: "hero",
         data: {
           eyebrow: "FAQ",
-          headline: "Pertanyaan yang sering ditanyakan.",
+          headline: "Pertanyaan yang sering ditanyakan",
           subheadline:
-            "Belum ketemu jawabannya? Tanyakan langsung via WhatsApp, kami balas di jam kerja.",
+            "Jawaban pertanyaan umum tentang pesan, PO, kirim, simpan, dan varian Tempe Mak Nuk. Cari pertanyaan Anda atau tanya langsung via WhatsApp.",
           primaryCta: null,
           secondaryCta: null,
           image: null,
         },
       },
       {
+        // /faq renders its searchable FAQ browser here (marker section).
         type: "faqList",
         data: { heading: null, source: "all", searchable: true },
       },
-      closing(
-        "Masih ada pertanyaan?",
-        "Chat saja, Mak dan keluarga yang membalas.",
-      ),
+      {
+        // Hidden: /faq ends with its own WhatsApp CTA.
+        ...closing(
+          "Masih ada pertanyaan?",
+          "Chat saja, Mak dan keluarga yang membalas.",
+        ),
+        visible: false,
+      },
     ],
   },
   {
@@ -880,40 +897,39 @@ const PAGES: PageSeed[] = [
         type: "hero",
         data: {
           eyebrow: "Kontak",
-          headline: "Chat dulu, baru datang.",
+          headline: "Kontak dan alamat",
           subheadline:
-            "Dapur kami di Pedan, Klaten. Agar pesanan siap saat Anda tiba, cek slot lewat WhatsApp.",
-          primaryCta: WA,
-          secondaryCta: {
-            label: "Buka di Google Maps",
-            href: "https://maps.google.com/?q=-7.7023,110.6894",
-          },
+            "Alamat dapur produksi Tempe Mak Nuk di Pedan, Klaten, jam buka, peta, WhatsApp, dan Instagram. Chat dulu untuk cek slot sebelum datang.",
+          primaryCta: null,
+          secondaryCta: null,
           image: null,
         },
       },
       {
+        // /kontak renders address, hours, links and map (from Pengaturan) here (marker
+        // section); `heading` sits above them and `body` is the note below.
         type: "split",
         data: {
-          heading: "Alamat dan jam",
-          body: "Alamat, telepon, email, dan jam buka diambil dari Pengaturan situs.",
+          heading: null,
+          body: "Chat dulu untuk cek slot sebelum datang, ya. Dapur kami produksi sesuai pesanan.",
           facts: [
             { label: "Alamat", settingKey: "address.street" },
             { label: "WhatsApp", settingKey: "contact.whatsappDisplay" },
             { label: "Email", settingKey: "contact.email" },
             { label: "Jam", settingKey: "hours" },
           ],
-          cta: {
-            label: "Buka di Google Maps",
-            href: "https://maps.google.com/?q=-7.7023,110.6894",
-          },
+          cta: null,
           image: null,
           imagePosition: "right",
           map: true,
         },
       },
-      rt([
-        "Sebelum datang, lihat [Cara Pesan](/cara-pesan), [FAQ](/faq), atau cerita kami di [Tentang](/tentang).",
-      ]),
+      {
+        ...rt([
+          "Sebelum datang, lihat [Cara Pesan](/cara-pesan), [FAQ](/faq), atau cerita kami di [Tentang](/tentang).",
+        ]),
+        visible: false,
+      },
     ],
   },
 ];

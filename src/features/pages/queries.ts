@@ -8,6 +8,8 @@ import type { SeoMeta } from "@/db/schema/seo";
 import { cachedRead } from "@/features/_shared/db";
 import { tags } from "@/lib/cache-tags";
 
+import { isCmsRouteSlug } from "./slugs";
+
 /** Unvalidated section row — <BlockRenderer> validates each with blockSchema. */
 export type RawSection = { id: string; type: string; data: unknown };
 
@@ -75,6 +77,30 @@ export async function getPublishedPageSlugs(): Promise<
   );
 }
 
+export type CmsPageEntry = { slug: string; updatedAt: Date; noindex: boolean };
+
+/**
+ * Published pages served by the CMS catch-all `/[slug]` (static-route and reserved slugs
+ * excluded — see `./slugs`). For generateStaticParams + sitemap (skip `noindex`).
+ */
+export async function listCmsPagesForSitemap(): Promise<CmsPageEntry[]> {
+  "use cache";
+  cacheTag(tags.pages);
+  const rows = await cachedRead("cms-pages", "days", [], (db) =>
+    db
+      .select({ slug: pages.slug, updatedAt: pages.updatedAt, seo: pages.seo })
+      .from(pages)
+      .where(eq(pages.status, "published")),
+  );
+  return rows
+    .filter((r) => isCmsRouteSlug(r.slug))
+    .map((r) => ({
+      slug: r.slug,
+      updatedAt: r.updatedAt,
+      noindex: Boolean(r.seo?.noindex),
+    }));
+}
+
 export type PublicRedirect = { from: string; to: string; permanent: boolean };
 
 export async function getRedirects(): Promise<PublicRedirect[]> {
@@ -88,29 +114,5 @@ export async function getRedirects(): Promise<PublicRedirect[]> {
         permanent: redirects.permanent,
       })
       .from(redirects),
-  );
-}
-
-/** Sitemap rows: published CMS pages with their noindex flag. */
-export async function listPagesForSitemap(): Promise<
-  { slug: string; updatedAt: Date; noindex: boolean }[]
-> {
-  "use cache";
-  cacheTag(tags.pages);
-  return cachedRead("pages-sitemap", "days", [], async (db) =>
-    (
-      await db
-        .select({
-          slug: pages.slug,
-          updatedAt: pages.updatedAt,
-          seo: pages.seo,
-        })
-        .from(pages)
-        .where(eq(pages.status, "published"))
-    ).map((r) => ({
-      slug: r.slug,
-      updatedAt: r.updatedAt,
-      noindex: r.seo?.noindex === true,
-    })),
   );
 }

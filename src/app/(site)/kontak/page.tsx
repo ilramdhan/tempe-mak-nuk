@@ -10,6 +10,10 @@ import {
   Stack,
 } from "@/components/site/primitives";
 import { Button } from "@/components/ui/button";
+import { BlockRenderer } from "@/features/pages/blocks/block-renderer";
+import { CtaButton } from "@/features/pages/blocks/shared";
+import { splitPageSections } from "@/features/pages/layout";
+import { getPage, getPageMeta } from "@/features/pages/queries";
 import { getSettings } from "@/features/settings/queries";
 import {
   businessFromSettings,
@@ -23,15 +27,31 @@ import { buildWaLink } from "@/lib/wa-link";
 
 import { LazyMap } from "./_components/lazy-map";
 
-const DESCRIPTION =
-  "Alamat dapur produksi Tempe Mak Nuk di Pedan, Klaten, jam buka, peta, WhatsApp, dan Instagram. Chat dulu untuk cek slot sebelum datang.";
+const SLUG = "kontak";
+
+/** Fallback copy when the `pages` row "kontak" is missing/unpublished (admin: Halaman → Kontak). */
+const FALLBACK = {
+  title: "Kontak dan Alamat Tempe Mak Nuk, Pedan Klaten",
+  description:
+    "Alamat dapur produksi Tempe Mak Nuk di Pedan, Klaten, jam buka, peta, WhatsApp, dan Instagram. Chat dulu untuk cek slot sebelum datang.",
+  intro: {
+    eyebrow: "Kontak",
+    headline: "Kontak dan alamat",
+    subheadline:
+      "Alamat dapur produksi Tempe Mak Nuk di Pedan, Klaten, jam buka, peta, WhatsApp, dan Instagram. Chat dulu untuk cek slot sebelum datang.",
+    primaryCta: null,
+    secondaryCta: null,
+  },
+  note: "Chat dulu untuk cek slot sebelum datang, ya. Dapur kami produksi sesuai pesanan.",
+};
 
 export async function generateMetadata(): Promise<Metadata> {
+  const meta = await getPageMeta(SLUG);
   return pageMetadata({
-    title: "Kontak dan Alamat Tempe Mak Nuk, Pedan Klaten",
-    description: DESCRIPTION,
+    title: meta ? meta.title : FALLBACK.title,
+    description: meta?.seo.description || FALLBACK.description,
     path: "/kontak",
-    titleAbsolute: true,
+    seo: meta?.seo ?? { title: FALLBACK.title },
   });
 }
 
@@ -58,7 +78,13 @@ const linkCls =
   "rounded-sm text-accent-strong underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-ring";
 
 export default async function KontakPage() {
-  const s = await getSettings();
+  const [page, s] = await Promise.all([getPage(SLUG), getSettings()]);
+  // CMS sections: hero → intro; a `split` section marks where the contact details + map go
+  // (its heading/body are used; address, hours, links and map always come from settings).
+  const layout = splitPageSections(page?.sections, "split");
+  const intro = layout.intro ?? FALLBACK.intro;
+  const details = layout.marker;
+  const note = page ? details?.body : FALLBACK.note;
   const waHref = buildWaLink(
     s["contact.whatsapp"],
     "Halo Mak Nuk, saya mau cek slot sebelum datang.",
@@ -96,9 +122,9 @@ export default async function KontakPage() {
     webPageJsonLd(
       {
         type: "ContactPage",
-        name: "Kontak Tempe Mak Nuk",
+        name: page?.seo.title || "Kontak Tempe Mak Nuk",
         path: "/kontak",
-        description: DESCRIPTION,
+        description: page?.seo.description || FALLBACK.description,
       },
       base,
     ),
@@ -113,27 +139,47 @@ export default async function KontakPage() {
       <Section spacing="tight">
         <Container>
           <Stack gap="md">
-            <Eyebrow rule tone="accent">
-              Kontak
-            </Eyebrow>
+            {intro.eyebrow ? (
+              <Eyebrow rule tone="accent">
+                {intro.eyebrow}
+              </Eyebrow>
+            ) : null}
             <Heading level={1} size="display">
-              Kontak dan alamat
+              {intro.headline}
             </Heading>
-            <Lead muted>{DESCRIPTION}</Lead>
-            {waHref ? (
-              <div>
-                <Button asChild size="lg">
-                  <WaLink href={waHref} source="kontak:cta" kind="general">
-                    Chat via WhatsApp
-                  </WaLink>
-                </Button>
+            {intro.subheadline ? <Lead muted>{intro.subheadline}</Lead> : null}
+            {waHref || intro.primaryCta || intro.secondaryCta ? (
+              <div className="flex flex-wrap items-center gap-3">
+                {waHref ? (
+                  <Button asChild size="lg">
+                    <WaLink href={waHref} source="kontak:cta" kind="general">
+                      Chat via WhatsApp
+                    </WaLink>
+                  </Button>
+                ) : null}
+                <CtaButton
+                  cta={intro.primaryCta}
+                  variant={waHref ? "secondary" : "primary"}
+                />
+                <CtaButton cta={intro.secondaryCta} variant="secondary" />
               </div>
             ) : null}
           </Stack>
         </Container>
       </Section>
-      <Section spacing="tight">
+      {layout.before.length ? (
+        <BlockRenderer blocks={layout.before} firstHeadingLevel={2} />
+      ) : null}
+      <Section spacing="tight" id={details?.anchor ?? undefined}>
         <Container>
+          {details?.eyebrow || details?.heading ? (
+            <Stack gap="sm" className="mb-6">
+              {details.eyebrow ? <Eyebrow>{details.eyebrow}</Eyebrow> : null}
+              {details.heading ? (
+                <Heading level={2}>{details.heading}</Heading>
+              ) : null}
+            </Stack>
+          ) : null}
           <div className="grid gap-10 lg:grid-cols-2">
             <dl className="border-t border-border">
               {address ? <Row label="Alamat">{address}</Row> : null}
@@ -220,12 +266,14 @@ export default async function KontakPage() {
               </a>
             ) : null}
           </div>
-          <p className="mt-8 text-sm text-muted-foreground">
-            Chat dulu untuk cek slot sebelum datang, ya. Dapur kami produksi
-            sesuai pesanan.
-          </p>
+          {note ? (
+            <p className="mt-8 text-sm text-muted-foreground">{note}</p>
+          ) : null}
         </Container>
       </Section>
+      {layout.after.length ? (
+        <BlockRenderer blocks={layout.after} firstHeadingLevel={2} />
+      ) : null}
       <JsonLd data={jsonLd} />
     </>
   );

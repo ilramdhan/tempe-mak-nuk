@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 
 import { LEGAL_ROUTES } from "@/features/legal/schema";
 import { listLegalForSitemap } from "@/features/legal/queries";
+import { listCmsPagesForSitemap } from "@/features/pages/queries";
 import { listPostsForSitemap } from "@/features/posts/queries";
 import { listProductsForSitemap } from "@/features/products/queries";
 import { listRecipesForSitemap } from "@/features/recipes/queries";
@@ -34,13 +35,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ).replace(/\/+$/, "");
   const abs = (p: string) => (p === "/" ? base : `${base}${p}`);
 
-  const [products0, posts0, recipes0, postCats, legal] = await Promise.all([
-    listProductsForSitemap(),
-    listPostsForSitemap(),
-    listRecipesForSitemap(),
-    getCategories("post"),
-    listLegalForSitemap(),
-  ]);
+  const [products0, posts0, recipes0, postCats, legal, cms] = await Promise.all(
+    [
+      listProductsForSitemap(),
+      listPostsForSitemap(),
+      listRecipesForSitemap(),
+      getCategories("post"),
+      listLegalForSitemap(),
+      listCmsPagesForSitemap(),
+    ],
+  );
   const indexable = <T extends { noindex: boolean }>(xs: T[]) =>
     xs.filter((x) => !x.noindex);
   const products = indexable(products0);
@@ -58,6 +62,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: x.updatedAt,
       changeFrequency: "yearly",
       priority: 0.3,
+    });
+  for (const x of indexable(cms))
+    entries.push({
+      url: abs(`/${x.slug}`),
+      lastModified: x.updatedAt,
+      priority: 0.5,
     });
   for (const x of products)
     entries.push({

@@ -8,6 +8,8 @@ import {
   uuidSchema,
 } from "@/features/_shared/schema";
 
+import { isReservedPageSlug, PAGE_SLUG_RE } from "./slugs";
+
 export {
   blockSchema,
   pageSectionSchema,
@@ -24,15 +26,19 @@ export {
   type PageSectionInput,
 } from "./blocks/schema";
 
-/** Page slugs: "home" or kebab-case path segments (nested with "/"). */
+/**
+ * Page slugs: one kebab-case segment ("home" = beranda). Slugs of code-owned routes
+ * (jurnal, resep, admin, api, legal, …) are rejected — such a page could never be reached.
+ */
 export const pageSlugSchema = z
   .string()
   .trim()
   .min(1)
   .max(120)
-  .regex(
-    /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/,
-    "Slug tidak valid",
+  .regex(PAGE_SLUG_RE, "Slug hanya huruf kecil, angka, dan tanda hubung")
+  .refine(
+    (v) => !isReservedPageSlug(v),
+    "Slug ini dipakai rute bawaan situs. Pilih slug lain.",
   );
 
 export const pageInputSchema = z.object({
