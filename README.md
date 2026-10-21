@@ -3,7 +3,6 @@
 Situs web bisnis tempe keluarga Mak Nuk: katalog produk, jurnal & resep, kalender slot Pre-Order, pemesanan lewat WhatsApp, dan panel admin untuk pemilik.
 
 [![CI](https://github.com/ilramdhan/tempe-mak-nuk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ilramdhan/tempe-mak-nuk/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/ilramdhan/tempe-mak-nuk/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/ilramdhan/tempe-mak-nuk/actions/workflows/codeql.yml)
 [![Release](https://img.shields.io/github/v/release/ilramdhan/tempe-mak-nuk)](https://github.com/ilramdhan/tempe-mak-nuk/releases)
 [![License: proprietary](https://img.shields.io/badge/license-proprietary-red)](LICENSE)
 
