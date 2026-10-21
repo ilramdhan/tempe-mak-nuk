@@ -90,7 +90,7 @@
 | P8.8 | Docs akurat: admin-guide, README setup, security.md | S | P8.1–P8.6, P8.14 | todo |  | `README.md`, `docs/*.md` |
 | P8.9 | Admin kecil: tab SEO & situs untuk editor (seo./cta.); hapus action redirect duplikat | S | P8.0 | done | sonnet | `features/settings`, `features/pages/actions.ts` |
 | P8.10 | E2E: anonim /admin→/login; admin CRUD (skip tanpa E2E_ADMIN_*); 404 slug | S | P8.2 | done | sonnet | `tests/e2e/*` |
-| P8.11 | Performa: animasi idle, SlotCalendar prefetch/dynamic, browserslist, analyzer, hapus motion bila tak dipakai | O | P8.0 | todo |  | `src/components/motion/*`, link CTA |
+| P8.11 | Performa: animasi idle, SlotCalendar prefetch/dynamic, browserslist, analyzer, hapus motion bila tak dipakai | O | P8.0 | doing | opus | `src/components/motion/*`, link CTA |
 | P8.12 | QA: dark --card≠--surface; bar sticky /custom-order 375px; WA mengambang tidak menutupi konten (keputusan: rekomendasi orkestrator) | O | P8.0 | done | opus | `globals.css` (--card/--input dark, scroll-padding-bottom), `features/orders/components/{order-builder,sticky-bar}.ts(x)`, `components/site/layout/floating-whatsapp(-visibility).ts(x)` + tests, `docs/qa.md` V7–V9 |
 | P8.13 | P0.6: catat skills §13 | S | — | todo |  | `STATE.md` |
 | P8.14 | RBAC dinamis: matriks izin per peran (+override per pengguna) dikelola owner via web; hapus artikel/resep default owner-only; adminAction cek izin | O | P8.9 | doing | opus | `src/lib/auth/*`, `features/permissions/**`, `admin/pengguna/**`, migrasi baru |
