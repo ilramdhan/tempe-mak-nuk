@@ -84,7 +84,7 @@
 | P8.2 | Route dinamis [slug] 404 sejak request pertama (bukan soft-404 streaming) | O | P8.0 | done | opus | `ensureStatic="navigation"` di 4 page `[slug]` (404 nyata, slug dikenal tetap statis); judul kategori `categoryTopic()` (`jurnal/kategori/[slug]/category-label.ts` + test); JSON-LD `image` cover (fallback `/og-default.png`) |
 | P8.3 | SEO kecil: judul ganda, 'Tips Tempe Tempe', sitemap noindex, JSON-LD image, /favicon.ico, description legal | S | P8.0 | done | sonnet | `src/lib/seo/*`, `sitemap.ts` |
 | P8.4 | Cache: updateMediaAlt expire tag pemakai; konten terjadwal via cron+CRON_SECRET | S | P8.0 | todo |  | `features/media/actions.ts`, `vercel.json`, `src/app/api/cron/*` |
-| P8.5 | /admin/kategori: kelola kategori FAQ/jurnal/resep + tag | S | P8.0 | doing | sonnet | `src/app/(admin)/admin/kategori/**`, nav admin |
+| P8.5 | /admin/kategori: kelola kategori FAQ/jurnal/resep + tag | S | P8.0 | done | sonnet | `src/app/(admin)/admin/kategori/**`, features/taxonomy (updateTag, counts, in-use delete guard), nav, registry tags.update |
 | P8.6 | Dasbor: kartu peringatan konten kosong | S | P8.0 | todo |  | `admin/(dashboard)` |
 | P8.7 | Konten publik kurang (FAQ+resep terkait produk, galeri bentuk, probiotik, timeline, announcement slot, consent 12 bln + Tolak, TOC legal) | S | P8.1 | todo |  | route publik terkait |
 | P8.8 | Docs akurat: admin-guide, README setup, security.md | S | P8.1–P8.6, P8.14 | todo |  | `README.md`, `docs/*.md` |

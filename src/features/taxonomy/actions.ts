@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 
 import { categories, tags as tagTable, type CategoryKind } from "@/db/schema";
@@ -78,6 +78,17 @@ export async function deleteCategory(id: string): Promise<ActionResult> {
     entity: "categories",
     action: "delete",
     run: async ({ id }, { tx }) => {
+      const [inUse] = await tx.execute<{ n: number }>(
+        sql`select (
+          (select count(*) from posts where category_id = ${id}::uuid) +
+          (select count(*) from recipes where category_id = ${id}::uuid) +
+          (select count(*) from faqs where category_id = ${id}::uuid)
+        )::int as n`,
+      );
+      if (inUse && inUse.n > 0)
+        return fail(
+          `Kategori masih dipakai ${inUse.n} item. Pindahkan item tersebut dulu.`,
+        );
       const [row] = await tx
         .delete(categories)
         .where(eq(categories.id, id))
@@ -145,6 +156,27 @@ export async function deleteTag(id: string): Promise<ActionResult> {
     run: async ({ id }, { tx }) => {
       const rows = await tx
         .delete(tagTable)
+        .where(eq(tagTable.id, id))
+        .returning({ id: tagTable.id });
+      if (!rows.length) return fail("Tag tidak ditemukan.");
+      return { result: undefined, entityId: id, tags: [tags.tags, tags.posts] };
+    },
+  });
+}
+
+export async function updateTag(
+  id: string,
+  input: TagInput,
+): Promise<ActionResult> {
+  return adminAction({
+    schema: tagInputSchema.extend({ id: uuidSchema }),
+    input: { ...input, id },
+    entity: "tags",
+    action: "update",
+    run: async ({ id, ...data }, { tx }) => {
+      const rows = await tx
+        .update(tagTable)
+        .set(data)
         .where(eq(tagTable.id, id))
         .returning({ id: tagTable.id });
       if (!rows.length) return fail("Tag tidak ditemukan.");

@@ -120,6 +120,7 @@ export const PERMISSIONS = {
   "categories.delete": editor("taxonomy", "Hapus kategori"),
   "categories.reorder": editor("taxonomy", "Urutkan kategori"),
   "tags.create": editor("taxonomy", "Buat tag"),
+  "tags.update": editor("taxonomy", "Ubah tag"),
   "tags.delete": editor("taxonomy", "Hapus tag"),
 
   // FAQ

@@ -19,6 +19,7 @@ describe("admin nav", () => {
       "/admin/jurnal",
       "/admin/resep",
       "/admin/faq",
+      "/admin/kategori",
       "/admin/testimoni",
       "/admin/navigasi",
       "/admin/media",
