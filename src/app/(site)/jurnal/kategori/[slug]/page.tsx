@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { Breadcrumb, serializeJsonLd } from "@/components/site/layout";
+import { Breadcrumb } from "@/components/site/layout";
 import {
   Container,
   Eyebrow,
@@ -13,6 +13,8 @@ import {
 import { getPosts } from "@/features/posts/queries";
 import { getSettings } from "@/features/settings/queries";
 import { getCategories } from "@/features/taxonomy/queries";
+import { itemListJsonLd, JsonLd, siteBaseUrl, webPageJsonLd } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo/server";
 
 import { CategoryNav } from "../../_components/category-nav";
 import { PostGrid } from "../../_components/post-grid";
@@ -28,11 +30,12 @@ export async function generateMetadata({
   const { slug } = await params;
   const cat = (await getCategories("post")).find((c) => c.slug === slug);
   if (!cat) return {};
-  return {
-    title: { absolute: `${cat.name} Tempe: Artikel dan Panduan — Mak Nuk` },
+  return pageMetadata({
+    title: `${cat.name} Tempe: Artikel dan Panduan — Mak Nuk`,
     description: `Kumpulan artikel ${cat.name.toLowerCase()} tempe dari Tempe Mak Nuk, Klaten. Panduan praktis, bersumber, dan mudah dipraktikkan.`,
-    alternates: { canonical: `/jurnal/kategori/${cat.slug}` },
-  };
+    path: `/jurnal/kategori/${cat.slug}`,
+    titleAbsolute: true,
+  });
 }
 
 export default async function KategoriPage({
@@ -47,24 +50,20 @@ export default async function KategoriPage({
   if (!cat) notFound();
   const posts = await getPosts({ category: slug });
   const siteUrl = settings["site.url"];
-  const jsonLd = siteUrl
-    ? {
-        "@context": "https://schema.org",
-        "@type": "CollectionPage",
-        name: `${cat.name} Tempe`,
-        url: new URL(`/jurnal/kategori/${cat.slug}`, siteUrl).toString(),
-        inLanguage: "id-ID",
-        mainEntity: {
-          "@type": "ItemList",
-          itemListElement: posts.map((p, i) => ({
-            "@type": "ListItem",
-            position: i + 1,
-            url: new URL(`/jurnal/${p.slug}`, siteUrl).toString(),
-            name: p.title,
-          })),
-        },
-      }
-    : null;
+  const base = siteBaseUrl(siteUrl);
+  const jsonLd = webPageJsonLd(
+    {
+      type: "CollectionPage",
+      name: `${cat.name} Tempe`,
+      path: `/jurnal/kategori/${cat.slug}`,
+    },
+    base,
+  );
+  const itemList = itemListJsonLd(
+    posts.map((p) => ({ name: p.title, path: `/jurnal/${p.slug}` })),
+    base,
+  );
+  if (itemList) jsonLd.mainEntity = itemList;
 
   return (
     <>
@@ -96,12 +95,7 @@ export default async function KategoriPage({
           )}
         </Container>
       </Section>
-      {jsonLd ? (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
-        />
-      ) : null}
+      <JsonLd data={jsonLd} />
     </>
   );
 }

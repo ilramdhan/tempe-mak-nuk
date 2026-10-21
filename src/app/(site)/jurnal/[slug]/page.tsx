@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { WaLink, Breadcrumb, serializeJsonLd } from "@/components/site/layout";
+import { WaLink, Breadcrumb } from "@/components/site/layout";
 import {
   Container,
   Eyebrow,
@@ -27,6 +27,8 @@ import {
   type TiptapDoc,
   type TiptapNode,
 } from "@/lib/rich-text";
+import { articleJsonLd, JsonLd, siteBaseUrl } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo/server";
 import { buildWaLink } from "@/lib/wa-link";
 
 import { PostCard, PostMeta } from "../_components/post-card";
@@ -42,30 +44,15 @@ export async function generateMetadata({
   const { slug } = await params;
   const p = await getPostBySlug(slug);
   if (!p) return {};
-  const cover = p.cover;
-  const description = p.seo.description ?? p.excerpt ?? undefined;
-  return {
-    title: p.seo.title ?? p.title,
-    description,
-    alternates: { canonical: `/jurnal/${p.slug}` },
-    robots: p.seo.noindex ? { index: false, follow: false } : undefined,
-    openGraph: {
-      type: "article",
-      publishedTime: p.publishedAt?.toISOString(),
-      modifiedTime: p.updatedAt.toISOString(),
-      ...(cover
-        ? {
-            images: [
-              {
-                url: cover.url,
-                width: cover.width ?? undefined,
-                height: cover.height ?? undefined,
-              },
-            ],
-          }
-        : {}),
-    },
-  };
+  return pageMetadata({
+    title: p.title,
+    description: p.excerpt,
+    path: `/jurnal/${p.slug}`,
+    seo: p.seo,
+    type: "article",
+    publishedTime: p.publishedAt,
+    modifiedTime: p.updatedAt,
+  });
 }
 
 function collectMediaIds(
@@ -94,42 +81,29 @@ export default async function PostPage({
   const doc = (post.content ?? null) as TiptapDoc | null;
   const headings = extractHeadings(doc).filter((h) => h.level <= 3);
   const media = await getMediaByIds(collectMediaIds(doc ?? undefined));
-  const siteUrl = settings["site.url"];
   const waHref = buildWaLink(settings["contact.whatsapp"], {
     greeting:
       "Halo Mak Nuk, saya baca artikel di jurnal dan ingin tanya tempe.",
     lines: [{ label: "Artikel", value: post.title }],
   });
 
-  const url = siteUrl
-    ? new URL(`/jurnal/${post.slug}`, siteUrl).toString()
-    : null;
-  const jsonLd = url
-    ? {
-        "@context": "https://schema.org",
-        "@type": "BlogPosting",
-        headline: post.title,
-        description: post.seo.description ?? post.excerpt ?? undefined,
-        url,
-        mainEntityOfPage: url,
-        inLanguage: "id-ID",
-        image: post.cover ? [post.cover.url] : undefined,
-        datePublished: post.publishedAt?.toISOString(),
-        dateModified: post.updatedAt.toISOString(),
-        wordCount: richTextToPlainText(doc).split(/\s+/).filter(Boolean).length,
-        articleSection: post.category?.name,
-        keywords: post.tags.map((t) => t.name).join(", ") || undefined,
-        author: {
-          "@type": post.author?.name ? "Person" : "Organization",
-          name: post.author?.name ?? settings["business.name"],
-        },
-        publisher: {
-          "@type": "Organization",
-          name: settings["business.name"],
-          url: siteUrl,
-        },
-      }
-    : null;
+  const jsonLd = articleJsonLd(
+    {
+      type: "BlogPosting",
+      headline: post.title,
+      path: `/jurnal/${post.slug}`,
+      description: post.seo.description ?? post.excerpt,
+      images: post.cover ? [post.cover.url] : [],
+      publishedAt: post.publishedAt,
+      modifiedAt: post.updatedAt,
+      authorName: post.author?.name,
+      publisherName: settings["business.name"],
+      wordCount: richTextToPlainText(doc).split(/\s+/).filter(Boolean).length,
+      section: post.category?.name,
+      keywords: post.tags.map((t) => t.name),
+    },
+    siteBaseUrl(settings["site.url"]),
+  );
 
   return (
     <>
@@ -302,12 +276,7 @@ export default async function PostPage({
         </Section>
       ) : null}
 
-      {jsonLd ? (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
-        />
-      ) : null}
+      <JsonLd data={jsonLd} />
     </>
   );
 }

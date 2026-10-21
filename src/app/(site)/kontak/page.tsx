@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { Breadcrumb, WaLink, serializeJsonLd } from "@/components/site/layout";
+import { Breadcrumb, WaLink } from "@/components/site/layout";
 import {
   Container,
   Eyebrow,
@@ -11,6 +11,8 @@ import {
 } from "@/components/site/primitives";
 import { Button } from "@/components/ui/button";
 import { getSettings } from "@/features/settings/queries";
+import { businessFromSettings, foodEstablishmentJsonLd, JsonLd, siteBaseUrl, webPageJsonLd } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo/server";
 import { buildWaLink } from "@/lib/wa-link";
 
 import { LazyMap } from "./_components/lazy-map";
@@ -18,11 +20,14 @@ import { LazyMap } from "./_components/lazy-map";
 const DESCRIPTION =
   "Alamat dapur produksi Tempe Mak Nuk di Pedan, Klaten, jam buka, peta, WhatsApp, dan Instagram. Chat dulu untuk cek slot sebelum datang.";
 
-export const metadata: Metadata = {
-  title: { absolute: "Kontak dan Alamat Tempe Mak Nuk, Pedan Klaten" },
-  description: DESCRIPTION,
-  alternates: { canonical: "/kontak" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return pageMetadata({
+    title: "Kontak dan Alamat Tempe Mak Nuk, Pedan Klaten",
+    description: DESCRIPTION,
+    path: "/kontak",
+    titleAbsolute: true,
+  });
+}
 
 const DAYS = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
@@ -80,58 +85,19 @@ export default async function KontakPage() {
       ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
       : "");
   const embedUrl = s["maps.embedUrl"];
-  const siteUrl = s["site.url"];
-  const hasGeo = s["geo.lat"] !== 0 || s["geo.lng"] !== 0;
-
-  const jsonLd = siteUrl
-    ? {
-        "@context": "https://schema.org",
-        "@graph": [
-          {
-            "@type": "ContactPage",
-            url: new URL("/kontak", siteUrl).toString(),
-            name: "Kontak Tempe Mak Nuk",
-            description: DESCRIPTION,
-            inLanguage: "id-ID",
-          },
-          {
-            "@type": "FoodEstablishment",
-            name: s["business.name"],
-            url: siteUrl,
-            telephone: phone || undefined,
-            email: email || undefined,
-            address: address
-              ? {
-                  "@type": "PostalAddress",
-                  streetAddress: s["address.street"] || undefined,
-                  addressLocality: s["address.city"] || undefined,
-                  addressRegion: s["address.province"] || undefined,
-                  postalCode: s["address.postalCode"] || undefined,
-                  addressCountry: s["address.country"],
-                }
-              : undefined,
-            geo: hasGeo
-              ? {
-                  "@type": "GeoCoordinates",
-                  latitude: s["geo.lat"],
-                  longitude: s["geo.lng"],
-                }
-              : undefined,
-            openingHoursSpecification: hours.days?.length
-              ? hours.days.map((d) => ({
-                  "@type": "OpeningHoursSpecification",
-                  dayOfWeek: DAYS[d.day]
-                    ? `https://schema.org/${["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][d.day]}`
-                    : undefined,
-                  opens: d.open,
-                  closes: d.close,
-                }))
-              : undefined,
-            sameAs: socials.map(([, url]) => url),
-          },
-        ],
-      }
-    : null;
+  const base = siteBaseUrl(s["site.url"]);
+  const jsonLd = [
+    webPageJsonLd(
+      {
+        type: "ContactPage",
+        name: "Kontak Tempe Mak Nuk",
+        path: "/kontak",
+        description: DESCRIPTION,
+      },
+      base,
+    ),
+    foodEstablishmentJsonLd(businessFromSettings(s), base),
+  ];
 
   return (
     <>
@@ -252,12 +218,7 @@ export default async function KontakPage() {
           </p>
         </Container>
       </Section>
-      {jsonLd ? (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
-        />
-      ) : null}
+      <JsonLd data={jsonLd} />
     </>
   );
 }

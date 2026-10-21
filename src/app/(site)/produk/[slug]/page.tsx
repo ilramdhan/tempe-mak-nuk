@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { Breadcrumb, serializeJsonLd } from "@/components/site/layout";
+import { Breadcrumb } from "@/components/site/layout";
 import {
   Container,
   Eyebrow,
@@ -36,6 +36,8 @@ import {
   productVariantLabel,
 } from "../_components/product-image";
 import { RichText, type TiptapDoc } from "@/lib/rich-text";
+import { JsonLd, productJsonLd, siteBaseUrl } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo/server";
 
 export async function generateStaticParams() {
   const slugs = await getProductSlugs();
@@ -48,24 +50,12 @@ export async function generateMetadata({
   const { slug } = await params;
   const p = await getProductBySlug(slug);
   if (!p) return {};
-  const cover = p.cover;
-  return {
-    title: p.seo.title ?? p.name,
-    description: p.seo.description ?? p.short ?? undefined,
-    alternates: { canonical: `/produk/${p.slug}` },
-    robots: p.seo.noindex ? { index: false, follow: false } : undefined,
-    openGraph: cover
-      ? {
-          images: [
-            {
-              url: cover.url,
-              width: cover.width ?? undefined,
-              height: cover.height ?? undefined,
-            },
-          ],
-        }
-      : undefined,
-  };
+  return pageMetadata({
+    title: p.name,
+    description: p.short,
+    path: `/produk/${p.slug}`,
+    seo: p.seo,
+  });
 }
 
 const fmt = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 });
@@ -84,33 +74,24 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const showPrice = settings["pricing.show"];
-  const siteUrl = settings["site.url"];
   const sibling = all.find((p) => p.id !== product.id);
   const nutr = product.nutrition[0] ?? null;
   const priceLabel = formatPriceFrom(product.priceFrom, showPrice);
 
-  const jsonLd = siteUrl
-    ? {
-        "@context": "https://schema.org",
-        "@type": "Product",
+  const base = siteBaseUrl(settings["site.url"]);
+  const jsonLd = [
+    productJsonLd(
+      {
         name: product.name,
-        description: product.short ?? undefined,
-        url: new URL(`/produk/${product.slug}`, siteUrl).toString(),
-        image: product.gallery.map((g) => g.url),
-        brand: { "@type": "Brand", name: settings["business.name"] },
-        ...(showPrice && product.priceFrom !== null
-          ? {
-              offers: {
-                "@type": "Offer",
-                priceCurrency: "IDR",
-                price: product.priceFrom,
-                availability: "https://schema.org/PreOrder",
-                url: new URL(`/produk/${product.slug}`, siteUrl).toString(),
-              },
-            }
-          : {}),
-      }
-    : null;
+        description: product.short,
+        path: `/produk/${product.slug}`,
+        images: product.gallery.map((g) => g.url),
+        brand: settings["business.name"],
+        price: showPrice ? product.priceFrom : null,
+      },
+      base,
+    ),
+  ];
 
   return (
     <>
@@ -325,12 +306,7 @@ export default async function ProductPage({
         </Container>
       </Section>
 
-      {jsonLd ? (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
-        />
-      ) : null}
+      <JsonLd data={jsonLd} />
     </>
   );
 }

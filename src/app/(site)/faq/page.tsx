@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { Breadcrumb, WaLink, serializeJsonLd } from "@/components/site/layout";
+import { Breadcrumb, WaLink } from "@/components/site/layout";
 import {
   Container,
   Eyebrow,
@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { faqAnswerPlainText, getFaqs } from "@/features/faqs/queries";
 import { getSettings } from "@/features/settings/queries";
 import { renderLightMarkdown } from "@/lib/rich-text/inline";
+import { faqPageJsonLd, JsonLd, siteBaseUrl } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo/server";
 import { buildWaLink } from "@/lib/wa-link";
 
 import { FaqBrowser, type FaqBrowserItem } from "./_components/faq-browser";
@@ -20,11 +22,14 @@ import { FaqBrowser, type FaqBrowserItem } from "./_components/faq-browser";
 const DESCRIPTION =
   "Jawaban pertanyaan umum tentang pesan, PO, kirim, simpan, dan varian Tempe Mak Nuk. Cari pertanyaanmu atau tanya langsung via WhatsApp.";
 
-export const metadata: Metadata = {
-  title: { absolute: "FAQ Tempe Mak Nuk: Pesan, Simpan, Kirim, Halal" },
-  description: DESCRIPTION,
-  alternates: { canonical: "/faq" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return pageMetadata({
+    title: "FAQ Tempe Mak Nuk: Pesan, Simpan, Kirim, Halal",
+    description: DESCRIPTION,
+    path: "/faq",
+    titleAbsolute: true,
+  });
+}
 
 function hostOf(url: string): string[] {
   try {
@@ -52,23 +57,13 @@ export default async function FaqPage() {
     answer: renderLightMarkdown(f.answer, { internalHosts }),
   }));
 
-  const jsonLd =
-    faqs.length && siteUrl
-      ? {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          url: new URL("/faq", siteUrl).toString(),
-          inLanguage: "id-ID",
-          mainEntity: faqs.map((f) => ({
-            "@type": "Question",
-            name: f.question,
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: faqAnswerPlainText(f.answer),
-            },
-          })),
-        }
-      : null;
+  const jsonLd = faqPageJsonLd(
+    faqs.map((f) => ({
+      question: f.question,
+      answer: faqAnswerPlainText(f.answer),
+    })),
+    { path: "/faq", base: siteBaseUrl(siteUrl), lang: "id-ID" },
+  );
 
   return (
     <>
@@ -114,12 +109,7 @@ export default async function FaqPage() {
           </Container>
         </Section>
       ) : null}
-      {jsonLd ? (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
-        />
-      ) : null}
+      <JsonLd data={jsonLd} />
     </>
   );
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { Breadcrumb, serializeJsonLd } from "@/components/site/layout";
+import { Breadcrumb } from "@/components/site/layout";
 import {
   Container,
   Heading,
@@ -13,6 +13,8 @@ import { BlockRenderer } from "@/features/pages/blocks/block-renderer";
 import { getPage, getPageMeta } from "@/features/pages/queries";
 import { getProducts } from "@/features/products/queries";
 import { getSettings } from "@/features/settings/queries";
+import { JsonLd, siteBaseUrl, webPageJsonLd } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo/server";
 
 import { InquiryForm } from "./_components/inquiry-form";
 
@@ -21,12 +23,13 @@ const SLUG = "kemitraan";
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPageMeta(SLUG);
   if (!page) return {};
-  return {
-    title: { absolute: page.seo.title ?? page.title },
+  return pageMetadata({
+    title: page.title,
     description: page.seo.description,
-    alternates: { canonical: "/kemitraan" },
-    robots: page.seo.noindex ? { index: false, follow: false } : undefined,
-  };
+    path: "/kemitraan",
+    seo: page.seo,
+    titleAbsolute: true,
+  });
 }
 
 export default async function Page() {
@@ -36,19 +39,15 @@ export default async function Page() {
     getProducts(),
   ]);
   if (!page) notFound();
-  const siteUrl = settings["site.url"];
-  const url = siteUrl ? new URL("/kemitraan", siteUrl).toString() : null;
-  const jsonLd = url
-    ? {
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-        "@id": url,
-        url,
-        name: page.seo.title ?? page.title,
-        description: page.seo.description,
-        inLanguage: "id-ID",
-      }
-    : null;
+  const base = siteBaseUrl(settings["site.url"]);
+  const jsonLd = webPageJsonLd(
+    {
+      name: page.seo.title ?? page.title,
+      path: "/kemitraan",
+      description: page.seo.description,
+    },
+    base,
+  );
 
   return (
     <>
@@ -71,12 +70,7 @@ export default async function Page() {
           </Stack>
         </Container>
       </Section>
-      {jsonLd ? (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
-        />
-      ) : null}
+      <JsonLd data={jsonLd} />
     </>
   );
 }

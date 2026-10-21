@@ -8,6 +8,7 @@ import { getLegalDocument } from "@/features/legal/queries";
 import { LEGAL_ROUTES } from "@/features/legal/schema";
 import { formatDateLong } from "@/lib/dates";
 import { RichText, type TiptapDoc } from "@/lib/rich-text";
+import { pageMetadata } from "@/lib/seo/server";
 
 const TITLES: Record<LegalSlug, string> = {
   privacy: "Kebijakan Privasi",
@@ -18,11 +19,10 @@ const TITLES: Record<LegalSlug, string> = {
 
 export async function legalMetadata(slug: LegalSlug): Promise<Metadata> {
   const doc = await getLegalDocument(slug);
-  return {
+  return pageMetadata({
     title: doc?.title ?? TITLES[slug],
-    alternates: { canonical: LEGAL_ROUTES[slug] },
-    robots: { index: true, follow: true },
-  };
+    path: LEGAL_ROUTES[slug],
+  });
 }
 
 export async function LegalPage({ slug }: { slug: LegalSlug }) {

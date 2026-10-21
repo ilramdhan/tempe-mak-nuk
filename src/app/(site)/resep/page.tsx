@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { Breadcrumb, serializeJsonLd } from "@/components/site/layout";
+import { Breadcrumb } from "@/components/site/layout";
 import {
   Container,
   Eyebrow,
@@ -12,17 +12,22 @@ import {
 import { getRecipes } from "@/features/recipes/queries";
 import { getSettings } from "@/features/settings/queries";
 import { getCategories } from "@/features/taxonomy/queries";
+import { itemListJsonLd, JsonLd, siteBaseUrl, webPageJsonLd } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo/server";
 
 import { RecipeBrowser } from "./_components/recipe-browser";
 
 const DESCRIPTION =
   "Kumpulan resep tempe rumahan: mendoan, bacem, orek, sambal goreng, penyet, sampai tim untuk MPASI. Langkah jelas, bahan mudah dicari.";
 
-export const metadata: Metadata = {
-  title: { absolute: "Resep Tempe Rumahan Mudah dan Enak — Tempe Mak Nuk" },
-  description: DESCRIPTION,
-  alternates: { canonical: "/resep" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return pageMetadata({
+    title: "Resep Tempe Rumahan Mudah dan Enak — Tempe Mak Nuk",
+    description: DESCRIPTION,
+    path: "/resep",
+    titleAbsolute: true,
+  });
+}
 
 export default async function ResepPage() {
   const [recipes, categories, settings] = await Promise.all([
@@ -31,25 +36,21 @@ export default async function ResepPage() {
     getSettings(),
   ]);
   const siteUrl = settings["site.url"];
-  const jsonLd = siteUrl
-    ? {
-        "@context": "https://schema.org",
-        "@type": "CollectionPage",
-        name: "Resep Tempe Mak Nuk",
-        description: DESCRIPTION,
-        url: new URL("/resep", siteUrl).toString(),
-        inLanguage: "id-ID",
-        mainEntity: {
-          "@type": "ItemList",
-          itemListElement: recipes.map((r, i) => ({
-            "@type": "ListItem",
-            position: i + 1,
-            name: r.title,
-            url: new URL(`/resep/${r.slug}`, siteUrl).toString(),
-          })),
-        },
-      }
-    : null;
+  const base = siteBaseUrl(siteUrl);
+  const jsonLd = webPageJsonLd(
+    {
+      type: "CollectionPage",
+      name: "Resep Tempe Mak Nuk",
+      path: "/resep",
+      description: DESCRIPTION,
+    },
+    base,
+  );
+  const list = itemListJsonLd(
+    recipes.map((r) => ({ name: r.title, path: `/resep/${r.slug}` })),
+    base,
+  );
+  if (list) jsonLd.mainEntity = list;
 
   return (
     <>
@@ -84,12 +85,7 @@ export default async function ResepPage() {
           )}
         </Container>
       </Section>
-      {jsonLd ? (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
-        />
-      ) : null}
+      <JsonLd data={jsonLd} />
     </>
   );
 }

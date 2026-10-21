@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { WaLink, Breadcrumb, serializeJsonLd } from "@/components/site/layout";
+import { WaLink, Breadcrumb } from "@/components/site/layout";
 import {
   Container,
   Eyebrow,
@@ -22,6 +22,8 @@ import {
 } from "@/features/recipes/queries";
 import { getSettings } from "@/features/settings/queries";
 import { RichText, type TiptapDoc } from "@/lib/rich-text";
+import { JsonLd, recipeJsonLd, siteBaseUrl } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo/server";
 import { buildWaLink } from "@/lib/wa-link";
 
 import {
@@ -35,41 +37,21 @@ export async function generateStaticParams() {
   return slugs.map(({ slug }) => ({ slug }));
 }
 
-function isoDuration(min: number | null) {
-  return min ? `PT${min}M` : undefined;
-}
-
 export async function generateMetadata({
   params,
 }: PageProps<"/resep/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const r = await getRecipeBySlug(slug);
   if (!r) return {};
-  const description =
-    r.seo.description ??
-    `Cara membuat ${r.title}: bahan, langkah, waktu masak, dan tips memilih tempe segar. Ditulis keluarga pembuat tempe Mak Nuk, Klaten.`;
-  return {
+  return pageMetadata({
     title: r.seo.title ?? `Resep ${r.title}, Mudah`,
-    description,
-    alternates: { canonical: `/resep/${r.slug}` },
-    robots: r.seo.noindex ? { index: false, follow: false } : undefined,
-    openGraph: {
-      type: "article",
-      publishedTime: r.publishedAt?.toISOString(),
-      modifiedTime: r.updatedAt.toISOString(),
-      ...(r.cover
-        ? {
-            images: [
-              {
-                url: r.cover.url,
-                width: r.cover.width ?? undefined,
-                height: r.cover.height ?? undefined,
-              },
-            ],
-          }
-        : {}),
-    },
-  };
+    description: `Cara membuat ${r.title}: bahan, langkah, waktu masak, dan tips memilih tempe segar. Ditulis keluarga pembuat tempe Mak Nuk, Klaten.`,
+    path: `/resep/${r.slug}`,
+    seo: r.seo,
+    type: "article",
+    publishedTime: r.publishedAt,
+    modifiedTime: r.updatedAt,
+  });
 }
 
 export default async function RecipePage({
@@ -85,7 +67,6 @@ export default async function RecipePage({
 
   const doc = (recipe.content ?? null) as TiptapDoc | null;
   const media = await getMediaByIds(recipe.steps.map((s) => s.mediaId));
-  const siteUrl = settings["site.url"];
   const waHref = buildWaLink(settings["contact.whatsapp"], {
     greeting: "Halo Mak Nuk, saya mau pesan tempe untuk dimasak.",
     lines: [{ label: "Resep", value: recipe.title }],
@@ -101,44 +82,31 @@ export default async function RecipePage({
     else groups.push({ name, items: [ing] });
   }
 
-  const url = siteUrl
-    ? new URL(`/resep/${recipe.slug}`, siteUrl).toString()
-    : null;
-  const jsonLd = url
-    ? {
-        "@context": "https://schema.org",
-        "@type": "Recipe",
-        name: recipe.title,
-        description: recipe.seo.description ?? recipe.excerpt ?? undefined,
-        url,
-        mainEntityOfPage: url,
-        inLanguage: "id-ID",
-        image: recipe.cover ? [recipe.cover.url] : undefined,
-        datePublished: recipe.publishedAt?.toISOString(),
-        dateModified: recipe.updatedAt.toISOString(),
-        author: { "@type": "Organization", name: settings["business.name"] },
-        prepTime: isoDuration(recipe.prepMinutes),
-        cookTime: isoDuration(recipe.cookMinutes),
-        totalTime: isoDuration(total || null),
-        recipeYield: recipe.servings ? `${recipe.servings} porsi` : undefined,
-        recipeCategory: recipe.category?.name,
-        recipeCuisine: "Indonesia",
-        keywords: ["resep tempe", recipe.title].join(", "),
-        recipeIngredient: recipe.ingredients.map((i) =>
-          [i.qty, i.item, i.note ? `(${i.note})` : ""]
-            .filter(Boolean)
-            .join(" "),
-        ),
-        recipeInstructions: recipe.steps.map((s, i) => ({
-          "@type": "HowToStep",
-          position: i + 1,
-          text: s.text,
-          ...(s.mediaId && media[s.mediaId]
-            ? { image: media[s.mediaId]!.url }
-            : {}),
-        })),
-      }
-    : null;
+  const jsonLd = recipeJsonLd(
+    {
+      name: recipe.title,
+      path: `/resep/${recipe.slug}`,
+      description: recipe.seo.description ?? recipe.excerpt,
+      images: recipe.cover ? [recipe.cover.url] : [],
+      publishedAt: recipe.publishedAt,
+      modifiedAt: recipe.updatedAt,
+      authorName: settings["business.name"],
+      prepMinutes: recipe.prepMinutes,
+      cookMinutes: recipe.cookMinutes,
+      totalMinutes: total || null,
+      servings: recipe.servings,
+      category: recipe.category?.name,
+      keywords: ["resep tempe", recipe.title],
+      ingredients: recipe.ingredients.map((i) =>
+        [i.qty, i.item, i.note ? `(${i.note})` : ""].filter(Boolean).join(" "),
+      ),
+      steps: recipe.steps.map((s) => ({
+        text: s.text,
+        image: s.mediaId ? media[s.mediaId]?.url : null,
+      })),
+    },
+    siteBaseUrl(settings["site.url"]),
+  );
 
   const facts = [
     { label: "Persiapan", value: formatMinutes(recipe.prepMinutes) },
@@ -370,12 +338,7 @@ export default async function RecipePage({
         </Section>
       ) : null}
 
-      {jsonLd ? (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
-        />
-      ) : null}
+      <JsonLd data={jsonLd} />
     </>
   );
 }

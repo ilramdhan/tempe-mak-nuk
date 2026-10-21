@@ -15,6 +15,7 @@ import { validateBlocks, type ValidBlock } from "@/features/pages/blocks";
 import { BlockRenderer } from "@/features/pages/blocks/block-renderer";
 import { getPage, getPageMeta } from "@/features/pages/queries";
 import { getSettings } from "@/features/settings/queries";
+import { pageMetadata } from "@/lib/seo/server";
 import { buildWaLink } from "@/lib/wa-link";
 
 const SLUG = "home";
@@ -41,19 +42,13 @@ export async function generateMetadata(): Promise<Metadata> {
     getPageMeta(SLUG),
     getSettings(),
   ]);
-  const title =
-    page?.seo.title ||
-    settings["seo.defaultTitle"] ||
-    settings["business.name"];
-  const description =
-    page?.seo.description || settings["seo.defaultDescription"];
-  return {
-    title: { absolute: title },
-    description,
-    alternates: { canonical: "/" },
-    openGraph: { title, description, url: "/", type: "website" },
-    robots: page?.seo.noindex ? { index: false, follow: false } : undefined,
-  };
+  return pageMetadata({
+    title: page?.seo.title || settings["seo.defaultTitle"] || settings["business.name"],
+    description: page?.seo.description || settings["seo.defaultDescription"],
+    path: "/",
+    seo: page?.seo,
+    titleAbsolute: true,
+  });
 }
 
 /**

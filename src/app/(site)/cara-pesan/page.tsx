@@ -3,7 +3,6 @@ import Link from "next/link";
 
 import {
   Breadcrumb,
-  serializeJsonLd,
   WaLink,
 } from "@/components/site/layout";
 import {
@@ -18,17 +17,20 @@ import { BlockRenderer } from "@/features/pages/blocks/block-renderer";
 import { getPage, getPageMeta } from "@/features/pages/queries";
 import { getSettings } from "@/features/settings/queries";
 import { PublicSlotCalendar } from "@/features/slots/components/public-slot-calendar";
+import { howToJsonLd, JsonLd, siteBaseUrl } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo/server";
 import { buildWaLink } from "@/lib/wa-link";
 
 const SLUG = "cara-pesan";
 
 export async function generateMetadata(): Promise<Metadata> {
   const meta = await getPageMeta(SLUG);
-  return {
-    title: meta?.seo.title ?? meta?.title ?? "Cara Pesan",
-    description: meta?.seo.description ?? undefined,
-    alternates: { canonical: "/cara-pesan" },
-  };
+  return pageMetadata({
+    title: meta?.title ?? "Cara Pesan",
+    description: meta?.seo.description,
+    path: "/cara-pesan",
+    seo: meta?.seo,
+  });
 }
 
 export default async function CaraPesanPage() {
@@ -51,19 +53,17 @@ export default async function CaraPesanPage() {
   const steps = sections.find((s) => s.type === "steps")?.data as
     | { items?: { title?: string; body?: string }[] }
     | undefined;
-  const howTo = steps?.items?.length
-    ? {
-        "@context": "https://schema.org",
-        "@type": "HowTo",
-        name: page?.title ?? "Cara Pesan",
-        step: steps.items.map((it, i) => ({
-          "@type": "HowToStep",
-          position: i + 1,
-          name: it.title,
-          text: it.body,
-        })),
-      }
-    : null;
+  const howTo = howToJsonLd(
+    {
+      name: page?.title ?? "Cara Pesan",
+      path: "/cara-pesan",
+      steps: (steps?.items ?? []).map((it) => ({
+        name: it.title,
+        text: it.body,
+      })),
+    },
+    siteBaseUrl(settings["site.url"]),
+  );
 
   const wa = settings["contact.whatsapp"];
   const waHref = wa ? buildWaLink(wa, settings["cta.waFloatMessage"]) : null;
@@ -73,12 +73,7 @@ export default async function CaraPesanPage() {
       <Container>
         <Breadcrumb items={[{ label: page?.title ?? "Cara Pesan" }]} />
       </Container>
-      {howTo ? (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: serializeJsonLd(howTo) }}
-        />
-      ) : null}
+      <JsonLd data={howTo} />
       {before.length ? <BlockRenderer blocks={before} /> : null}
       <Section id="slot" tone="surface" aria-label="Kalender slot">
         <Container>

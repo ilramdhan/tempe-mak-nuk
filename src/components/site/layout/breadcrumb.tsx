@@ -10,6 +10,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { getSetting } from "@/features/settings/queries";
+import { serializeJsonLd } from "@/lib/seo/serialize";
+import { siteBaseUrl } from "@/lib/seo/url";
 import { cn } from "@/lib/utils";
 
 export type BreadcrumbCrumb = {
@@ -61,10 +63,7 @@ export function breadcrumbJsonLd(
   };
 }
 
-/** Serialise JSON-LD safely for an inline <script> (no `</script>` breakout). */
-export function serializeJsonLd(data: unknown): string {
-  return JSON.stringify(data).replace(/</g, "\\u003c"); // JSON.stringify already escapes U+2028/2029 (ES2019).
-}
+export { serializeJsonLd };
 
 /**
  * Page breadcrumb (server component). Visual trail + optional BreadcrumbList JSON-LD.
@@ -80,7 +79,7 @@ export async function Breadcrumb({
   const crumbs = includeHome ? [HOME, ...items] : items;
   if (crumbs.length === 0) return null;
   const structured = jsonLd
-    ? breadcrumbJsonLd(crumbs, await getSetting("site.url"))
+    ? breadcrumbJsonLd(crumbs, siteBaseUrl(await getSetting("site.url")))
     : null;
 
   return (

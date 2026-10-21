@@ -2,15 +2,12 @@ import type { Metadata, Viewport } from "next";
 
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { fontVariables } from "@/lib/fonts";
+import { rootMetadata } from "@/lib/seo/server";
 import "@/styles/globals.css";
 
-export const metadata: Metadata = {
-  title: {
-    template: "%s — Tempe Mak Nuk",
-    default: "Tempe Mak Nuk",
-  },
-  description: "Tempe Mak Nuk",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return rootMetadata();
+}
 
 // Matches --background in globals.css (light #FAF7F2 / dark #100F0C).
 export const viewport: Viewport = {

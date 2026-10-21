@@ -12,16 +12,18 @@ import { getPage, getPageMeta } from "@/features/pages/queries";
 import { getProductOptions } from "@/features/products/queries";
 import { getSettings } from "@/features/settings/queries";
 import { getAvailability } from "@/features/slots/queries";
+import { pageMetadata } from "@/lib/seo/server";
 
 const SLUG = "custom-order";
 
 export async function generateMetadata(): Promise<Metadata> {
   const meta = await getPageMeta(SLUG);
-  return {
-    title: meta?.seo.title ?? meta?.title ?? "Custom Order",
-    description: meta?.seo.description ?? undefined,
-    alternates: { canonical: "/custom-order" },
-  };
+  return pageMetadata({
+    title: meta?.title ?? "Custom Order",
+    description: meta?.seo.description,
+    path: "/custom-order",
+    seo: meta?.seo,
+  });
 }
 
 /** Request-time part: "now" (cutoff), live slot data and `?produk=` preset. */

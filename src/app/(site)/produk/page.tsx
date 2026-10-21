@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { Breadcrumb, serializeJsonLd } from "@/components/site/layout";
+import { Breadcrumb } from "@/components/site/layout";
 import {
   Container,
   Eyebrow,
@@ -23,16 +23,19 @@ import {
 import { formatPriceFrom } from "@/features/_shared/format";
 import { getProductBySlug, getProducts } from "@/features/products/queries";
 import { getSettings } from "@/features/settings/queries";
+import { itemListJsonLd, JsonLd, siteBaseUrl, webPageJsonLd } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo/server";
 
 import { ProductCta } from "./_components/product-cta";
 import { ProductImage, productVariantLabel } from "./_components/product-image";
 
-export const metadata: Metadata = {
-  title: "Jenis Tempe: Klasik dan Tanpa Kulit",
-  description:
-    "Kenali dua varian Tempe Mak Nuk: Klasik dengan kulit ari dan Original Tanpa Kulit yang lebih putih dan padat. Pilih bentuk dan ukuran sesuai kebutuhan.",
-  alternates: { canonical: "/produk" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return pageMetadata({
+    title: "Jenis Tempe: Klasik dan Tanpa Kulit",
+    description: "Kenali dua varian Tempe Mak Nuk: Klasik dengan kulit ari dan Original Tanpa Kulit yang lebih putih dan padat. Pilih bentuk dan ukuran sesuai kebutuhan.",
+    path: "/produk",
+  });
+}
 
 export default async function ProdukPage() {
   const [list, settings] = await Promise.all([getProducts(), getSettings()]);
@@ -42,23 +45,20 @@ export default async function ProdukPage() {
   const showPrice = settings["pricing.show"];
   const siteUrl = settings["site.url"];
 
-  const jsonLd = siteUrl
-    ? {
-        "@context": "https://schema.org",
-        "@type": "CollectionPage",
-        name: "Jenis Tempe Mak Nuk",
-        url: new URL("/produk", siteUrl).toString(),
-        mainEntity: {
-          "@type": "ItemList",
-          itemListElement: list.map((p, i) => ({
-            "@type": "ListItem",
-            position: i + 1,
-            url: new URL(`/produk/${p.slug}`, siteUrl).toString(),
-            name: p.name,
-          })),
-        },
-      }
-    : null;
+  const base = siteBaseUrl(siteUrl);
+  const jsonLd = webPageJsonLd(
+    {
+      type: "CollectionPage",
+      name: "Jenis Tempe Mak Nuk",
+      path: "/produk",
+    },
+    base,
+  );
+  const itemList = itemListJsonLd(
+    list.map((p) => ({ name: p.name, path: `/produk/${p.slug}` })),
+    base,
+  );
+  if (itemList) jsonLd.mainEntity = itemList;
 
   return (
     <>
@@ -206,12 +206,7 @@ export default async function ProdukPage() {
         </Container>
       </Section>
 
-      {jsonLd ? (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
-        />
-      ) : null}
+      <JsonLd data={jsonLd} />
     </>
   );
 }
