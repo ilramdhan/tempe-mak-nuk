@@ -1,4 +1,4 @@
-# HANDOVER — Tempe Mak Nuk (sesi 4 → sesi 5)
+# HANDOVER — Tempe Mak Nuk (sesi 5 → sesi 6)
 
 > Paste blok di bawah ini apa adanya ke sesi Claude Code baru, di root project
 > `/Users/ilhamramadhan/WebstormProjects/tempe-mak-nuk`.
@@ -6,13 +6,13 @@
 ---
 
 ````markdown
-Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen tempe handmade sejak 2001, Klaten). **Fase 0–6 selesai**: situs publik, admin CMS lengkap, SEO/OG, dan performa. Semua sudah diverifikasi dan di-commit. Tinggal **Fase 7 (QA & rilis)**. Jangan analisa ulang dari nol. Baca file berikut, lalu lanjut ke §9.
+Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen tempe handmade sejak 2001, Klaten). **Fase 0–6 selesai**, plus P7.1 (Playwright), P7.3 (security), dan P7.4 (README + panduan admin). Semua sudah diverifikasi dan di-commit. Tinggal **P7.2 (review visual + fix a11y)** dan **P7.5 (checklist deploy)**. Jangan analisa ulang dari nol. Baca file berikut, lalu lanjut ke §9.
 
 ## 1. Baca dulu (urut, jangan skip)
 1. `STATE.md`: ledger status per task (sumber kebenaran progres) dan log sesi.
 2. `PLAN.md`: Fase 7 (P7.1–P7.5) beserta model, dependensi, ownership, dan template "Protokol Sub-agent".
 3. `PROMPT.md`: spesifikasi (IA §4, fitur §5, cookie/legal §5.4, design §6, motion §7, SEO §9, security §12).
-4. `docs/brand.md`, `docs/business.md`, `docs/seo.md`, `docs/performance.md` (baseline Lighthouse P6.4).
+4. `docs/brand.md`, `docs/business.md`, `docs/seo.md`, `docs/performance.md` (baseline Lighthouse P6.4), `docs/security.md` (P7.3: temuan + checklist pemilik), `README.md`, `docs/admin-guide.md`.
 5. `AGENTS.md`: WAJIB baca docs Next.js bawaan di `node_modules/next/dist/docs` sebelum menulis kode Next.
 
 ## 2. Cara kerja (wajib)
@@ -33,24 +33,22 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen 
 - Jangan percaya klaim sub-agent mentah-mentah; uji sendiri hasil yang penting. Contoh sesi 4: fallback OG `/opengraph-image` ternyata 404 karena file route OG mendapat hash, dan metadata halaman menimpa file OG per route. Keduanya baru ketahuan lewat `curl` ke `next start`.
 - Laporan ke user dalam Bahasa Indonesia, ringkas.
 
-## 3. Status (per 2026-10-21, HEAD = commit "docs: session 4 handover")
-- **Done:** P0.1–P0.5, P1.1–P1.3, P1.5, P2.*, P3.*, P4.1–P4.11, P5.1–P5.10, P6.1–P6.4.
+## 3. Status (per 2026-10-21, HEAD = commit "docs: session 5 handover")
+- **Done:** P0.1–P0.5, P1.1–P1.3, P1.5, P2.*, P3.*, P4.*, P5.*, P6.*, **P7.1, P7.3, P7.4**.
 - **Review:** P1.4 (CI siap; link Vercel menunggu akun user).
-- **Todo:** P0.6 (opsional), **P7.1–P7.5**.
-- **Rencana Fase 7 (maks 3 paralel):**
-  1. **P7.1 (S, sonnet): Playwright.**
-     - Orkestrator memasang paket dulu. Cek versi stabil dengan `pnpm view @playwright/test version` dan `pnpm view @axe-core/playwright version`. Lalu `pnpm add -D @playwright/test @axe-core/playwright` dan `pnpm exec playwright install chromium`. Atur `allowBuilds` bila diminta. Commit.
-     - Ownership: `tests/e2e/**`, `playwright.config.ts`, script `test:e2e` di package.json.
-     - Isi: smoke semua route publik, Order Builder sampai URL WA, axe a11y, dan screenshot 375/768/1440 × light/dark.
-     - Admin CRUD butuh login. Pakai env `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD` dengan `test.skip` bila env kosong. Minta user mengisi env itu (akun editor khusus test).
-  2. **P7.3 (O, opus): security review** → `docs/security.md`. Bisa paralel dengan P7.1. Fokus:
-     - RLS vs Drizzle (Drizzle bypass RLS).
-     - Semua `adminAction`/`requireRole`, `POST /api/upload` (same-origin, editor+, sharp, 5 MB), dan redirect di `src/proxy.ts`.
-     - CSP/headers di `next.config.ts`, service role hanya server-only, `inviteUser`, dan public sign-up.
-     - Perbaikan kecil boleh langsung dikerjakan; yang besar dilaporkan.
-  3. **P7.2 (O, opus): visual consistency review** setelah P7.1 (memakai screenshot P7.1) → `docs/qa.md` + perbaikan kecil.
-  4. **P7.4 (S, sonnet):** `README.md` + `docs/admin-guide.md`. Bahasa Indonesia non-teknis untuk pemilik: login, Pengaturan, Halaman, Produk, Media, Jurnal/Resep, Slot, FAQ/Testimoni/Navigasi, Legal, Pengguna.
-  5. **P7.5 (S, sonnet):** checklist deploy Vercel + domain + Search Console + Google Business Profile. Butuh akun user. Siapkan dokumen dan langkahnya, jangan memblokir.
+- **Todo:** P0.6 (opsional), **P7.2, P7.5**.
+- **Hasil sesi 5:**
+  - **P7.1:** `pnpm test:e2e` (butuh `pnpm build` dulu; config auto `pnpm start -p 3100`, atau set `E2E_BASE_URL`). 42 test: 41 pass, admin skip tanpa `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`. Screenshot 66 PNG (11 route × 375/768/1440 × light/dark) di `test-results/screenshots/` (gitignored, dibuat ulang tiap run `screenshots.spec.ts`).
+  - **P7.3:** `docs/security.md`. Fix: migrasi `drizzle/0003_signup_no_access.sql` (user baru tanpa akses; hanya user pertama jadi owner; `inviteUser` membuat profil editor), owner-only server-side untuk 7 aksi hapus + `upsertRedirect`/`deleteRedirect` lama, `requireRole` di semua `queries.admin.ts`, `.env.*` di-ignore. **Migrasi 0003 BELUM diterapkan ke DB remote** (auto mode menolak `pnpm db:migrate`; user yang menjalankan `! pnpm db:migrate`). Terbuka: CSP `'unsafe-inline'` (diterima), rate limit login → CAPTCHA/attack protection Supabase.
+  - **P7.4:** `README.md` (developer) + `docs/admin-guide.md` (pemilik, non-teknis).
+- **Rencana sisa (maks 3 paralel):**
+  1. **P7.2 (O, opus): visual consistency review** → `docs/qa.md` + perbaikan. Jalankan `pnpm build && pnpm exec playwright test tests/e2e/screenshots.spec.ts` dulu untuk membuat screenshot. **Sertakan perbaikan a11y** yang di-allowlist di `KNOWN` (`tests/e2e/a11y.spec.ts`), lalu hapus entri dari `KNOWN` dan pastikan `E2E_AXE_STRICT=1 pnpm test:e2e` hijau:
+     - `/custom-order` critical `button-name`: radio produk `#order-product-*` tanpa nama aksesibel.
+     - `/produk` serious `label-content-name-mismatch`: `a[aria-label]` kartu produk tidak memuat teks yang terlihat.
+     - `/` serious `color-contrast` (9 node): langkah tidak aktif di section proses ter-pin.
+     - `/produk`, `/jurnal`, `/kontak`, `/kebijakan-privasi` serious `color-contrast`: CTA header "Cek slot via WhatsApp".
+  2. **P7.5 (S, sonnet):** `docs/deploy.md`: checklist Vercel (env, termasuk `NEXT_PUBLIC_SITE_URL`), domain, Supabase Auth (Site URL/redirect URL, SMTP, sign-up off, CAPTCHA), `pnpm db:migrate` + `ensure-media-bucket` di project baru, Search Console + sitemap, Google Business Profile. Butuh akun user; siapkan dokumen saja.
+  3. Opsional (orkestrator/sonnet): `/produk/<slug-tak-ada>` mengembalikan HTTP 200 (notFound() dalam Suspense streaming; halaman noindex). `/custom-order` sempat macet 60 s dengan "use cache took too long" setelah beban paralel di satu instance `next start` (DB remote); di instance baru normal ±3 s. Perlu diselidiki.
 - **Sisa rekomendasi performa (opsional, dari P6.4):**
   - TBT beranda ±135 ms. Jalankan animasi below-the-fold (SplitText, ScrollTrigger, PinnedStory) saat idle.
   - Chunk react-day-picker ±22 kB ter-prefetch dari link `/custom-order` dan `/cara-pesan`. Pakai `prefetch={false}` atau dynamic import `SlotCalendar`.
@@ -69,7 +67,7 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen 
   - Zod 4, Drizzle 0.45 + postgres-js, @supabase/ssr 0.12, react-hook-form, sonner, cmdk, react-day-picker, Vitest 5, pnpm 12.8.
   - @tanstack/react-table 9.3 (API v9!), @dnd-kit (core 6.3 / sortable 10 / utilities 3.2), Tiptap 3.32, @vercel/analytics 2.0 + speed-insights 2.0.
   - **sharp 0.35.5** (sesi 4).
-- **Belum terpasang:** Playwright + @axe-core/playwright (P7.1).
+- **@playwright/test 1.64.1 + @axe-core/playwright 4.14.0** (sesi 5; chromium headless shell terpasang).
 - Tidak ada nilai bisnis yang di-hard-code; selalu lewat `getSettings()` atau query DB.
 - Testimoni placeholder wajib berlabel. Legal ditandai "Dokumen contoh — perlu ditinjau ahli hukum".
 - Cookie consent di `settings["consent.config"]`, cookie `tmn_consent`. Analytics (dynamic import) hanya dimuat setelah consent. Banner consent ada di HTML statis: skrip pra-paint menyembunyikannya bila keputusan sudah ada (fix LCP P6.4); jangan dijadikan client-only lagi.
@@ -147,30 +145,32 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen 
   - Latensi ±700 ms per koneksi.
 - `.env` (tidak di-commit) berisi kredensial Supabase dan secrets. `.env.local` berisi `SKIP_ENV_VALIDATION=1`, `NEXT_PUBLIC_SITE_URL`, dan secrets.
 - `.env.local.docker.bak` untracked; **jangan di-commit**. Container `tmn-dev` (port 54329) dipertahankan sebagai cadangan offline.
-- **Auth:** akun owner sudah ada. **Public sign-up masih aktif.** Ingatkan user untuk mematikannya.
+- **Auth:** akun owner sudah ada. Public sign-up: user sudah diberi langkah mematikannya di sesi 5; tanyakan apakah sudah. Sampai migrasi 0003 diterapkan, akun baru hasil sign-up masih otomatis jadi editor.
 - Perintah:
   - `pnpm dev`, `pnpm build`, `pnpm test`, `pnpm lint`, `pnpm typecheck`.
   - `pnpm db:migrate`, `pnpm db:seed` (idempoten), `pnpm db:generate`.
   - Validasi seed: `pnpm tsx --tsconfig tsconfig.json scripts/dev/validate-sections.mts`.
-- Status sesi 4 terakhir: lint ✓, typecheck ✓, 316 test ✓ (17 skip), build ✓.
+- Status sesi 5 terakhir: lint ✓, typecheck ✓, 331 test ✓ (17 skip), build ✓, e2e 41 ✓ (1 skip).
+- `pnpm lint` mengabaikan `playwright-report/` dan `test-results/`.
 
 ## 8. Menunggu dari user (jangan memblokir)
-- Matikan "Allow new users to sign up" di Supabase Auth.
+- **Jalankan `pnpm db:migrate`** (migrasi 0003, perbaikan keamanan sign-up), lalu hapus akun asing di Supabase Auth → Users bila ada.
+- Matikan "Allow new users to sign up" (Supabase Dashboard → Authentication → Sign In / Providers → User Signups). Aktifkan juga CAPTCHA/attack protection.
 - **Uji manual admin setelah login** (belum pernah diuji dengan sesi nyata): semua modul `/admin/*`, terutama upload media, MediaPicker, Pengaturan, Pengguna (undang butuh SMTP Supabase dan redirect URL), Redirect, Legal, dan consent.
 - Keputusan: hapus artikel/resep dijadikan owner-only atau tidak.
 - Akun/project Vercel dan domain:
   - Env Vercel: `DATABASE_URL` pooler 6543, `DIRECT_URL`, Supabase keys, `SUPABASE_SERVICE_ROLE_KEY`, secrets, **`NEXT_PUBLIC_SITE_URL`**.
   - Push repo ke GitHub (belum ada remote).
-- Akun editor khusus E2E (`E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`) untuk P7.1.
+- Akun editor khusus E2E (`E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`, undang via Admin → Pengguna) supaya `tests/e2e/admin.spec.ts` jalan.
 - Data asli (WA, alamat, nomor halal, foto) diisi lewat Admin → Pengaturan / Media.
 
 ## 9. Mulai sekarang
 1. Cek awal:
-   - `git log --oneline | head` dan `git status`; yang untracked seharusnya hanya `.env.local.docker.bak`.
+   - `git log --oneline | head` dan `git status`; yang untracked seharusnya kosong (`.env.local.docker.bak` kini di-ignore).
    - `pnpm typecheck && pnpm test`.
-2. Tambah baris log sesi 5 di `STATE.md`, lalu ubah status task yang diluncurkan ke `doing`.
-3. Pasang Playwright dan axe (§3 P7.1), lalu commit.
-4. Luncurkan P7.1 (sonnet) dan P7.3 (opus) paralel, plus P7.4 (sonnet) bila slot cukup. Maks 3 agent.
-5. Setelah P7.1 selesai, luncurkan P7.2 (opus). P7.5 (sonnet) terakhir.
-6. Setiap task: verifikasi sendiri, review, set `done`, commit per task. Di akhir sesi, perbarui `HANDOVER.md` dan `STATE.md`.
+   - Tanyakan user: migrasi 0003 sudah dijalankan? sign-up sudah dimatikan?
+2. Tambah baris log sesi 6 di `STATE.md`, lalu ubah status task yang diluncurkan ke `doing`.
+3. Luncurkan P7.2 (opus) dan P7.5 (sonnet) paralel (ownership tidak bertumpuk: P7.2 = `docs/qa.md` + file UI yang diperbaiki + `KNOWN` di `tests/e2e/a11y.spec.ts`; P7.5 = `docs/deploy.md`).
+4. Setiap task: verifikasi sendiri (`pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm test:e2e`), review, set `done`, commit per task. Di akhir sesi, perbarui `HANDOVER.md` dan `STATE.md`.
+5. Sesudah Fase 7: sisa rekomendasi performa dan gap fitur kecil (§3) bila user mau.
 ````
