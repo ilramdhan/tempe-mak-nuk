@@ -33,8 +33,7 @@ updates:
       github-actions:
         patterns: ["*"]
 
-  # Dockerfile arrives with P9.5. Until then Dependabot reports "no Dockerfile found" for this
-  # entry in the dependency graph logs; other ecosystems are unaffected.
+  # Base image tag in Dockerfile (node:<ver>-alpine<ver>, both FROM lines).
   - package-ecosystem: docker
     directory: /
     schedule:

@@ -9,7 +9,7 @@ TSX := pnpm tsx --env-file=$(ENV_FILE)
 .DEFAULT_GOAL := help
 .PHONY: help install dev build start stop typecheck lint format-check test e2e e2e-strict e2e-admin \
 	screenshots check verify db-status db-migrate db-migrate-direct db-generate db-seed \
-	db-validate bucket setup clean
+	db-validate bucket setup clean docker-build docker-run
 
 help: ## Tampilkan daftar perintah
 	@grep -hE '^[a-zA-Z0-9_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -86,6 +86,20 @@ db-validate: ## Validasi section seed halaman
 
 bucket: ## Buat/perbarui bucket Storage `media` (idempoten)
 	$(TSX) scripts/dev/ensure-media-bucket.mts
+
+## ── Docker (self-host) ─────────────────────────────────
+DOCKER_IMAGE ?= tempe-mak-nuk:local
+
+docker-build: ## Build image (NEXT_PUBLIC_* dari ENV_FILE sbg build-arg, DATABASE_URL sbg secret)
+	@set -a; . ./$(ENV_FILE); set +a; docker buildx build --load \
+		--build-arg NEXT_PUBLIC_SITE_URL="$$NEXT_PUBLIC_SITE_URL" \
+		--build-arg NEXT_PUBLIC_SUPABASE_URL="$$NEXT_PUBLIC_SUPABASE_URL" \
+		--build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="$$NEXT_PUBLIC_SUPABASE_ANON_KEY" \
+		--secret id=database_url,env=DATABASE_URL \
+		-t $(DOCKER_IMAGE) .
+
+docker-run: ## Jalankan image di PORT (default 3100) dengan --env-file ENV_FILE
+	docker run --rm -p $(PORT):3000 --env-file $(ENV_FILE) $(DOCKER_IMAGE)
 
 ## ── Lain-lain ───────────────────────────────────────────
 clean: ## Hapus .next, test-results, playwright-report

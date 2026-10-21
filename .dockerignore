@@ -1,0 +1,48 @@
+# Keep the build context small and secret-free. The build needs: src/, public/, package.json,
+# pnpm-lock.yaml, pnpm-workspace.yaml, next.config.ts, tsconfig.json, postcss/eslint config.
+
+# secrets — never send env files into the context
+.env
+.env.*
+!.env.example
+*.pem
+
+# deps & build output (rebuilt inside the image)
+node_modules
+.next
+out
+build
+*.tsbuildinfo
+next-env.d.ts
+
+# VCS / editor / OS
+.git
+.github
+.idea
+.vscode
+.DS_Store
+
+# tests & reports
+tests
+playwright-report
+test-results
+coverage
+playwright.config.ts
+vitest.config.mts
+**/__tests__
+**/*.test.ts
+**/*.test.tsx
+
+# docs & repo meta (not used by `next build`)
+docs
+*.md
+!README.md
+LICENSE
+
+# not needed at build/run time
+scripts
+drizzle
+vercel.json
+Dockerfile
+.dockerignore
+Makefile

@@ -74,6 +74,9 @@ const supabaseImagePattern: RemotePattern = supabase
     };
 
 const nextConfig: NextConfig = {
+  // Self-contained server in .next/standalone for the Docker image (Dockerfile). Vercel builds
+  // with its own adapter and ignores this; `next start` still works but logs a warning.
+  output: "standalone",
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,
