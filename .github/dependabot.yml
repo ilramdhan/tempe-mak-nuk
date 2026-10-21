@@ -4,13 +4,45 @@ updates:
     directory: /
     schedule:
       interval: weekly
+      day: monday
+      time: "05:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 10
+    labels: [dependencies, "area:deps"]
+    commit-message:
+      prefix: chore(deps)
+      prefix-development: chore(deps-dev)
     groups:
-      npm-dependencies:
+      npm-minor-patch:
         patterns: ["*"]
+        update-types: [minor, patch]
+      # Majors are not grouped: one PR per package so breaking changes are reviewed separately.
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: monthly
+      interval: weekly
+      day: monday
+      time: "05:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 5
+    labels: [dependencies, github-actions]
+    commit-message:
+      prefix: ci(deps)
     groups:
       github-actions:
         patterns: ["*"]
+
+  # Dockerfile arrives with P9.5. Until then Dependabot reports "no Dockerfile found" for this
+  # entry in the dependency graph logs; other ecosystems are unaffected.
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "05:00"
+      timezone: Asia/Jakarta
+    open-pull-requests-limit: 5
+    labels: [dependencies, docker]
+    commit-message:
+      prefix: chore(deps)

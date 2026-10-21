@@ -6,37 +6,28 @@ on:
   pull_request:
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
 
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
 jobs:
   verify:
+    name: Verify (typecheck, lint, format, unit)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      NEXT_TELEMETRY_DISABLED: "1"
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: tempe
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           cache: pnpm
@@ -52,22 +43,96 @@ jobs:
       - name: Format check
         run: pnpm format:check
 
-      - name: Test
+      - name: Unit tests
         run: pnpm test
+
+  build-e2e:
+    name: Build + E2E (Playwright)
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tempe
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/tempe
+      SKIP_ENV_VALIDATION: "1"
+      NEXT_PUBLIC_SITE_URL: https://tempemaknuk.com
+      # Dummy Supabase: no real project in CI. Public pages and the anonymous
+      # /admin -> /login redirect work without a session; admin e2e is skipped
+      # because E2E_ADMIN_EMAIL / E2E_ADMIN_PASSWORD are not set.
+      NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-dummy-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: ci-dummy-service-role-key
+      CRON_SECRET: ci-dummy-cron-secret-0000
+      REVALIDATE_SECRET: ci-dummy-revalidate-secret-0000
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: tempe
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
 
       - name: Prepare CI database (bootstrap, migrate, seed)
         run: |
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/ci/bootstrap.sql
           pnpm tsx scripts/dev/migrate.mts
           pnpm db:seed
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tempe
-          DIRECT_URL: postgresql://postgres:postgres@localhost:5432/tempe
 
       - name: Build
         run: pnpm build
+
+      - name: Resolve Playwright version
+        id: pw
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: pw-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}-chromium
+
+      - name: Install Playwright chromium
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install Playwright system deps
+        if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
+
+      # playwright.config.ts starts `pnpm start -p 3100` itself when E2E_BASE_URL is unset.
+      # screenshots.spec.ts is a manual visual-review tool (66 full-page shots) — skipped in CI.
+      - name: E2E (axe strict)
+        run: pnpm exec playwright test --grep-invert "screenshots [0-9]+ (light|dark)"
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tempe
-          DIRECT_URL: postgresql://postgres:postgres@localhost:5432/tempe
-          SKIP_ENV_VALIDATION: "1"
-          NEXT_PUBLIC_SITE_URL: https://tempemaknuk.com
+          E2E_AXE_STRICT: "1"
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+          if-no-files-found: ignore
