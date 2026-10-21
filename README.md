@@ -1,11 +1,26 @@
 # Tempe Mak Nuk
 
-Situs web bisnis tempe keluarga Mak Nuk: katalog produk, jurnal & resep, kalender slot Pre-Order (PO), pemesanan lewat WhatsApp, dan panel admin (`/admin`) untuk pemilik. Konten bisnis ada di [docs/business.md](docs/business.md).
+Situs web bisnis tempe keluarga Mak Nuk: katalog produk, jurnal & resep, kalender slot Pre-Order, pemesanan lewat WhatsApp, dan panel admin untuk pemilik.
+
+[![CI](https://github.com/ilramdhan/tempe-mak-nuk/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ilramdhan/tempe-mak-nuk/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/ilramdhan/tempe-mak-nuk/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/ilramdhan/tempe-mak-nuk/actions/workflows/codeql.yml)
+[![Release](https://img.shields.io/github/v/release/ilramdhan/tempe-mak-nuk)](https://github.com/ilramdhan/tempe-mak-nuk/releases)
+[![License: proprietary](https://img.shields.io/badge/license-proprietary-red)](LICENSE)
+
+## Fitur
+
+- Katalog produk dan jurnal & resep
+- Kalender slot Pre-Order (PO) dengan pengumuman minggu berjalan
+- Pemesanan lewat WhatsApp
+- Panel admin `/admin` dengan peran, media library, dan audit log
+- SEO (sitemap, OG, data terstruktur), persetujuan cookie, halaman legal
+
+Konten bisnis ada di [docs/business.md](docs/business.md).
 
 ## Stack
 
 - Next.js 16 (App Router, `cacheComponents`), React 19, TypeScript
-- Tailwind CSS 4, shadcn/ui (Radix), GSAP, Lenis, motion
+- Tailwind CSS 4, shadcn/ui (Radix), GSAP, Lenis
 - Supabase (Auth, Storage, Postgres) + Drizzle ORM (`postgres` driver)
 - Tiptap (editor teks), react-hook-form + zod, dnd-kit (urutan)
 - Vitest (unit), Playwright + axe (E2E, lihat catatan di bawah)
@@ -37,13 +52,18 @@ Validasi ada di `src/lib/env.ts`. Set `SKIP_ENV_VALIDATION=1` untuk build CI tan
 
 ```bash
 pnpm install
-pnpm db:migrate        # terapkan migrasi (pakai DIRECT_URL)
-pnpm db:seed           # data awal
-pnpm tsx --env-file=.env scripts/dev/ensure-media-bucket.mts   # buat bucket media di Supabase Storage
+cp .env.example .env.local   # salin juga ke .env, lalu isi
+make db-migrate        # terapkan migrasi lewat pooler 6543
+make db-seed           # data awal
+make bucket            # buat bucket media di Supabase Storage
 pnpm dev               # http://localhost:3000
 ```
 
-Pengguna pertama yang dibuat di Supabase Auth otomatis menjadi `owner` (trigger `on_auth_user_created`, lihat `src/db/schema/profiles.ts`). Setelah itu **matikan public sign-up** di Supabase Auth dan tambah pengguna lewat Admin → Pengguna (undang).
+Gunakan `make db-migrate`, bukan `pnpm db:migrate`: yang kedua memakai `DIRECT_URL` port 5432 yang sering diblokir dan gagal tanpa pesan.
+
+Pengguna pertama yang dibuat di Supabase Auth otomatis menjadi `owner` (trigger `on_auth_user_created`, lihat `src/db/schema/profiles.ts`).
+
+Setelah itu **matikan public sign-up** di Supabase Auth dan tambah pengguna lewat Admin → Pengguna (undang).
 
 ## Perintah
 
@@ -91,7 +111,7 @@ docs/             Dokumentasi
 ## Catatan penting (gotchas)
 
 - `cacheComponents` aktif: ikuti pola cache/`use cache` Next 16. Baca panduan di `node_modules/next/dist/docs/` sebelum mengubah perilaku cache; API-nya berbeda dari versi lama.
-- `DATABASE_URL` harus lewat pooler transaksi port 6543 (`prepare: false`). Migrasi memakai `DIRECT_URL`.
+- `DATABASE_URL` harus lewat pooler transaksi port 6543 (`prepare: false`). Migrasi lewat `make db-migrate` (pooler 6543).
 - Drizzle terhubung sebagai role database sehingga **melewati RLS**. Setiap server action wajib memeriksa peran sendiri (`requireRole("editor" | "owner")`). Tombol yang disembunyikan di UI (`RoleGate`) bukan pengamanan.
 - Redirect dari database di-cache sekitar 60 detik; perubahan tidak langsung berlaku.
 - Setiap perubahan konten memakai cache tag (`src/lib/cache-tags.ts`) agar halaman publik segar.
@@ -105,5 +125,15 @@ docs/             Dokumentasi
 - [docs/brand.md](docs/brand.md): identitas merek
 - [docs/seo.md](docs/seo.md): strategi SEO
 - [docs/performance.md](docs/performance.md): audit performa
+- [docs/security.md](docs/security.md): model keamanan
+- [docs/qa.md](docs/qa.md): catatan QA
+- [docs/audit](docs/audit): laporan audit per fase
 - [docs/photo-brief.md](docs/photo-brief.md): brief foto
 - `PLAN.md`, `STATE.md`, `HANDOVER.md`: rencana dan status pengerjaan
+
+## Kontribusi, keamanan, lisensi
+
+- [CONTRIBUTING.md](CONTRIBUTING.md) dan [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [SECURITY.md](SECURITY.md): lapor kerentanan secara privat
+- [ACCESSIBILITY.md](ACCESSIBILITY.md) dan [SUPPORT.md](SUPPORT.md)
+- [LICENSE](LICENSE): proprietary, hak cipta dilindungi. Kode terlihat publik hanya sebagai referensi.
