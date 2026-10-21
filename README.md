@@ -100,6 +100,7 @@ docs/             Dokumentasi
 ## Dokumentasi
 
 - [docs/admin-guide.md](docs/admin-guide.md): panduan admin untuk pemilik
+- [docs/deploy.md](docs/deploy.md): checklist deploy produksi (Supabase, Vercel, domain, Search Console)
 - [docs/business.md](docs/business.md): data & aturan bisnis
 - [docs/brand.md](docs/brand.md): identitas merek
 - [docs/seo.md](docs/seo.md): strategi SEO
