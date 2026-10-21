@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import { LenisProvider } from "@/components/motion";
+import { LenisProvider } from "@/components/motion/lenis-provider";
 import {
   AnnouncementBar,
   FloatingWhatsApp,
@@ -9,7 +9,6 @@ import {
   SkipLink,
   WaLink,
 } from "@/components/site/layout";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { ConsentManager } from "@/features/consent";
 import {
   getActiveAnnouncement,
@@ -41,57 +40,53 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
 
   return (
     <LenisProvider>
-      <TooltipProvider>
-        <SkipLink />
-        {announcement ? (
-          <AnnouncementBar
-            id={announcement.id}
-            text={announcement.text}
-            href={announcement.href}
-          />
-        ) : null}
-        <SiteHeader
-          links={navigation.header}
-          cta={{
-            label: HEADER_CTA_LABEL,
-            href: settings["cta.primaryHref"] || "/custom-order",
-          }}
-          mobileFooter={
-            waHref ? (
-              <div className="flex flex-col gap-1 text-sm text-muted-foreground">
-                <WaLink
-                  href={waHref}
-                  source="mobile-menu"
-                  className="inline-flex min-h-11 w-fit items-center rounded-sm font-medium text-foreground underline-offset-4 hover:underline"
-                >
-                  {settings["cta.primaryLabel"]}
-                </WaLink>
-                {settings.hours.summary ? (
-                  <p>{settings.hours.summary}</p>
-                ) : null}
-              </div>
-            ) : null
-          }
+      <SkipLink />
+      {announcement ? (
+        <AnnouncementBar
+          id={announcement.id}
+          text={announcement.text}
+          href={announcement.href}
         />
-        <main id="main" tabIndex={-1} className="flex-1 outline-none">
-          {children}
-        </main>
-        <SiteFooter
-          navigation={navigation}
-          settings={settings}
-          tagline={TAGLINE}
+      ) : null}
+      <SiteHeader
+        links={navigation.header}
+        cta={{
+          label: HEADER_CTA_LABEL,
+          href: settings["cta.primaryHref"] || "/custom-order",
+        }}
+        mobileFooter={
+          waHref ? (
+            <div className="flex flex-col gap-1 text-sm text-muted-foreground">
+              <WaLink
+                href={waHref}
+                source="mobile-menu"
+                className="inline-flex min-h-11 w-fit items-center rounded-sm font-medium text-foreground underline-offset-4 hover:underline"
+              >
+                {settings["cta.primaryLabel"]}
+              </WaLink>
+              {settings.hours.summary ? <p>{settings.hours.summary}</p> : null}
+            </div>
+          ) : null
+        }
+      />
+      <main id="main" tabIndex={-1} className="flex-1 outline-none">
+        {children}
+      </main>
+      <SiteFooter
+        navigation={navigation}
+        settings={settings}
+        tagline={TAGLINE}
+      />
+      {showFloatingWa && waHref ? (
+        <FloatingWhatsApp
+          href={waHref}
+          label={settings["cta.primaryLabel"]}
+          hideOn={HIDE_FLOATING_WA_ON}
         />
-        {showFloatingWa && waHref ? (
-          <FloatingWhatsApp
-            href={waHref}
-            label={settings["cta.primaryLabel"]}
-            hideOn={HIDE_FLOATING_WA_ON}
-          />
-        ) : null}
-        <Suspense fallback={null}>
-          <ConsentManager />
-        </Suspense>
-      </TooltipProvider>
+      ) : null}
+      <Suspense fallback={null}>
+        <ConsentManager />
+      </Suspense>
     </LenisProvider>
   );
 }

@@ -41,7 +41,7 @@ export function ProductImage({
         alt={media.alt ?? name}
         fill
         sizes={sizes}
-        priority={priority}
+        preload={priority}
         className="object-cover"
         {...(media.blurDataUrl
           ? { placeholder: "blur" as const, blurDataURL: media.blurDataUrl }

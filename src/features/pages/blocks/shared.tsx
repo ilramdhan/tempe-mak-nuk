@@ -203,7 +203,7 @@ export function BlockMedia({
         alt={alt}
         fill
         sizes={sizes}
-        priority={priority}
+        preload={priority}
         className="object-cover"
         {...(m.blurDataUrl ? { placeholder: "blur" as const, blurDataURL: m.blurDataUrl } : {})}
       />

@@ -6,7 +6,7 @@ import { Dialog } from "radix-ui";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 import { Logo } from "@/components/brand/logo";
-import { useLenis } from "@/components/motion";
+import { useLenis } from "@/components/motion/lenis-provider";
 import { ThemeToggle } from "@/components/theme";
 import { Button } from "@/components/ui/button";
 import type { NavLink } from "@/features/navigation/queries";

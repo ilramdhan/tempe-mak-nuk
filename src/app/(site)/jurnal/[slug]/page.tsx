@@ -45,6 +45,7 @@ export async function generateMetadata({
   const p = await getPostBySlug(slug);
   if (!p) return {};
   return pageMetadata({
+    ogImageFile: true,
     title: p.title,
     description: p.excerpt,
     path: `/jurnal/${p.slug}`,
@@ -173,7 +174,7 @@ export default async function PostPage({
                 src={post.cover.url}
                 alt={post.cover.alt ?? post.title}
                 fill
-                priority
+                preload
                 sizes="(min-width: 1024px) 960px, 100vw"
                 className="object-cover"
                 {...(post.cover.blurDataUrl

@@ -25,23 +25,25 @@ export type BuildMetadataInput = {
   modifiedTime?: Date | string | null;
   /** Keep out of the index regardless of CMS flag (e.g. search/utility pages). */
   noindex?: boolean;
+  /** Route has its own `opengraph-image` file: don't add the global fallback image. */
+  ogImageFile?: boolean;
 };
 
 const iso = (d?: Date | string | null) =>
   d ? (d instanceof Date ? d.toISOString() : d) : undefined;
 
-const DEFAULT_OG_IMAGE = { url: "/opengraph-image", width: 1200, height: 630, alt: null };
+const DEFAULT_OG_IMAGE = { url: "/og-default.png", width: 1200, height: 630, alt: null };
 
 /**
  * Complete page `Metadata`: canonical, openGraph, twitter, robots.
- * `openGraph.images`: explicit CMS image, else the global `/opengraph-image` (P6.3).
- * Routes with their own `opengraph-image` file still win (file-based metadata has priority). Pure.
+ * `openGraph.images`: explicit CMS image, else the global `/og-default.png` (P6.3) unless the
+ * route has its own `opengraph-image` file (`ogImageFile`) — an explicit image would override it. Pure.
  */
 export function buildMetadata(input: BuildMetadataInput): Metadata {
   const title = input.seo?.title || input.title || undefined;
   const description = input.seo?.description || input.description || undefined;
   const noindex = Boolean(input.noindex || input.seo?.noindex);
-  const img = input.seo?.ogImage ?? DEFAULT_OG_IMAGE;
+  const img = input.seo?.ogImage ?? (input.ogImageFile ? null : DEFAULT_OG_IMAGE);
   const article = input.type === "article";
 
   return {

@@ -49,7 +49,7 @@ export function PostCard({
             alt={cover.alt ?? post.title}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            priority={priority}
+            preload={priority}
             className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             {...(cover.blurDataUrl
               ? { placeholder: "blur" as const, blurDataURL: cover.blurDataUrl }

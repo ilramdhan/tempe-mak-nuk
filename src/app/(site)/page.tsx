@@ -43,6 +43,7 @@ export async function generateMetadata(): Promise<Metadata> {
     getSettings(),
   ]);
   return pageMetadata({
+    ogImageFile: true,
     title: page?.seo.title || settings["seo.defaultTitle"] || settings["business.name"],
     description: page?.seo.description || settings["seo.defaultDescription"],
     path: "/",

@@ -64,10 +64,14 @@ describe("buildMetadata", () => {
     expect(m.alternates?.canonical).toBe("/produk");
     expect(m.openGraph).toMatchObject({ siteName: "S", locale: "id_ID", type: "website", url: "/produk" });
     expect((m.openGraph as Record<string, unknown>).images).toEqual([
-      { url: "/opengraph-image", width: 1200, height: 630, alt: undefined },
+      { url: "/og-default.png", width: 1200, height: 630, alt: undefined },
     ]);
     expect(m.twitter).toMatchObject({ card: "summary_large_image" });
     expect(m.robots).toBeUndefined();
+  });
+  it("no fallback image when the route has its own opengraph-image file", () => {
+    const m = buildMetadata({ title: "T", path: "/produk/x", siteName: "S", ogImageFile: true });
+    expect((m.openGraph as Record<string, unknown>).images).toBeUndefined();
   });
   it("seo overrides, noindex and explicit og image", () => {
     const m = buildMetadata({

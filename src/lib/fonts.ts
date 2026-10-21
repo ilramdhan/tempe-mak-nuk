@@ -9,6 +9,9 @@ export const fontDisplay = Fraunces({
   display: "swap",
   axes: ["opsz", "SOFT"],
   variable: "--font-fraunces",
+  // P6.4: ~120 kB (opsz+SOFT axes) — not preloaded so CSS + Geist (body/UI, ~30 kB) win the
+  // first-load bandwidth. Headings paint in the metric-adjusted fallback, then swap (no CLS).
+  preload: false,
 });
 
 /**

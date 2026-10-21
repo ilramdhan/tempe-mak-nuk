@@ -12,8 +12,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
+import { InlineScript } from "@/components/site/layout/inline-script";
 
 import {
+  CONSENT_COOKIE,
   acceptAll,
   isConsentCurrent,
   normalizeCategories,
@@ -26,6 +28,20 @@ import {
   useStoredConsent,
 } from "./store";
 import type { ConsentConfigProps } from "./types";
+
+const BANNER_ID = "tmn-consent-banner";
+
+/**
+ * Pre-paint script for the server-rendered banner (P6.4: banner paints with the HTML instead of
+ * after hydration, which made it a late LCP element).
+ * - Already decided for `version` → hide before first paint (no flash).
+ * - Otherwise reveal once the UI font is ready (max 1.5 s), so the Geist swap can't reflow the
+ *   bottom-anchored banner (CLS). It is `invisible` meanwhile — space is reserved, nothing shifts.
+ * Hydration's re-render drops `data-pending` anyway, so the banner can never stay invisible.
+ */
+function bannerScript(version: number) {
+  return `(function(){var e=document.getElementById("${BANNER_ID}");if(!e)return;try{var m=document.cookie.match(/(?:^|; )${CONSENT_COOKIE}=([^;]*)/);if(m){var r=JSON.parse(decodeURIComponent(m[1]));if(r&&r.version===${version}){e.hidden=true;return}}}catch(_){}var d=0,s=function(){if(!d){d=1;e.removeAttribute("data-pending")}};setTimeout(s,1500);try{document.fonts.load("1em "+getComputedStyle(e).fontFamily.split(",")[0]).then(s,s)}catch(_){s()}})()`;
+}
 
 export function ConsentUi({
   config,
@@ -57,16 +73,20 @@ export function ConsentUi({
     setDialogOpen(false);
   };
 
+  // `undefined` = SSR/hydration: render the banner (the inline script hides it pre-paint if decided).
   const needsPrompt =
-    stored !== undefined && !isConsentCurrent(stored, config.version);
+    stored === undefined || !isConsentCurrent(stored, config.version);
 
   return (
     <>
       {needsPrompt && !dialogOpen ? (
         <section
+          id={BANNER_ID}
           role="region"
           aria-labelledby={titleId}
-          className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background p-4 shadow-lg sm:inset-x-4 sm:bottom-4 sm:rounded-2xl sm:border"
+          data-pending={stored === undefined ? "" : undefined}
+          suppressHydrationWarning
+          className="fixed inset-x-0 data-pending:invisible bottom-0 z-50 border-t border-border bg-background p-4 shadow-lg sm:inset-x-4 sm:bottom-4 sm:rounded-2xl sm:border"
         >
           <div className="mx-auto flex max-w-4xl flex-col gap-4 md:flex-row md:items-center">
             <div className="flex-1 text-sm">
@@ -112,6 +132,9 @@ export function ConsentUi({
             </div>
           </div>
         </section>
+      ) : null}
+      {stored === undefined ? (
+        <InlineScript html={bannerScript(config.version)} />
       ) : null}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

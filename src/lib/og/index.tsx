@@ -29,17 +29,32 @@ async function loadFont() {
   }
 }
 
-/** Fetch cover as data URI; satori only handles png/jpeg reliably. Null on any failure. */
+/** Cover box rendered at 340×340 in the card → 2× for crispness. */
+const COVER_PX = 680;
+/** Raster types accepted from storage; uploads are WebP since P5.8 (satori itself only takes png/jpeg). */
+const COVER_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
+
+/**
+ * Fetch cover and re-encode to a square JPEG data URI via sharp (WebP/AVIF → JPEG, so satori can
+ * draw it; also shrinks the payload). Node runtime only. Null on any failure.
+ */
 async function loadCover(url: string | null | undefined): Promise<string | null> {
   if (!url || !/^https?:\/\//.test(url)) return null;
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
     if (!res.ok) return null;
-    const type = res.headers.get("content-type")?.split(";")[0] ?? "";
-    if (type !== "image/jpeg" && type !== "image/png") return null;
+    const type = res.headers.get("content-type")?.split(";")[0]?.trim() ?? "";
+    if (!COVER_TYPES.has(type)) return null;
     const buf = Buffer.from(await res.arrayBuffer());
     if (buf.length > 3_000_000) return null;
-    return `data:${type};base64,${buf.toString("base64")}`;
+    const { default: sharp } = await import("sharp");
+    const jpeg = await sharp(buf, { limitInputPixels: 40_000_000 })
+      .rotate()
+      .resize(COVER_PX, COVER_PX, { fit: "cover" })
+      .flatten({ background: C.paper })
+      .jpeg({ quality: 82, mozjpeg: true })
+      .toBuffer();
+    return `data:image/jpeg;base64,${jpeg.toString("base64")}`;
   } catch {
     return null;
   }

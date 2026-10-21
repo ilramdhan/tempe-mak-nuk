@@ -44,6 +44,7 @@ export async function generateMetadata({
   const r = await getRecipeBySlug(slug);
   if (!r) return {};
   return pageMetadata({
+    ogImageFile: true,
     title: r.seo.title ?? `Resep ${r.title}, Mudah`,
     description: `Cara membuat ${r.title}: bahan, langkah, waktu masak, dan tips memilih tempe segar. Ditulis keluarga pembuat tempe Mak Nuk, Klaten.`,
     path: `/resep/${r.slug}`,
@@ -167,7 +168,7 @@ export default async function RecipePage({
                 src={recipe.cover.url}
                 alt={recipe.cover.alt ?? recipe.title}
                 fill
-                priority
+                preload
                 sizes="(min-width: 1024px) 960px, 100vw"
                 className="object-cover"
                 {...(recipe.cover.blurDataUrl

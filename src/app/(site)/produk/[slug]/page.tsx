@@ -51,6 +51,7 @@ export async function generateMetadata({
   const p = await getProductBySlug(slug);
   if (!p) return {};
   return pageMetadata({
+    ogImageFile: true,
     title: p.name,
     description: p.short,
     path: `/produk/${p.slug}`,
