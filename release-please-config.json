@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "node",
+  "include-v-in-tag": true,
+  "include-component-in-tag": false,
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": false,
+  "pull-request-title-pattern": "chore${scope}: release${component} ${version}",
+  "changelog-sections": [
+    { "type": "feat", "section": "Fitur" },
+    { "type": "fix", "section": "Perbaikan" },
+    { "type": "perf", "section": "Performa" },
+    { "type": "refactor", "section": "Refaktor" },
+    { "type": "docs", "section": "Dokumentasi" },
+    { "type": "build", "section": "Build", "hidden": true },
+    { "type": "ci", "section": "CI", "hidden": true },
+    { "type": "test", "section": "Pengujian", "hidden": true },
+    { "type": "chore", "section": "Lain-lain", "hidden": true }
+  ],
+  "packages": {
+    ".": {
+      "package-name": "tempe-mak-nuk",
+      "changelog-path": "CHANGELOG.md",
+      "release-as": "0.1.0"
+    }
+  }
+}
