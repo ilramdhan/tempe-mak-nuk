@@ -14,7 +14,7 @@ const noStore = { "Cache-Control": "no-store" };
 /**
  * Vercel Cron: scheduled posts/recipes/legal docs whose publish/effective time passed within
  * the lookback window get their cache tags expired so they appear on time. Idempotent.
- * Hobby plan only allows daily crons: use `?window=1440` there (see docs/deploy.md).
+ * Scheduled daily (Vercel Hobby) with a 25 h window so late or jittered runs never miss an item.
  */
 export async function GET(request: Request) {
   await connection();

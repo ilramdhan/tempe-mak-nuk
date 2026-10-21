@@ -146,7 +146,7 @@ Tidak semua perubahan tampil dengan kecepatan yang sama:
 
 - **Konten** (teks, foto, harga, produk, FAQ, jurnal, resep, pengaturan, kategori): tampil **langsung** setelah disimpan. Bila belum terlihat, muat ulang halaman (tahan Shift).
 - **Redirect**: disimpan langsung, tetapi situs menyimpan daftar redirect di memori tiap server selama sekitar 60 detik, jadi berlaku **paling lama ±60 detik** (bisa sedikit berbeda antar server).
-- **Konten terjadwal** (Jurnal, Resep, dokumen Legal dengan tanggal terbit atau berlaku di masa depan): dipublikasikan oleh tugas terjadwal (cron `/api/cron/publish`). Di `vercel.json` jadwalnya tiap 15 menit, tetapi paket Vercel Hobby hanya mengizinkan cron harian. Di Hobby, konten terjadwal bisa baru tampil setelah cron harian berikutnya. Untuk tampil tepat waktu, terbitkan manual atau gunakan paket yang mendukung cron lebih sering (lihat `docs/deploy.md`). Cron memerlukan `CRON_SECRET` di Vercel.
+- **Konten terjadwal** (Jurnal, Resep, dokumen Legal dengan tanggal terbit atau berlaku di masa depan): dipublikasikan oleh tugas terjadwal (cron `/api/cron/publish`). Karena memakai Vercel Hobby, cron ini berjalan sekali sehari (±00:07 WIB), jadi konten terjadwal bisa baru tampil keesokan harinya. Bila ingin langsung tampil, terbitkan tanpa tanggal masa depan (lihat `docs/deploy.md`). Cron memerlukan `CRON_SECRET` di Vercel.
 
 ## 14. Tips
 

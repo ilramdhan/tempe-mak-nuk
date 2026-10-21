@@ -123,6 +123,6 @@ NAP (Name, Address, Phone) harus **identik** dengan yang tampil di situs dan di 
 
 ## Cron: publikasi terjadwal
 
-`/api/cron/publish` (setiap 15 menit, `vercel.json`) meng-expire tag cache `posts`/`recipes`/`legal` (+ slug terkait) bila ada konten yang `publishedAt`/`effectiveAt`-nya terlewati dalam 20 menit terakhir (`?window=<menit>` untuk mengubah). Auth: `Authorization: Bearer $CRON_SECRET` (401 bila salah, 500 bila secret tidak diset).
+`/api/cron/publish` (harian 17:07 UTC = 00:07 WIB, `vercel.json`) meng-expire tag cache `posts`/`recipes`/`legal` (+ slug terkait) bila ada konten yang `publishedAt`/`effectiveAt`-nya terlewati dalam 25 jam terakhir (`?window=1500`; default tanpa parameter 20 menit, maks 7 hari). Auth: `Authorization: Bearer $CRON_SECRET` (401 bila salah, 500 bila secret tidak diset).
 
-**Vercel Hobby hanya mengizinkan cron harian**; jadwal `*/15 * * * *` akan membuat deploy gagal. Di Hobby ubah menjadi `{ "path": "/api/cron/publish?window=1440", "schedule": "0 0 * * *" }` (konten terjadwal tampil paling lambat setelah cron harian atau saat cache `hours` kedaluwarsa), atau panggil endpoint ini dari scheduler eksternal.
+**Vercel Hobby hanya mengizinkan cron harian** (dan waktu eksekusinya bisa meleset dalam jam yang sama), karena itu jadwalnya harian dengan jendela 25 jam yang saling tumpang-tindih. Konten berjadwal tampil paling lambat sekitar pukul 00:07 WIB setelah waktu terbitnya, atau lebih cepat bila cache `hours` kedaluwarsa. Menerbitkan konten **tanpa** tanggal masa depan selalu langsung tampil. Bila suatu saat butuh tepat waktu: pindah ke Pro (`*/15 * * * *`, hapus `?window`) atau panggil endpoint ini dari scheduler eksternal dengan header `Authorization: Bearer $CRON_SECRET`.
