@@ -1,0 +1,66 @@
+name: Bug / Masalah
+description: Laporkan sesuatu yang tidak berfungsi (Report something broken)
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: input
+    id: route
+    attributes:
+      label: Halaman / URL (Route)
+      description: Contoh, /produk atau /admin/slots
+      placeholder: /produk
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Langkah mereproduksi (Steps to reproduce)
+      placeholder: |
+        1. Buka ...
+        2. Klik ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Hasil yang diharapkan (Expected)
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Hasil sebenarnya (Actual)
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Perangkat dan browser (Device / browser)
+      placeholder: iPhone 15, Safari 18 / Windows 11, Chrome 130
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Tangkapan layar (Screenshots)
+      description: Seret gambar ke sini. Jangan sertakan data pribadi.
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Tingkat keparahan (Severity)
+      options:
+        - Rendah - kosmetik (Low)
+        - Sedang - ada jalan keluar (Medium)
+        - Tinggi - fitur utama rusak (High)
+        - Kritis - situs tidak bisa dipakai (Critical)
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Konfirmasi
+      options:
+        - label: Ini bukan masalah keamanan (this is not a security issue)
+          required: true
+        - label: Saya sudah mencari issue yang sama (I searched existing issues)
+          required: true

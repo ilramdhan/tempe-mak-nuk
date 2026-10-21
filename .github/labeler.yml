@@ -1,0 +1,29 @@
+"area:site":
+  - changed-files:
+      - any-glob-to-any-file: "src/app/(site)/**"
+"area:admin":
+  - changed-files:
+      - any-glob-to-any-file: "src/app/(admin)/**"
+"area:db":
+  - changed-files:
+      - any-glob-to-any-file: ["drizzle/**", "src/db/**"]
+"area:auth":
+  - changed-files:
+      - any-glob-to-any-file:
+          ["src/lib/auth/**", "src/features/permissions/**", "src/proxy.ts"]
+"area:seo":
+  - changed-files:
+      - any-glob-to-any-file:
+          ["src/lib/seo/**", "src/app/sitemap.ts", "src/app/robots.ts"]
+"area:ci":
+  - changed-files:
+      - any-glob-to-any-file: ".github/**"
+"area:docs":
+  - changed-files:
+      - any-glob-to-any-file: ["docs/**", "**/*.md"]
+"area:deps":
+  - changed-files:
+      - any-glob-to-any-file: ["package.json", "pnpm-lock.yaml"]
+"area:e2e":
+  - changed-files:
+      - any-glob-to-any-file: "tests/e2e/**"

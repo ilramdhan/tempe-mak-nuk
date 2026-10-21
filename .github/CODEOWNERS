@@ -1,0 +1,14 @@
+# Default owner
+* @ilramdhan
+
+# Sensitive paths (explicit)
+/drizzle/ @ilramdhan
+/src/proxy.ts @ilramdhan
+/next.config.ts @ilramdhan
+/src/features/**/actions.ts @ilramdhan
+/src/features/_shared/admin-action.ts @ilramdhan
+/src/lib/auth/ @ilramdhan
+/src/features/permissions/ @ilramdhan
+/.github/ @ilramdhan
+/scripts/ci/ @ilramdhan
+/Dockerfile @ilramdhan

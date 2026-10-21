@@ -1,0 +1,45 @@
+name: Aksesibilitas (Accessibility)
+description: Laporkan hambatan aksesibilitas (Report an accessibility barrier)
+title: "[A11y]: "
+labels: ["a11y"]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Halaman / URL (Page)
+      placeholder: /kontak
+    validations:
+      required: true
+  - type: input
+    id: wcag
+    attributes:
+      label: Kriteria WCAG (WCAG criterion)
+      placeholder: "1.4.3 Contrast (Minimum)"
+  - type: input
+    id: at
+    attributes:
+      label: Teknologi bantu (Assistive technology)
+      placeholder: VoiceOver iOS, NVDA + Firefox, keyboard saja
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Deskripsi hambatan (Barrier description)
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Langkah mereproduksi (Steps)
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Saran perbaikan (Suggested fix)
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Konfirmasi
+      options:
+        - label: Ini bukan masalah keamanan (this is not a security issue)
+          required: true
