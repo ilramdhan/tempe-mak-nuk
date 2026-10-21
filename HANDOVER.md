@@ -39,7 +39,7 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen 
 - **Todo:** P0.6 (opsional), **P7.2, P7.5**.
 - **Hasil sesi 5:**
   - **P7.1:** `pnpm test:e2e` (butuh `pnpm build` dulu; config auto `pnpm start -p 3100`, atau set `E2E_BASE_URL`). 42 test: 41 pass, admin skip tanpa `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`. Screenshot 66 PNG (11 route × 375/768/1440 × light/dark) di `test-results/screenshots/` (gitignored, dibuat ulang tiap run `screenshots.spec.ts`).
-  - **P7.3:** `docs/security.md`. Fix: migrasi `drizzle/0003_signup_no_access.sql` (user baru tanpa akses; hanya user pertama jadi owner; `inviteUser` membuat profil editor), owner-only server-side untuk 7 aksi hapus + `upsertRedirect`/`deleteRedirect` lama, `requireRole` di semua `queries.admin.ts`, `.env.*` di-ignore. **Migrasi 0003 BELUM diterapkan ke DB remote** (auto mode menolak `pnpm db:migrate`; user yang menjalankan `! pnpm db:migrate`). Terbuka: CSP `'unsafe-inline'` (diterima), rate limit login → CAPTCHA/attack protection Supabase.
+  - **P7.3:** `docs/security.md`. Fix: migrasi `drizzle/0003_signup_no_access.sql` (user baru tanpa akses; hanya user pertama jadi owner; `inviteUser` membuat profil editor), owner-only server-side untuk 7 aksi hapus + `upsertRedirect`/`deleteRedirect` lama, `requireRole` di semua `queries.admin.ts`, `.env.*` di-ignore. Migrasi 0003 **sudah diterapkan** di DB remote (diverifikasi: fungsi trigger versi baru, 4 migrasi tercatat). Terbuka: CSP `'unsafe-inline'` (diterima), rate limit login → CAPTCHA/attack protection Supabase.
   - **P7.4:** `README.md` (developer) + `docs/admin-guide.md` (pemilik, non-teknis).
 - **Rencana sisa (maks 3 paralel):**
   1. **P7.2 (O, opus): visual consistency review** → `docs/qa.md` + perbaikan. Jalankan `pnpm build && pnpm exec playwright test tests/e2e/screenshots.spec.ts` dulu untuk membuat screenshot. **Sertakan perbaikan a11y** yang di-allowlist di `KNOWN` (`tests/e2e/a11y.spec.ts`), lalu hapus entri dari `KNOWN` dan pastikan `E2E_AXE_STRICT=1 pnpm test:e2e` hijau:
@@ -145,7 +145,8 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen 
   - Latensi ±700 ms per koneksi.
 - `.env` (tidak di-commit) berisi kredensial Supabase dan secrets. `.env.local` berisi `SKIP_ENV_VALIDATION=1`, `NEXT_PUBLIC_SITE_URL`, dan secrets.
 - `.env.local.docker.bak` untracked; **jangan di-commit**. Container `tmn-dev` (port 54329) dipertahankan sebagai cadangan offline.
-- **Auth:** akun owner sudah ada. Public sign-up: user sudah diberi langkah mematikannya di sesi 5; tanyakan apakah sudah. Sampai migrasi 0003 diterapkan, akun baru hasil sign-up masih otomatis jadi editor.
+- **Auth:** akun owner sudah ada. Public sign-up **sudah mati** (dikonfirmasi user). Migrasi 0003 aktif: user baru tanpa profil = tanpa akses; editor hanya lewat undangan.
+- **Makefile** (sesi 5): `make` untuk daftar. `make check`, `make verify` (check+build+e2e), `make e2e`/`e2e-strict`/`screenshots`, `make db-status`/`db-migrate` (lewat pooler 6543 via `scripts/dev/migrate.mts`; **`pnpm db:migrate` drizzle-kit gagal diam-diam karena DIRECT_URL 5432 diblokir**), `make db-seed`, `make bucket`, `make start`/`stop` (port 3100).
 - Perintah:
   - `pnpm dev`, `pnpm build`, `pnpm test`, `pnpm lint`, `pnpm typecheck`.
   - `pnpm db:migrate`, `pnpm db:seed` (idempoten), `pnpm db:generate`.
@@ -154,8 +155,7 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen 
 - `pnpm lint` mengabaikan `playwright-report/` dan `test-results/`.
 
 ## 8. Menunggu dari user (jangan memblokir)
-- **Jalankan `pnpm db:migrate`** (migrasi 0003, perbaikan keamanan sign-up), lalu hapus akun asing di Supabase Auth → Users bila ada.
-- Matikan "Allow new users to sign up" (Supabase Dashboard → Authentication → Sign In / Providers → User Signups). Aktifkan juga CAPTCHA/attack protection.
+- Sign-up publik sudah dimatikan user sejak awal; migrasi 0003 sudah diterapkan. Sisa saran: aktifkan CAPTCHA/attack protection di Supabase Auth.
 - **Uji manual admin setelah login** (belum pernah diuji dengan sesi nyata): semua modul `/admin/*`, terutama upload media, MediaPicker, Pengaturan, Pengguna (undang butuh SMTP Supabase dan redirect URL), Redirect, Legal, dan consent.
 - Keputusan: hapus artikel/resep dijadikan owner-only atau tidak.
 - Akun/project Vercel dan domain:
@@ -168,9 +168,9 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen 
 1. Cek awal:
    - `git log --oneline | head` dan `git status`; yang untracked seharusnya kosong (`.env.local.docker.bak` kini di-ignore).
    - `pnpm typecheck && pnpm test`.
-   - Tanyakan user: migrasi 0003 sudah dijalankan? sign-up sudah dimatikan?
+   - `make db-status` (semua migrasi harus ✓).
 2. Tambah baris log sesi 6 di `STATE.md`, lalu ubah status task yang diluncurkan ke `doing`.
 3. Luncurkan P7.2 (opus) dan P7.5 (sonnet) paralel (ownership tidak bertumpuk: P7.2 = `docs/qa.md` + file UI yang diperbaiki + `KNOWN` di `tests/e2e/a11y.spec.ts`; P7.5 = `docs/deploy.md`).
-4. Setiap task: verifikasi sendiri (`pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm test:e2e`), review, set `done`, commit per task. Di akhir sesi, perbarui `HANDOVER.md` dan `STATE.md`.
+4. Setiap task: verifikasi sendiri (`make verify`), review, set `done`, commit per task. Di akhir sesi, perbarui `HANDOVER.md` dan `STATE.md`.
 5. Sesudah Fase 7: sisa rekomendasi performa dan gap fitur kecil (§3) bila user mau.
 ````

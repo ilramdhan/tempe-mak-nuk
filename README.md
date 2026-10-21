@@ -47,6 +47,22 @@ Pengguna pertama yang dibuat di Supabase Auth otomatis menjadi `owner` (trigger 
 
 ## Perintah
 
+Pintasan via `Makefile`: jalankan `make` untuk daftar lengkap. Yang paling sering:
+
+| Make | Fungsi |
+| --- | --- |
+| `make setup` | Install, migrasi, seed, dan bucket media (project/DB baru) |
+| `make dev` / `build` / `start` / `stop` | Dev server, build, serve di :3100, matikan server |
+| `make check` | typecheck + lint + unit test |
+| `make verify` | check + build + e2e (sebelum commit) |
+| `make e2e` / `e2e-strict` / `e2e-admin` / `screenshots` | Playwright |
+| `make db-status` / `db-migrate` | Status / terapkan migrasi lewat pooler 6543 (`scripts/dev/migrate.mts`) |
+| `make db-seed` / `bucket` | Seed / bucket Storage `media` |
+
+`pnpm db:migrate` (drizzle-kit) memakai `DIRECT_URL` port 5432 yang sering diblokir dan gagal tanpa pesan; pakai `make db-migrate`.
+
+Script pnpm:
+
 | Perintah | Fungsi |
 | --- | --- |
 | `pnpm dev` / `build` / `start` | Jalankan, build, dan serve produksi |
@@ -54,7 +70,7 @@ Pengguna pertama yang dibuat di Supabase Auth otomatis menjadi `owner` (trigger 
 | `pnpm lint` / `format:check` | ESLint / Prettier |
 | `pnpm test` | Vitest (unit) |
 | `pnpm db:generate` | Buat migrasi dari skema Drizzle |
-| `pnpm test:e2e` | Playwright. Script ini ditambahkan bersama task P7.1; test admin butuh `E2E_ADMIN_EMAIL` dan `E2E_ADMIN_PASSWORD` (akun editor khusus test) dan di-skip bila kosong. |
+| `pnpm test:e2e` | Playwright (butuh `pnpm build`; otomatis `pnpm start -p 3100`). Test admin butuh `E2E_ADMIN_EMAIL` dan `E2E_ADMIN_PASSWORD` (akun editor khusus test) dan di-skip bila kosong. |
 
 Tes RLS ada di `tests/rls` (lihat README di sana).
 
