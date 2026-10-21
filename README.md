@@ -62,7 +62,7 @@ Gunakan `make db-migrate`, bukan `pnpm db:migrate`: yang kedua memakai `DIRECT_U
 
 Pengguna pertama yang dibuat di Supabase Auth otomatis menjadi `owner` (trigger `on_auth_user_created`, lihat `src/db/schema/profiles.ts`).
 
-Setelah itu **matikan public sign-up** di Supabase Auth dan tambah pengguna lewat Admin → Pengguna (undang). Pengguna yang diundang menjadi `editor`; hak akses Editor diatur Pemilik di Admin → Hak Akses. Konten terjadwal diterbitkan oleh cron (`vercel.json`, butuh `CRON_SECRET`; Vercel Hobby hanya cron harian, lihat [docs/deploy.md](docs/deploy.md)).
+Setelah itu **matikan public sign-up** di Supabase Auth dan tambah pengguna lewat Admin → Pengguna (undang). Pengguna yang diundang menjadi `editor`; hak akses Editor diatur Pemilik di Admin → Hak Akses. Konten terjadwal diterbitkan oleh cron (`vercel.json`, butuh `CRON_SECRET`; berjalan harian di Vercel Hobby, lihat [docs/deploy.md](docs/deploy.md)).
 
 ## Perintah
 

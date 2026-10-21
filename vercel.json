@@ -6,8 +6,8 @@
       "schedule": "17 3 * * *"
     },
     {
-      "path": "/api/cron/publish",
-      "schedule": "*/15 * * * *"
+      "path": "/api/cron/publish?window=1500",
+      "schedule": "7 17 * * *"
     }
   ]
 }
