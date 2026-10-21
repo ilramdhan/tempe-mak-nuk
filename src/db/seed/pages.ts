@@ -687,6 +687,33 @@ const PAGES: PageSeed[] = [
         "- [Tempe untuk MPASI](/jurnal/tempe-untuk-mpasi)",
         "- [Resep tempe](/resep) dan [dua varian kami](/produk)",
       ]),
+      {
+        type: "featureGrid",
+        data: {
+          eyebrow: "Fermentasi",
+          heading: "Probiotik: apa yang benar-benar terjadi pada tempe",
+          intro:
+            "Tempe dibuat dengan kapang Rhizopus, bukan bakteri probiotik seperti pada yoghurt. Jadi kami berhati-hati memakai kata ini.",
+          columns: 3,
+          items: [
+            {
+              icon: "leaf",
+              title: "Hasil fermentasi",
+              body: "Kapang Rhizopus mengurai sebagian komponen kedelai selama fermentasi, sehingga teksturnya padat dan rasanya khas.",
+            },
+            {
+              icon: "droplets",
+              title: "Dimasak, bukan dimakan hidup",
+              body: "Tempe hampir selalu digoreng, dikukus, atau direbus. Pemanasan menghentikan kapangnya, jadi tempe matang bukan sumber mikroba hidup.",
+            },
+            {
+              icon: "shield-check",
+              title: "Tanpa klaim kesehatan",
+              body: "Penelitian tentang tempe dan pencernaan masih berkembang. Kami tidak mengklaim manfaat medis; tanyakan pada ahli gizi untuk kebutuhan khusus.",
+            },
+          ],
+        },
+      },
       { type: "faqList", data: { heading: "Pertanyaan umum", source: "home" } },
     ],
   },
@@ -798,6 +825,56 @@ const PAGES: PageSeed[] = [
         "Ketika pelanggan meminta tempe yang lebih bersih untuk MPASI anak, lahirlah varian tanpa kulit ari yang dikupas satu per satu.",
         "Hari ini, anak-anak Mak Nuk meneruskan dapur yang sama dengan tangan yang sama, tanpa pengawet, tanpa jalan pintas.",
       ]),
+      {
+        type: "steps",
+        data: {
+          eyebrow: "Perjalanan",
+          heading: "Garis waktu Mak Nuk",
+          items: [
+            {
+              title: "2001 — Mulai di dapur rumah",
+              body: "Mak Nuk mulai membuat tempe di Pedan, Klaten, untuk tetangga dan warung sekitar.",
+            },
+            {
+              title: "Permintaan MPASI — Lahir varian tanpa kulit",
+              body: "Atas permintaan pelanggan, kedelai dikupas satu per satu menjadi Tempe Original Tanpa Kulit.",
+            },
+            {
+              title: "Pesan lewat PO dan WhatsApp",
+              body: "Tempe dibuat sesuai pesanan, tanpa minimum order, dengan slot harian yang dijaga agar kualitas tetap sama.",
+            },
+            {
+              title: "Hari ini — Diteruskan anak-anak",
+              body: "Dapur, resep, dan cara kerja yang sama, tanpa pengawet dan tanpa jalan pintas.",
+            },
+          ],
+        },
+      },
+      {
+        type: "featureGrid",
+        data: {
+          eyebrow: "Keluarga",
+          heading: "Orang-orang di balik tempe",
+          columns: 3,
+          items: [
+            {
+              icon: "heart-handshake",
+              title: "Mak Nuk, pendiri",
+              body: "Memegang resep dan standar rasa sejak 2001.",
+            },
+            {
+              icon: "home",
+              title: "Anak-anak Mak Nuk",
+              body: "Meneruskan produksi harian dan melayani pesanan.",
+            },
+            {
+              icon: "message-circle",
+              title: "Pelayanan pelanggan",
+              body: "Chat WhatsApp dibalas langsung oleh keluarga, bukan bot.",
+            },
+          ],
+        },
+      },
       {
         type: "stats",
         data: {

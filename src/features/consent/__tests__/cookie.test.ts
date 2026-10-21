@@ -34,9 +34,9 @@ describe("consent cookie", () => {
     ).toBe(serializeConsent(rec));
     expect(readCookieValue("a=1")).toBeNull();
   });
-  it("builds cookie with 180 days + SameSite=Lax", () => {
+  it("builds cookie with 365 days + SameSite=Lax", () => {
     const s = buildCookieString(rec, true);
-    expect(s).toContain("Max-Age=15552000");
+    expect(s).toContain("Max-Age=31536000");
     expect(s).toContain("SameSite=Lax");
     expect(s).toContain("Secure");
     expect(buildCookieString(rec, false)).not.toContain("Secure");

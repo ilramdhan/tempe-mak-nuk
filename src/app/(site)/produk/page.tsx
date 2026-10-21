@@ -25,7 +25,11 @@ import { BlockRenderer } from "@/features/pages/blocks/block-renderer";
 import { CtaButton, CtaRow } from "@/features/pages/blocks/shared";
 import { splitPageSections } from "@/features/pages/layout";
 import { getPage, getPageMeta } from "@/features/pages/queries";
-import { getProductBySlug, getProducts } from "@/features/products/queries";
+import {
+  getProductBySlug,
+  getProductOptions,
+  getProducts,
+} from "@/features/products/queries";
 import { getSettings } from "@/features/settings/queries";
 import { itemListJsonLd, JsonLd, siteBaseUrl, webPageJsonLd } from "@/lib/seo";
 import { pageMetadata } from "@/lib/seo/server";
@@ -61,11 +65,14 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ProdukPage() {
-  const [page, all, settings] = await Promise.all([
+  const [page, all, settings, options] = await Promise.all([
     getPage(SLUG),
     getProducts(),
     getSettings(),
+    getProductOptions(),
   ]);
+  const shapes = options.shapes;
+  const sizes = options.sizes;
   // CMS sections: hero → intro; `productTeaser` marks where the product grid goes.
   const layout = splitPageSections(page?.sections, "productTeaser");
   const intro = layout.intro ?? FALLBACK.intro;
@@ -254,6 +261,58 @@ export default async function ProdukPage() {
         </Section>
       ) : null}
 
+      {shapes.length ? (
+        <Section spacing="tight" id="bentuk-ukuran">
+          <Container>
+            <Stack gap="lg">
+              <Stack gap="sm" className="max-w-measure">
+                <Eyebrow>Bentuk &amp; ukuran</Eyebrow>
+                <Heading level={2}>Galeri bentuk dan ukuran</Heading>
+                <p className="text-muted-foreground">
+                  Semua bentuk bisa dipesan dari kedua varian. Ukuran bisa
+                  disesuaikan; tanpa minimum order.
+                </p>
+              </Stack>
+              <Grid cols={3} gap="md">
+                {shapes.map((s) => (
+                  <article
+                    key={s.id}
+                    className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4"
+                  >
+                    <ShapeGlyph slug={s.slug} />
+                    <Heading level={3} size="h4">
+                      {s.name}
+                    </Heading>
+                    {s.description ? (
+                      <p className="text-sm text-muted-foreground">
+                        {s.description}
+                      </p>
+                    ) : null}
+                  </article>
+                ))}
+              </Grid>
+              {sizes.length ? (
+                <ul
+                  className="flex flex-wrap gap-2 text-sm"
+                  aria-label="Ukuran tersedia"
+                >
+                  {sizes.map((z) => (
+                    <li
+                      key={z.id}
+                      className="rounded-full border border-border px-3 py-1"
+                    >
+                      {z.name}
+                      {z.weightGrams ? ` · ±${z.weightGrams} g` : ""}
+                      {z.dims ? ` · ${z.dims}` : ""}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </Stack>
+          </Container>
+        </Section>
+      ) : null}
+
       {layout.after.length ? (
         <BlockRenderer blocks={layout.after} firstHeadingLevel={2} />
       ) : null}
@@ -290,5 +349,27 @@ function CompareRow({
       </TableHead>
       {children}
     </TableRow>
+  );
+}
+
+/** Product shapes have no photo column yet: a simple outline glyph keeps the gallery useful. */
+function ShapeGlyph({ slug }: { slug: string }) {
+  const round = /silinder|bulat|lontong|daun/.test(slug);
+  const thin = /lembar|tipis|mendoan/.test(slug);
+  return (
+    <div
+      aria-hidden
+      className="flex h-24 items-center justify-center rounded-md bg-surface"
+    >
+      <span
+        className={
+          round
+            ? "size-14 rounded-full border-2 border-primary/60"
+            : thin
+              ? "h-4 w-20 rounded-sm border-2 border-primary/60"
+              : "h-10 w-16 rounded-md border-2 border-primary/60"
+        }
+      />
+    </div>
   );
 }

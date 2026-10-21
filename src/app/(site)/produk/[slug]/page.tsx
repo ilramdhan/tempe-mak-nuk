@@ -12,6 +12,12 @@ import {
   Stack,
 } from "@/components/site/primitives";
 import { Reveal } from "@/components/motion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +34,11 @@ import {
   getProductSlugs,
   getProducts,
 } from "@/features/products/queries";
+import { faqAnswerPlainText, getProductFaqs } from "@/features/faqs/queries";
+import { getRecipes } from "@/features/recipes/queries";
 import { getSettings } from "@/features/settings/queries";
+import { renderLightMarkdown } from "@/lib/rich-text/inline";
+import { RecipeCard } from "../../resep/_components/recipe-card";
 
 import { ProductCta } from "../_components/product-cta";
 import {
@@ -36,7 +46,7 @@ import {
   productVariantLabel,
 } from "../_components/product-image";
 import { RichText, type TiptapDoc } from "@/lib/rich-text";
-import { JsonLd, productJsonLd, siteBaseUrl } from "@/lib/seo";
+import { faqPageJsonLd, JsonLd, productJsonLd, siteBaseUrl } from "@/lib/seo";
 import { pageMetadata } from "@/lib/seo/server";
 
 /**
@@ -77,12 +87,18 @@ export default async function ProductPage({
   params,
 }: PageProps<"/produk/[slug]">) {
   const { slug } = await params;
-  const [product, all, settings] = await Promise.all([
+  const [product, all, settings, faqs, linkedRecipes] = await Promise.all([
     getProductBySlug(slug),
     getProducts(),
     getSettings(),
+    getProductFaqs(),
+    getRecipes({ product: slug, limit: 3 }),
   ]);
   if (!product) notFound();
+  // Linked recipes first; fall back to the newest recipes so the section is never empty.
+  const recipes = linkedRecipes.length
+    ? linkedRecipes
+    : await getRecipes({ limit: 3 });
 
   const showPrice = settings["pricing.show"];
   const sibling = all.find((p) => p.id !== product.id);
@@ -103,7 +119,14 @@ export default async function ProductPage({
       },
       base,
     ),
-  ];
+    faqPageJsonLd(
+      faqs.map((f) => ({
+        question: f.question,
+        answer: faqAnswerPlainText(f.answer),
+      })),
+      { path: `/produk/${product.slug}`, base },
+    ),
+  ].filter((n) => n !== null);
 
   return (
     <>
@@ -294,7 +317,54 @@ export default async function ProductPage({
         </Section>
       ) : null}
 
-      <Section tone="surface">
+      {faqs.length ? (
+        <Section spacing="tight">
+          <Container size="prose">
+            <Stack gap="md">
+              <Heading level={2}>Pertanyaan seputar {product.name}</Heading>
+              <Accordion type="multiple" className="border-t border-border">
+                {faqs.map((f) => (
+                  <AccordionItem
+                    key={f.id}
+                    value={f.id}
+                    className="border-border"
+                  >
+                    <AccordionTrigger className="py-4 text-base">
+                      {f.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-base text-muted-foreground">
+                      {renderLightMarkdown(f.answer, { internalHosts: [] })}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+              <Button asChild variant="link" className="w-fit">
+                <Link href="/faq">Lihat semua FAQ</Link>
+              </Button>
+            </Stack>
+          </Container>
+        </Section>
+      ) : null}
+
+      {recipes.length ? (
+        <Section tone="surface">
+          <Container>
+            <Stack gap="md">
+              <Heading level={2}>Resep dengan {product.name}</Heading>
+              <Grid cols={3} gap="lg">
+                {recipes.map((r) => (
+                  <RecipeCard key={r.id} recipe={r} />
+                ))}
+              </Grid>
+              <Button asChild variant="link" className="w-fit">
+                <Link href="/resep">Lihat semua resep</Link>
+              </Button>
+            </Stack>
+          </Container>
+        </Section>
+      ) : null}
+
+      <Section>
         <Container>
           <Stack gap="md" className="max-w-measure">
             <Heading level={2}>Pesan {product.name}</Heading>

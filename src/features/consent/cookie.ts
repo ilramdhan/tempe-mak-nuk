@@ -1,6 +1,6 @@
 /** Pure cookie/consent logic (no DOM) — unit tested. */
 export const CONSENT_COOKIE = "tmn_consent";
-export const CONSENT_MAX_AGE_DAYS = 180;
+export const CONSENT_MAX_AGE_DAYS = 365;
 
 export type ConsentRecord = {
   version: number;
