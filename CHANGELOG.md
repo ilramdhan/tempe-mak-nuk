@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.1](https://github.com/ilramdhan/tempe-mak-nuk/compare/v0.1.0...v0.1.1) (2026-10-21)
+
+
+### Perbaikan
+
+* **cron:** run publish cron daily for Vercel Hobby with 25h window ([#13](https://github.com/ilramdhan/tempe-mak-nuk/issues/13)) ([64974aa](https://github.com/ilramdhan/tempe-mak-nuk/commit/64974aa3ceeeebc4e293b7e8b0083f4350fdd59b))
+
+
+### Dokumentasi
+
+* align admin guide, README and security notes with RBAC, categories, cron (P8.8) ([#12](https://github.com/ilramdhan/tempe-mak-nuk/issues/12)) ([0d4e2c0](https://github.com/ilramdhan/tempe-mak-nuk/commit/0d4e2c0950dfae8e160ffe91a23d0b32e7136500))
+
 ## 0.1.0 (2026-10-21)
 
 
