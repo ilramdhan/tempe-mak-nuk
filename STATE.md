@@ -86,7 +86,7 @@
 | P8.4 | Cache: updateMediaAlt expire tag pemakai; konten terjadwal via cron+CRON_SECRET | S | P8.0 | doing | sonnet | `features/media/actions.ts`, `vercel.json`, `src/app/api/cron/*` |
 | P8.5 | /admin/kategori: kelola kategori FAQ/jurnal/resep + tag | S | P8.0 | done | sonnet | `src/app/(admin)/admin/kategori/**`, features/taxonomy (updateTag, counts, in-use delete guard), nav, registry tags.update |
 | P8.6 | Dasbor: kartu peringatan konten kosong | S | P8.0 | done | sonnet | `features/dashboard/*`, `admin/_dashboard/warnings.tsx`, `admin/page.tsx` |
-| P8.7 | Konten publik kurang (FAQ+resep terkait produk, galeri bentuk, probiotik, timeline, announcement slot, consent 12 bln + Tolak, TOC legal) | S | P8.1 | todo |  | route publik terkait |
+| P8.7 | Konten publik kurang (FAQ+resep terkait produk, galeri bentuk, probiotik, timeline, announcement slot, consent 12 bln + Tolak, TOC legal) | S | P8.1 | doing | sonnet | route publik terkait |
 | P8.8 | Docs akurat: admin-guide, README setup, security.md | S | P8.1–P8.6, P8.14 | todo |  | `README.md`, `docs/*.md` |
 | P8.9 | Admin kecil: tab SEO & situs untuk editor (seo./cta.); hapus action redirect duplikat | S | P8.0 | done | sonnet | `features/settings`, `features/pages/actions.ts` |
 | P8.10 | E2E: anonim /admin→/login; admin CRUD (skip tanpa E2E_ADMIN_*); 404 slug | S | P8.2 | done | sonnet | `tests/e2e/*` |
