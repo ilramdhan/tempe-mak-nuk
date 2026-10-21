@@ -48,17 +48,30 @@ export async function getTestimonials(): Promise<PublicTestimonial[]> {
       .orderBy(asc(testimonials.sort));
     return rows.map(({ mId, mUrl, mAlt, mW, mH, mBlur, ...t }) => ({
       ...t,
-      photo: mId ? { id: mId, url: mUrl!, alt: mAlt!, width: mW, height: mH, blurDataUrl: mBlur } : null,
+      photo: mId
+        ? {
+            id: mId,
+            url: mUrl!,
+            alt: mAlt!,
+            width: mW,
+            height: mH,
+            blurDataUrl: mBlur,
+          }
+        : null,
     }));
   });
 }
 
 /** By ids (given order) or first `limit` by sort. */
-export async function queryTestimonials(q: { ids?: readonly string[] | null; limit?: number | null } = {}) {
+export async function queryTestimonials(
+  q: { ids?: readonly string[] | null; limit?: number | null } = {},
+) {
   const all = await getTestimonials();
   if (q.ids?.length) {
     const byId = new Map(all.map((t) => [t.id, t]));
-    return q.ids.map((id) => byId.get(id)).filter((t): t is PublicTestimonial => Boolean(t));
+    return q.ids
+      .map((id) => byId.get(id))
+      .filter((t): t is PublicTestimonial => Boolean(t));
   }
   return q.limit ? all.slice(0, q.limit) : all;
 }

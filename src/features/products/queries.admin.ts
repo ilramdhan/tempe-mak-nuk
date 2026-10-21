@@ -17,19 +17,38 @@ import { requireRole } from "@/lib/auth/require-role";
 /** Admin: all products incl. inactive. */
 export async function listProductsForAdmin() {
   await requireRole("editor", { onFail: "redirect" });
-  return getDb().select().from(products).orderBy(asc(products.sort), asc(products.name));
+  return getDb()
+    .select()
+    .from(products)
+    .orderBy(asc(products.sort), asc(products.name));
 }
 
 export async function getProductForAdmin(id: string) {
   await requireRole("editor", { onFail: "redirect" });
   const db = getDb();
-  const [product] = await db.select().from(products).where(eq(products.id, id)).limit(1);
+  const [product] = await db
+    .select()
+    .from(products)
+    .where(eq(products.id, id))
+    .limit(1);
   if (!product) return null;
   const [shapeLinks, sizeLinks, nutr, gallery] = await Promise.all([
-    db.select().from(productShapeLinks).where(eq(productShapeLinks.productId, id)).orderBy(asc(productShapeLinks.sort)),
-    db.select().from(productSizeLinks).where(eq(productSizeLinks.productId, id)).orderBy(asc(productSizeLinks.sort)),
+    db
+      .select()
+      .from(productShapeLinks)
+      .where(eq(productShapeLinks.productId, id))
+      .orderBy(asc(productShapeLinks.sort)),
+    db
+      .select()
+      .from(productSizeLinks)
+      .where(eq(productSizeLinks.productId, id))
+      .orderBy(asc(productSizeLinks.sort)),
     db.select().from(nutrition).where(eq(nutrition.productId, id)),
-    db.select().from(productMedia).where(eq(productMedia.productId, id)).orderBy(asc(productMedia.sort)),
+    db
+      .select()
+      .from(productMedia)
+      .where(eq(productMedia.productId, id))
+      .orderBy(asc(productMedia.sort)),
   ]);
   return {
     ...product,

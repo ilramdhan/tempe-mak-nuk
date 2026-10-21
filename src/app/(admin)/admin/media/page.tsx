@@ -18,7 +18,14 @@ export default function MediaAdminPage() {
         title="Pustaka Media"
         description="Unggah foto (otomatis WebP, maks. 2400 px, metadata dihapus). Teks alt wajib untuk aksesibilitas & SEO."
       />
-      <Suspense fallback={<Skeleton className="h-96 w-full rounded-lg" aria-label="Memuat media" />}>
+      <Suspense
+        fallback={
+          <Skeleton
+            className="h-96 w-full rounded-lg"
+            aria-label="Memuat media"
+          />
+        }
+      >
         <Content />
       </Suspense>
     </>

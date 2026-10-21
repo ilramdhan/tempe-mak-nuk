@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { buildWaLink, buildWaMessage, normalizeWaNumber, WA_MAX_TEXT } from "@/lib/wa-link";
+import {
+  buildWaLink,
+  buildWaMessage,
+  normalizeWaNumber,
+  WA_MAX_TEXT,
+} from "@/lib/wa-link";
 
 describe("normalizeWaNumber", () => {
   it.each([
@@ -48,9 +53,11 @@ describe("buildWaMessage", () => {
   });
 
   it("supports non-bulleted labelled lines", () => {
-    expect(buildWaMessage({ lines: [{ label: "Nama", value: "Ani", bullet: false }] })).toBe(
-      "Nama: Ani",
-    );
+    expect(
+      buildWaMessage({
+        lines: [{ label: "Nama", value: "Ani", bullet: false }],
+      }),
+    ).toBe("Nama: Ani");
   });
 
   it("truncates long text without splitting emoji", () => {
@@ -68,7 +75,9 @@ describe("buildWaLink", () => {
 
   it("omits text when empty", () => {
     expect(buildWaLink("6281234567890")).toBe("https://wa.me/6281234567890");
-    expect(buildWaLink("6281234567890", "  ")).toBe("https://wa.me/6281234567890");
+    expect(buildWaLink("6281234567890", "  ")).toBe(
+      "https://wa.me/6281234567890",
+    );
   });
 
   it("encodes newlines, spaces, &, ?, # and emoji", () => {

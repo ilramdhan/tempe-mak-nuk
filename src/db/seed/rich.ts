@@ -16,7 +16,8 @@ function inline(src: string): Node[] {
   let last = 0;
   let m: RegExpExecArray | null;
   while ((m = re.exec(src))) {
-    if (m.index > last) out.push({ type: "text", text: src.slice(last, m.index) });
+    if (m.index > last)
+      out.push({ type: "text", text: src.slice(last, m.index) });
     if (m[1] !== undefined) {
       out.push({ type: "text", text: m[1], marks: [{ type: "bold" }] });
     } else {
@@ -56,10 +57,18 @@ export function doc(blocks: string[]): RichTextDoc {
     };
     if (b.startsWith("### ")) {
       flush();
-      content.push({ type: "heading", attrs: { level: 3 }, content: inline(b.slice(4)) });
+      content.push({
+        type: "heading",
+        attrs: { level: 3 },
+        content: inline(b.slice(4)),
+      });
     } else if (b.startsWith("## ")) {
       flush();
-      content.push({ type: "heading", attrs: { level: 2 }, content: inline(b.slice(3)) });
+      content.push({
+        type: "heading",
+        attrs: { level: 2 },
+        content: inline(b.slice(3)),
+      });
     } else if (b.startsWith("- ")) li(b.slice(2), "bulletList");
     else if (/^\d+\. /.test(b)) li(b.replace(/^\d+\. /, ""), "orderedList");
     else if (b.startsWith("> ")) {

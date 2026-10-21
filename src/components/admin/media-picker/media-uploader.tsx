@@ -86,7 +86,11 @@ export function MediaUploader({
       });
     }
     setNotice(rejected.length ? rejected.join(" · ") : null);
-    setQueue((q) => (multiple ? [...q.filter((i) => i.status !== "done"), ...next].slice(0, MAX_QUEUE) : next));
+    setQueue((q) =>
+      multiple
+        ? [...q.filter((i) => i.status !== "done"), ...next].slice(0, MAX_QUEUE)
+        : next,
+    );
   }
 
   function remove(key: string) {
@@ -101,10 +105,13 @@ export function MediaUploader({
   }
 
   async function uploadAll() {
-    const pending = queue.filter((i) => i.status === "idle" || i.status === "error");
+    const pending = queue.filter(
+      (i) => i.status === "idle" || i.status === "error",
+    );
     const missingAlt = pending.filter((i) => !i.alt.trim());
     if (missingAlt.length) {
-      for (const it of missingAlt) patch(it.key, { status: "error", error: "Teks alt wajib diisi" });
+      for (const it of missingAlt)
+        patch(it.key, { status: "error", error: "Teks alt wajib diisi" });
       setNotice("Isi teks alt untuk setiap gambar sebelum mengunggah.");
       document.getElementById(`${inputId}-alt-${missingAlt[0].key}`)?.focus();
       return;
@@ -131,7 +138,9 @@ export function MediaUploader({
     if (!failed) onFinished?.(okCount);
   }
 
-  const pendingCount = queue.filter((i) => i.status === "idle" || i.status === "error").length;
+  const pendingCount = queue.filter(
+    (i) => i.status === "idle" || i.status === "error",
+  ).length;
 
   return (
     <div className={cn("flex flex-col gap-4", className)}>
@@ -154,13 +163,19 @@ export function MediaUploader({
         <ImagePlus className="size-8 text-muted-foreground" aria-hidden />
         <p className="text-sm">
           Seret & lepas gambar ke sini, atau{" "}
-          <Button type="button" variant="link" size="sm" onClick={() => inputRef.current?.click()}>
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            onClick={() => inputRef.current?.click()}
+          >
             pilih berkas
           </Button>
         </p>
         <p className="text-xs text-muted-foreground">
-          JPG, PNG, WebP, atau AVIF · maks. {formatBytes(UPLOAD_MAX_BYTES)} per berkas. Otomatis diubah ke WebP
-          (maks. 2400 px) dan metadata (EXIF/lokasi) dihapus.
+          JPG, PNG, WebP, atau AVIF · maks. {formatBytes(UPLOAD_MAX_BYTES)} per
+          berkas. Otomatis diubah ke WebP (maks. 2400 px) dan metadata
+          (EXIF/lokasi) dihapus.
         </p>
         <label htmlFor={inputId} className="sr-only">
           Pilih berkas gambar
@@ -192,14 +207,26 @@ export function MediaUploader({
             const errId = `${altId}-err`;
             const locked = it.status === "uploading" || it.status === "done";
             return (
-              <li key={it.key} className="flex gap-3 rounded-md border border-input p-3">
+              <li
+                key={it.key}
+                className="flex gap-3 rounded-md border border-input p-3"
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={it.preview} alt="" className="size-20 shrink-0 rounded-md object-cover" />
+                <img
+                  src={it.preview}
+                  alt=""
+                  className="size-20 shrink-0 rounded-md object-cover"
+                />
                 <div className="flex min-w-0 flex-1 flex-col gap-2">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="truncate text-sm font-medium" title={it.file.name}>
+                    <span
+                      className="truncate text-sm font-medium"
+                      title={it.file.name}
+                    >
                       {it.file.name}{" "}
-                      <span className="font-normal text-muted-foreground">({formatBytes(it.file.size)})</span>
+                      <span className="font-normal text-muted-foreground">
+                        ({formatBytes(it.file.size)})
+                      </span>
                     </span>
                     {it.status !== "uploading" ? (
                       <Button
@@ -221,9 +248,18 @@ export function MediaUploader({
                       maxLength={300}
                       disabled={locked}
                       placeholder="Jelaskan isi gambar, mis. “Tempe mentah dibungkus daun pisang”"
-                      aria-invalid={it.status === "error" && !it.alt.trim() ? true : undefined}
+                      aria-invalid={
+                        it.status === "error" && !it.alt.trim()
+                          ? true
+                          : undefined
+                      }
                       aria-describedby={it.error ? errId : undefined}
-                      onChange={(e) => patch(it.key, { alt: e.target.value, ...(it.status === "error" ? { error: null } : {}) })}
+                      onChange={(e) =>
+                        patch(it.key, {
+                          alt: e.target.value,
+                          ...(it.status === "error" ? { error: null } : {}),
+                        })
+                      }
                     />
                   </div>
                   {it.status === "uploading" || it.status === "done" ? (
@@ -234,8 +270,13 @@ export function MediaUploader({
                         value={it.progress}
                         aria-label={`Progres unggah ${it.file.name}`}
                       />
-                      <span className="text-xs tabular-nums text-muted-foreground" aria-live="polite">
-                        {it.status === "done" ? "Selesai" : `${Math.round(it.progress * 100)}%`}
+                      <span
+                        className="text-xs text-muted-foreground tabular-nums"
+                        aria-live="polite"
+                      >
+                        {it.status === "done"
+                          ? "Selesai"
+                          : `${Math.round(it.progress * 100)}%`}
                       </span>
                     </div>
                   ) : null}
@@ -254,7 +295,11 @@ export function MediaUploader({
       {pendingCount ? (
         <div className="flex justify-end">
           <Button type="button" onClick={uploadAll} disabled={busy}>
-            {busy ? <Loader2 className="animate-spin" aria-hidden /> : <Upload aria-hidden />}
+            {busy ? (
+              <Loader2 className="animate-spin" aria-hidden />
+            ) : (
+              <Upload aria-hidden />
+            )}
             {busy ? "Mengunggah…" : `Unggah ${pendingCount} gambar`}
           </Button>
         </div>

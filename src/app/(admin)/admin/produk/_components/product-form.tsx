@@ -400,8 +400,8 @@ export function ProductForm({
 
         <TabsContent value="galeri" className="flex flex-col gap-3 pt-5">
           <p className="text-sm text-muted-foreground">
-            Foto pertama menjadi foto utama. Pilih dari pustaka atau unggah
-            foto baru.
+            Foto pertama menjadi foto utama. Pilih dari pustaka atau unggah foto
+            baru.
           </p>
           <SortableList
             items={mediaItems}

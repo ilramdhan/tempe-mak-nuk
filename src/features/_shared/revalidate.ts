@@ -7,6 +7,9 @@ import { updateTag } from "next/cache";
  * read-your-own-writes — the next request blocks on fresh data instead of serving stale).
  * Route handlers/webhooks must use `revalidateTag(tag, "max")` instead.
  */
-export function expireTags(...tagList: (string | null | undefined | false)[]): void {
-  for (const t of new Set(tagList.filter((x): x is string => Boolean(x)))) updateTag(t);
+export function expireTags(
+  ...tagList: (string | null | undefined | false)[]
+): void {
+  for (const t of new Set(tagList.filter((x): x is string => Boolean(x))))
+    updateTag(t);
 }

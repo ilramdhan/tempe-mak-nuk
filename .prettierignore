@@ -11,3 +11,6 @@ public/brand
 src/components/brand
 scripts/brand
 HANDOVER.md
+playwright-report
+test-results
+coverage

@@ -13,7 +13,11 @@ export async function generateStaticParams() {
   return [{ slug: "_" }];
 }
 
-export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
+export default async function Image({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const item = await getPostBySlug(slug).catch(() => null);
   return renderOg({

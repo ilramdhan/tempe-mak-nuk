@@ -11,7 +11,12 @@ import { requireRole } from "@/lib/auth/require-role";
 export async function getSettingsForAdmin(): Promise<{
   settings: Settings;
   invalidKeys: SettingKey[];
-  rows: { key: string; group: string; updatedAt: Date; updatedBy: string | null }[];
+  rows: {
+    key: string;
+    group: string;
+    updatedAt: Date;
+    updatedBy: string | null;
+  }[];
 }> {
   await requireRole("editor", { onFail: "redirect" });
   const rows = await getDb().select().from(settingsTable);
@@ -19,6 +24,11 @@ export async function getSettingsForAdmin(): Promise<{
   return {
     settings,
     invalidKeys,
-    rows: rows.map(({ key, group, updatedAt, updatedBy }) => ({ key, group, updatedAt, updatedBy })),
+    rows: rows.map(({ key, group, updatedAt, updatedBy }) => ({
+      key,
+      group,
+      updatedAt,
+      updatedBy,
+    })),
   };
 }

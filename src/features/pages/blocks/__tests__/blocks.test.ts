@@ -1,7 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { BLOCK_LIST, BLOCK_REGISTRY, getBlockDefaults } from "@/features/pages/blocks/registry";
-import { BLOCK_SCHEMAS, BLOCK_TYPES, blockSchema } from "@/features/pages/blocks/schema";
+import {
+  BLOCK_LIST,
+  BLOCK_REGISTRY,
+  getBlockDefaults,
+} from "@/features/pages/blocks/registry";
+import {
+  BLOCK_SCHEMAS,
+  BLOCK_TYPES,
+  blockSchema,
+} from "@/features/pages/blocks/schema";
 import { validateBlocks } from "@/features/pages/blocks/validate";
 
 afterEach(() => vi.restoreAllMocks());
@@ -15,7 +23,9 @@ describe("block registry", () => {
   it.each(BLOCK_TYPES)("default data for %s is valid", (type) => {
     const res = BLOCK_SCHEMAS[type].safeParse(getBlockDefaults(type));
     expect(res.error?.issues ?? []).toEqual([]);
-    expect(blockSchema.safeParse({ type, data: getBlockDefaults(type) }).success).toBe(true);
+    expect(
+      blockSchema.safeParse({ type, data: getBlockDefaults(type) }).success,
+    ).toBe(true);
   });
 
   it("getBlockDefaults returns a fresh copy", () => {
@@ -29,7 +39,14 @@ describe("block schemas", () => {
   it("accepts seed-style hero with nulls and normalises", () => {
     const res = blockSchema.parse({
       type: "hero",
-      data: { eyebrow: "Produk", headline: "Dua varian", subheadline: "…", primaryCta: null, secondaryCta: null, image: null },
+      data: {
+        eyebrow: "Produk",
+        headline: "Dua varian",
+        subheadline: "…",
+        primaryCta: null,
+        secondaryCta: null,
+        image: null,
+      },
     });
     expect(res.type === "hero" && res.data.layout).toBe("split");
   });
@@ -44,19 +61,38 @@ describe("block schemas", () => {
   });
 
   it("unknown icon degrades to null instead of failing", () => {
-    const res = blockSchema.parse({ type: "trustStrip", data: { items: [{ icon: "rocket", label: "Cepat" }] } });
+    const res = blockSchema.parse({
+      type: "trustStrip",
+      data: { items: [{ icon: "rocket", label: "Cepat" }] },
+    });
     expect(res.type === "trustStrip" && res.data.items[0].icon).toBeNull();
   });
 
   it("rejects javascript: hrefs in CTAs", () => {
     expect(
-      blockSchema.safeParse({ type: "cta", data: { headline: "x", primary: { label: "y", href: "javascript:alert(1)" } } }).success,
+      blockSchema.safeParse({
+        type: "cta",
+        data: {
+          headline: "x",
+          primary: { label: "y", href: "javascript:alert(1)" },
+        },
+      }).success,
     ).toBe(false);
   });
 
   it("split facts must reference real settings keys", () => {
-    expect(blockSchema.safeParse({ type: "split", data: { facts: [{ label: "No", settingKey: "halal.number" }] } }).success).toBe(true);
-    expect(blockSchema.safeParse({ type: "split", data: { facts: [{ label: "No", settingKey: "nope" }] } }).success).toBe(false);
+    expect(
+      blockSchema.safeParse({
+        type: "split",
+        data: { facts: [{ label: "No", settingKey: "halal.number" }] },
+      }).success,
+    ).toBe(true);
+    expect(
+      blockSchema.safeParse({
+        type: "split",
+        data: { facts: [{ label: "No", settingKey: "nope" }] },
+      }).success,
+    ).toBe(false);
   });
 });
 

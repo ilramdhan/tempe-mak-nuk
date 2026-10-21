@@ -4,7 +4,14 @@ import { and, asc, desc, eq, inArray, ne } from "drizzle-orm";
 import { cacheTag } from "next/cache";
 
 import type { Database } from "@/db/client";
-import { categories, media, posts, postTags, profiles, tags as tagTable } from "@/db/schema";
+import {
+  categories,
+  media,
+  posts,
+  postTags,
+  profiles,
+  tags as tagTable,
+} from "@/db/schema";
 import type { RichTextDoc, SeoMeta } from "@/db/schema/seo";
 import { cachedRead } from "@/features/_shared/db";
 import { isLiveSql } from "@/features/_shared/live";
@@ -64,9 +71,18 @@ function toSummary(r: SummaryRow): PostSummary {
     excerpt: r.excerpt,
     publishedAt: r.publishedAt,
     readingMinutes: r.readingMinutes,
-    category: r.categoryId ? { id: r.categoryId, slug: r.categorySlug!, name: r.categoryName! } : null,
+    category: r.categoryId
+      ? { id: r.categoryId, slug: r.categorySlug!, name: r.categoryName! }
+      : null,
     cover: r.coverId
-      ? { id: r.coverId, url: r.coverUrl!, alt: r.coverAlt!, width: r.coverWidth, height: r.coverHeight, blurDataUrl: r.coverBlur }
+      ? {
+          id: r.coverId,
+          url: r.coverUrl!,
+          alt: r.coverAlt!,
+          width: r.coverWidth,
+          height: r.coverHeight,
+          blurDataUrl: r.coverBlur,
+        }
       : null,
   };
 }
@@ -80,13 +96,17 @@ function summaryQuery(db: Database) {
 }
 
 /** Live posts, newest first. Optional category slug filter. */
-export async function getPosts(opts: { category?: string | null; limit?: number } = {}): Promise<PostSummary[]> {
+export async function getPosts(
+  opts: { category?: string | null; limit?: number } = {},
+): Promise<PostSummary[]> {
   "use cache";
   cacheTag(tags.posts);
   const limit = Math.min(Math.max(opts.limit ?? 50, 1), 200);
   return cachedRead("posts", "hours", [], async (db) => {
     const rows = await summaryQuery(db)
-      .where(opts.category ? and(live, eq(categories.slug, opts.category)) : live)
+      .where(
+        opts.category ? and(live, eq(categories.slug, opts.category)) : live,
+      )
       .orderBy(desc(posts.publishedAt))
       .limit(limit);
     return rows.map(toSummary);
@@ -94,18 +114,24 @@ export async function getPosts(opts: { category?: string | null; limit?: number 
 }
 
 /** Specific posts by slug, in the given order (non-live skipped). */
-export async function getPostsBySlugs(slugs: readonly string[]): Promise<PostSummary[]> {
+export async function getPostsBySlugs(
+  slugs: readonly string[],
+): Promise<PostSummary[]> {
   if (!slugs.length) return [];
   const list = await getPostsBySlugsCached([...slugs]);
   const bySlug = new Map(list.map((p) => [p.slug, p]));
-  return slugs.map((s) => bySlug.get(s)).filter((p): p is PostSummary => Boolean(p));
+  return slugs
+    .map((s) => bySlug.get(s))
+    .filter((p): p is PostSummary => Boolean(p));
 }
 
 async function getPostsBySlugsCached(slugs: string[]): Promise<PostSummary[]> {
   "use cache";
   cacheTag(tags.posts, ...slugs.slice(0, 50).map(tags.post));
   return cachedRead("posts-by-slug", "hours", [], async (db) =>
-    (await summaryQuery(db).where(and(live, inArray(posts.slug, slugs)))).map(toSummary),
+    (await summaryQuery(db).where(and(live, inArray(posts.slug, slugs)))).map(
+      toSummary,
+    ),
   );
 }
 
@@ -147,26 +173,41 @@ export async function getPostBySlug(slug: string): Promise<PostDetail | null> {
 }
 
 /** Same-category posts first, then newest, excluding the current one. */
-export async function getRelatedPosts(slug: string, limit = 3): Promise<PostSummary[]> {
+export async function getRelatedPosts(
+  slug: string,
+  limit = 3,
+): Promise<PostSummary[]> {
   "use cache";
   cacheTag(tags.posts);
   return cachedRead("related-posts", "hours", [], async (db) => {
-    const [cur] = await db.select({ categoryId: posts.categoryId }).from(posts).where(eq(posts.slug, slug)).limit(1);
+    const [cur] = await db
+      .select({ categoryId: posts.categoryId })
+      .from(posts)
+      .where(eq(posts.slug, slug))
+      .limit(1);
     const rows = await summaryQuery(db)
       .where(and(live, ne(posts.slug, slug)))
       .orderBy(desc(posts.publishedAt))
       .limit(30);
     const list = rows.map(toSummary);
-    const same = cur?.categoryId ? list.filter((p) => p.category?.id === cur.categoryId) : [];
+    const same = cur?.categoryId
+      ? list.filter((p) => p.category?.id === cur.categoryId)
+      : [];
     const rest = list.filter((p) => !same.includes(p));
     return [...same, ...rest].slice(0, limit);
   });
 }
 
-export async function getPostSlugs(): Promise<{ slug: string; updatedAt: Date }[]> {
+export async function getPostSlugs(): Promise<
+  { slug: string; updatedAt: Date }[]
+> {
   "use cache";
   cacheTag(tags.posts);
   return cachedRead("post-slugs", "hours", [], (db) =>
-    db.select({ slug: posts.slug, updatedAt: posts.updatedAt }).from(posts).where(live).orderBy(desc(posts.publishedAt)),
+    db
+      .select({ slug: posts.slug, updatedAt: posts.updatedAt })
+      .from(posts)
+      .where(live)
+      .orderBy(desc(posts.publishedAt)),
   );
 }

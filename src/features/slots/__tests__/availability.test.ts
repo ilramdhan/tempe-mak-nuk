@@ -45,13 +45,19 @@ describe("latestOrderDeadline", () => {
 
   it("an 'open' override on the deadline day keeps it", () => {
     const d = latestOrderDeadline("2026-10-22", rules, {
-      overrides: [{ date: "2026-10-18", capacity: null, booked: 0, status: "open" }],
+      overrides: [
+        { date: "2026-10-18", capacity: null, booked: 0, status: "open" },
+      ],
     });
     expect(d.toISOString()).toBe("2026-10-18T08:00:00.000Z");
   });
 
   it("respects other cutoff times and leadDays 0", () => {
-    const d = latestOrderDeadline("2026-10-20", { ...rules, leadDays: 0, cutoffTime: "06:30" });
+    const d = latestOrderDeadline("2026-10-20", {
+      ...rules,
+      leadDays: 0,
+      cutoffTime: "06:30",
+    });
     expect(d.toISOString()).toBe("2026-10-19T23:30:00.000Z");
   });
 
@@ -69,33 +75,50 @@ describe("latestOrderDeadline", () => {
 
 describe("getDayAvailability — cutoff", () => {
   it("Friday 14:59 WIB → Tuesday still orderable", () => {
-    const d = getDayAvailability("2026-10-20", { rules, now: wib("2026-10-16T14:59:59") });
+    const d = getDayAvailability("2026-10-20", {
+      rules,
+      now: wib("2026-10-16T14:59:59"),
+    });
     expect(d.status).toBe("available");
     expect(d.orderable).toBe(true);
     expect(d.reason).toContain("Jumat, 16 Okt 2026 pukul 15.00 WIB");
   });
 
   it("exactly 15:00:00 WIB is still allowed; 15:00:01 is past", () => {
-    expect(getDayAvailability("2026-10-20", { rules, now: wib("2026-10-16T15:00:00") }).status).toBe(
-      "available",
-    );
-    expect(getDayAvailability("2026-10-20", { rules, now: wib("2026-10-16T15:00:01") }).status).toBe(
-      "past-cutoff",
-    );
+    expect(
+      getDayAvailability("2026-10-20", {
+        rules,
+        now: wib("2026-10-16T15:00:00"),
+      }).status,
+    ).toBe("available");
+    expect(
+      getDayAvailability("2026-10-20", {
+        rules,
+        now: wib("2026-10-16T15:00:01"),
+      }).status,
+    ).toBe("past-cutoff");
   });
 
   it("uses Jakarta time, not UTC date (UTC still Friday, WIB already Saturday)", () => {
     // 2026-10-16T17:30Z = Sat 00:30 WIB
     const now = new Date("2026-10-16T17:30:00Z");
-    expect(getDayAvailability("2026-10-20", { rules, now }).status).toBe("past-cutoff");
+    expect(getDayAvailability("2026-10-20", { rules, now }).status).toBe(
+      "past-cutoff",
+    );
     // Wed 21 deadline = Sat 17 15:00 → still open
-    expect(getDayAvailability("2026-10-21", { rules, now }).status).toBe("available");
+    expect(getDayAvailability("2026-10-21", { rules, now }).status).toBe(
+      "available",
+    );
   });
 
   it("today and past dates are past-cutoff", () => {
     const now = wib("2026-10-16T08:00:00");
-    expect(getDayAvailability("2026-10-16", { rules, now }).status).toBe("past-cutoff");
-    expect(getDayAvailability("2026-10-01", { rules, now }).status).toBe("past-cutoff");
+    expect(getDayAvailability("2026-10-16", { rules, now }).status).toBe(
+      "past-cutoff",
+    );
+    expect(getDayAvailability("2026-10-01", { rules, now }).status).toBe(
+      "past-cutoff",
+    );
   });
 });
 
@@ -115,18 +138,26 @@ describe("getDayAvailability — closures and overrides", () => {
       now,
       holidays: [{ date: "2026-10-20", label: "Hari Raya" }],
     });
-    expect(d).toMatchObject({ status: "closed", holiday: "Hari Raya", reason: "Libur: Hari Raya" });
+    expect(d).toMatchObject({
+      status: "closed",
+      holiday: "Hari Raya",
+      reason: "Libur: Hari Raya",
+    });
   });
 
   it("closed beats past-cutoff", () => {
-    expect(getDayAvailability("2026-09-27", { rules, now }).status).toBe("closed");
+    expect(getDayAvailability("2026-09-27", { rules, now }).status).toBe(
+      "closed",
+    );
   });
 
   it("override closed on a normal day", () => {
     const d = getDayAvailability("2026-10-20", {
       rules,
       now,
-      overrides: [{ date: "2026-10-20", capacity: null, booked: 0, status: "closed" }],
+      overrides: [
+        { date: "2026-10-20", capacity: null, booked: 0, status: "closed" },
+      ],
     });
     expect(d.status).toBe("closed");
   });
@@ -136,7 +167,9 @@ describe("getDayAvailability — closures and overrides", () => {
       rules,
       now,
       holidays: [{ date: "2026-10-18", label: "X" }],
-      overrides: [{ date: "2026-10-18", capacity: 5, booked: 0, status: "open" }],
+      overrides: [
+        { date: "2026-10-18", capacity: 5, booked: 0, status: "open" },
+      ],
     });
     expect(d.status).toBe("available");
     expect(d.holiday).toBe("X");
@@ -146,7 +179,9 @@ describe("getDayAvailability — closures and overrides", () => {
     const d = getDayAvailability("2026-10-20", {
       rules,
       now,
-      overrides: [{ date: "2026-10-20", capacity: null, booked: 0, status: "full" }],
+      overrides: [
+        { date: "2026-10-20", capacity: null, booked: 0, status: "full" },
+      ],
     });
     expect(d).toMatchObject({ status: "full", orderable: false });
   });
@@ -158,7 +193,11 @@ describe("getDayAvailability — closures and overrides", () => {
         now,
         overrides: [{ date: "2026-10-20", capacity, booked, status: "auto" }],
       });
-    expect(at(5)).toMatchObject({ status: "available", remaining: 3, capacity: 8 });
+    expect(at(5)).toMatchObject({
+      status: "available",
+      remaining: 3,
+      capacity: 8,
+    });
     expect(at(6)).toMatchObject({ status: "nearly", remaining: 2 });
     expect(at(7).status).toBe("nearly");
     expect(at(8)).toMatchObject({ status: "full", remaining: 0 });
@@ -171,7 +210,9 @@ describe("getDayAvailability — closures and overrides", () => {
     const d = getDayAvailability("2026-10-20", {
       rules,
       now,
-      overrides: [{ date: "2026-10-20", capacity: 2, booked: 2, status: "open" }],
+      overrides: [
+        { date: "2026-10-20", capacity: 2, booked: 2, status: "open" },
+      ],
     });
     expect(d.status).toBe("available");
   });
@@ -199,14 +240,22 @@ describe("computeAvailability / earliestOrderableDate", () => {
       earliestOrderableDate({
         rules,
         now,
-        overrides: [{ date: "2026-10-21", capacity: null, booked: 8, status: "auto" }],
+        overrides: [
+          { date: "2026-10-21", capacity: null, booked: 8, status: "auto" },
+        ],
       }),
     ).toBe("2026-10-22");
   });
 
   it("returns null when nothing is orderable", () => {
     expect(
-      earliestOrderableDate({ rules: { ...rules, closedWeekdays: [0, 1, 2, 3, 4, 5, 6] }, now: new Date() }, 14),
+      earliestOrderableDate(
+        {
+          rules: { ...rules, closedWeekdays: [0, 1, 2, 3, 4, 5, 6] },
+          now: new Date(),
+        },
+        14,
+      ),
     ).toBeNull();
   });
 });

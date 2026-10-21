@@ -26,7 +26,13 @@ export const recipeStepSchema = z.object({
   mediaId: uuidSchema.nullish(),
 });
 
-const minutes = z.coerce.number().int().min(0).max(10_000).nullish().transform((v) => v ?? null);
+const minutes = z.coerce
+  .number()
+  .int()
+  .min(0)
+  .max(10_000)
+  .nullish()
+  .transform((v) => v ?? null);
 
 export const recipeInputSchema = z
   .object({
@@ -38,7 +44,13 @@ export const recipeInputSchema = z
     steps: z.array(recipeStepSchema).max(100).default([]),
     prepMinutes: minutes,
     cookMinutes: minutes,
-    servings: z.coerce.number().int().min(1).max(1000).nullish().transform((v) => v ?? null),
+    servings: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(1000)
+      .nullish()
+      .transform((v) => v ?? null),
     difficulty: recipeDifficultySchema.nullish().transform((v) => v ?? null),
     productId: uuidSchema.nullish().transform((v) => v ?? null),
     categoryId: uuidSchema.nullish().transform((v) => v ?? null),

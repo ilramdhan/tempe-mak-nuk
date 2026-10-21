@@ -1,7 +1,14 @@
 "use client";
 
 import { ImageIcon, Loader2, Search } from "lucide-react";
-import { useCallback, useEffect, useId, useRef, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -63,9 +70,10 @@ export function MediaPicker({
   initialItem,
 }: MediaPickerProps) {
   const [open, setOpen] = useState(false);
-  const [current, setCurrent] = useState<Pick<MediaLibraryItem, "id" | "url" | "alt"> | null>(
-    initialItem && initialItem.id === value ? initialItem : null,
-  );
+  const [current, setCurrent] = useState<Pick<
+    MediaLibraryItem,
+    "id" | "url" | "alt"
+  > | null>(initialItem && initialItem.id === value ? initialItem : null);
   const [missing, setMissing] = useState(false);
 
   // Resolve the preview for an externally supplied value.
@@ -100,7 +108,11 @@ export function MediaPicker({
         >
           {shown ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={shown.url} alt={`Pratinjau: ${shown.alt}`} className="size-full object-cover" />
+            <img
+              src={shown.url}
+              alt={`Pratinjau: ${shown.alt}`}
+              className="size-full object-cover"
+            />
           ) : (
             <ImageIcon className="size-6 text-muted-foreground" aria-hidden />
           )}
@@ -192,15 +204,22 @@ export function MediaPickerDialog({
     const req = ++reqRef.current;
     startLoading(async () => {
       try {
-        const res = await searchMediaLibrary({ q: query || undefined, limit: PAGE, offset });
+        const res = await searchMediaLibrary({
+          q: query || undefined,
+          limit: PAGE,
+          offset,
+        });
         if (req !== reqRef.current) return;
         if (res.ok) {
-          setItems((prev) => (offset ? [...prev, ...res.data.items] : res.data.items));
+          setItems((prev) =>
+            offset ? [...prev, ...res.data.items] : res.data.items,
+          );
           setHasMore(res.data.hasMore);
           setError(null);
         } else setError(res.error);
       } catch {
-        if (req === reqRef.current) setError("Gagal terhubung ke server. Coba lagi.");
+        if (req === reqRef.current)
+          setError("Gagal terhubung ke server. Coba lagi.");
       }
     });
   }, []);
@@ -214,13 +233,27 @@ export function MediaPickerDialog({
   const selected = items.find((i) => i.id === highlight) ?? null;
 
   function onGridKey(e: React.KeyboardEvent<HTMLDivElement>) {
-    const buttons = Array.from(gridRef.current?.querySelectorAll<HTMLButtonElement>("[data-media-option]") ?? []);
+    const buttons = Array.from(
+      gridRef.current?.querySelectorAll<HTMLButtonElement>(
+        "[data-media-option]",
+      ) ?? [],
+    );
     const idx = buttons.findIndex((b) => b === document.activeElement);
     if (idx < 0) return;
-    const cols = Math.max(1, Math.round((gridRef.current?.clientWidth ?? 1) / (buttons[0]?.offsetWidth || 1)));
-    const delta = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: cols, ArrowUp: -cols, Home: -idx, End: buttons.length - 1 - idx }[
-      e.key
-    ];
+    const cols = Math.max(
+      1,
+      Math.round(
+        (gridRef.current?.clientWidth ?? 1) / (buttons[0]?.offsetWidth || 1),
+      ),
+    );
+    const delta = {
+      ArrowRight: 1,
+      ArrowLeft: -1,
+      ArrowDown: cols,
+      ArrowUp: -cols,
+      Home: -idx,
+      End: buttons.length - 1 - idx,
+    }[e.key];
     if (delta === undefined) return;
     e.preventDefault();
     buttons[Math.min(buttons.length - 1, Math.max(0, idx + delta))]?.focus();
@@ -231,14 +264,23 @@ export function MediaPickerDialog({
       <DialogContent className="flex max-h-[90dvh] flex-col sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>Pilih dari pustaka media atau unggah gambar baru (teks alt wajib).</DialogDescription>
+          <DialogDescription>
+            Pilih dari pustaka media atau unggah gambar baru (teks alt wajib).
+          </DialogDescription>
         </DialogHeader>
-        <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="flex min-h-0 flex-1 flex-col">
+        <Tabs
+          value={tab}
+          onValueChange={(v) => setTab(v as typeof tab)}
+          className="flex min-h-0 flex-1 flex-col"
+        >
           <TabsList>
             <TabsTrigger value="pustaka">Pustaka</TabsTrigger>
             <TabsTrigger value="unggah">Unggah baru</TabsTrigger>
           </TabsList>
-          <TabsContent value="pustaka" className="flex min-h-0 flex-1 flex-col gap-3 pt-3">
+          <TabsContent
+            value="pustaka"
+            className="flex min-h-0 flex-1 flex-col gap-3 pt-3"
+          >
             <div className="relative">
               <label htmlFor={searchId} className="sr-only">
                 Cari media
@@ -264,7 +306,9 @@ export function MediaPickerDialog({
             <div className="min-h-0 flex-1 overflow-y-auto">
               {items.length === 0 && !loading ? (
                 <p className="py-8 text-center text-sm text-muted-foreground">
-                  {q ? "Tidak ada media yang cocok." : "Belum ada media. Unggah di tab “Unggah baru”."}
+                  {q
+                    ? "Tidak ada media yang cocok."
+                    : "Belum ada media. Unggah di tab “Unggah baru”."}
                 </p>
               ) : (
                 <div
@@ -276,7 +320,9 @@ export function MediaPickerDialog({
                 >
                   {items.map((m, i) => {
                     const active = m.id === highlight;
-                    const tabbable = items.some((x) => x.id === highlight) ? active : i === 0;
+                    const tabbable = items.some((x) => x.id === highlight)
+                      ? active
+                      : i === 0;
                     return (
                       <button
                         key={m.id}
@@ -301,29 +347,49 @@ export function MediaPickerDialog({
                         )}
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={m.url} alt={m.alt} loading="lazy" className="size-full object-cover" />
+                        <img
+                          src={m.url}
+                          alt={m.alt}
+                          loading="lazy"
+                          className="size-full object-cover"
+                        />
                       </button>
                     );
                   })}
                 </div>
               )}
               {loading ? (
-                <p className="flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground" aria-live="polite">
-                  <Loader2 className="size-4 animate-spin" aria-hidden /> Memuat…
+                <p
+                  className="flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground"
+                  aria-live="polite"
+                >
+                  <Loader2 className="size-4 animate-spin" aria-hidden />{" "}
+                  Memuat…
                 </p>
               ) : hasMore ? (
                 <div className="flex justify-center py-3">
-                  <Button type="button" variant="secondary" size="sm" onClick={() => load(q.trim(), items.length)}>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => load(q.trim(), items.length)}
+                  >
                     Muat lebih banyak
                   </Button>
                 </div>
               ) : null}
             </div>
           </TabsContent>
-          <TabsContent value="unggah" className="min-h-0 flex-1 overflow-y-auto pt-3">
+          <TabsContent
+            value="unggah"
+            className="min-h-0 flex-1 overflow-y-auto pt-3"
+          >
             <MediaUploader
               onUploaded={(item) => {
-                setItems((prev) => [item, ...prev.filter((p) => p.id !== item.id)]);
+                setItems((prev) => [
+                  item,
+                  ...prev.filter((p) => p.id !== item.id),
+                ]);
                 setHighlight(item.id);
               }}
               onFinished={(count) => {
@@ -333,14 +399,25 @@ export function MediaPickerDialog({
           </TabsContent>
         </Tabs>
         <DialogFooter className="items-center gap-2 sm:justify-between">
-          <p className="truncate text-sm text-muted-foreground" aria-live="polite">
+          <p
+            className="truncate text-sm text-muted-foreground"
+            aria-live="polite"
+          >
             {selected ? `Dipilih: ${selected.alt}` : "Belum ada yang dipilih"}
           </p>
           <div className="flex gap-2">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+            >
               Batal
             </Button>
-            <Button type="button" disabled={!selected} onClick={() => selected && onSelect(selected)}>
+            <Button
+              type="button"
+              disabled={!selected}
+              onClick={() => selected && onSelect(selected)}
+            >
               Gunakan gambar
             </Button>
           </div>

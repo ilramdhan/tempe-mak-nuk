@@ -10,5 +10,9 @@ export default async function Image() {
   try {
     name = (await getSettings())["business.name"] || name;
   } catch {}
-  return renderOg({ eyebrow: "Tempe artisan", title: name, subtitle: OG_TAGLINE });
+  return renderOg({
+    eyebrow: "Tempe artisan",
+    title: name,
+    subtitle: OG_TAGLINE,
+  });
 }

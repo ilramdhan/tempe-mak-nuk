@@ -8,10 +8,16 @@ import { requireRole } from "@/lib/auth/require-role";
 
 export async function listNavItemsForAdmin() {
   await requireRole("editor", { onFail: "redirect" });
-  return getDb().select().from(navItems).orderBy(asc(navItems.location), asc(navItems.sort));
+  return getDb()
+    .select()
+    .from(navItems)
+    .orderBy(asc(navItems.location), asc(navItems.sort));
 }
 
 export async function listAnnouncementsForAdmin() {
   await requireRole("editor", { onFail: "redirect" });
-  return getDb().select().from(announcements).orderBy(desc(announcements.updatedAt));
+  return getDb()
+    .select()
+    .from(announcements)
+    .orderBy(desc(announcements.updatedAt));
 }

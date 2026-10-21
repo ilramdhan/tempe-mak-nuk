@@ -11,7 +11,13 @@ import {
 } from "@/components/site/primitives";
 import { Button } from "@/components/ui/button";
 import { getSettings } from "@/features/settings/queries";
-import { businessFromSettings, foodEstablishmentJsonLd, JsonLd, siteBaseUrl, webPageJsonLd } from "@/lib/seo";
+import {
+  businessFromSettings,
+  foodEstablishmentJsonLd,
+  JsonLd,
+  siteBaseUrl,
+  webPageJsonLd,
+} from "@/lib/seo";
 import { pageMetadata } from "@/lib/seo/server";
 import { buildWaLink } from "@/lib/wa-link";
 
@@ -107,7 +113,9 @@ export default async function KontakPage() {
       <Section spacing="tight">
         <Container>
           <Stack gap="md">
-            <Eyebrow rule tone="accent">Kontak</Eyebrow>
+            <Eyebrow rule tone="accent">
+              Kontak
+            </Eyebrow>
             <Heading level={1} size="display">
               Kontak dan alamat
             </Heading>

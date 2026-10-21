@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import {
-  Breadcrumb,
-  WaLink,
-} from "@/components/site/layout";
+import { Breadcrumb, WaLink } from "@/components/site/layout";
 import {
   Container,
   Eyebrow,
@@ -41,9 +38,10 @@ export default async function CaraPesanPage() {
   const calIndex = sections.findIndex((s) => s.type === "slotCalendarPreview");
   const before = calIndex >= 0 ? sections.slice(0, calIndex) : sections;
   const after = calIndex >= 0 ? sections.slice(calIndex + 1) : [];
-  const calData = (
-    calIndex >= 0 ? sections[calIndex].data : {}
-  ) as Record<string, unknown>;
+  const calData = (calIndex >= 0 ? sections[calIndex].data : {}) as Record<
+    string,
+    unknown
+  >;
   const calHeading =
     typeof calData.heading === "string" ? calData.heading : "Kalender slot";
   const calIntro = typeof calData.intro === "string" ? calData.intro : null;
@@ -51,8 +49,7 @@ export default async function CaraPesanPage() {
     typeof calData.days === "number" ? Math.min(calData.days, 60) : 30;
 
   const steps = sections.find((s) => s.type === "steps")?.data as
-    | { items?: { title?: string; body?: string }[] }
-    | undefined;
+    { items?: { title?: string; body?: string }[] } | undefined;
   const howTo = howToJsonLd(
     {
       name: page?.title ?? "Cara Pesan",
@@ -94,11 +91,7 @@ export default async function CaraPesanPage() {
               </Button>
               {waHref ? (
                 <Button asChild variant="ghost">
-                  <WaLink
-                    href={waHref}
-                    source="cara-pesan:slot"
-                    kind="general"
-                  >
+                  <WaLink href={waHref} source="cara-pesan:slot" kind="general">
                     Cek slot via WhatsApp
                   </WaLink>
                 </Button>

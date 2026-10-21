@@ -29,7 +29,11 @@ export async function getPostForAdmin(id: string) {
   const db = getDb();
   const [post] = await db.select().from(posts).where(eq(posts.id, id)).limit(1);
   if (!post) return null;
-  const t = await db.select({ tagId: postTags.tagId }).from(postTags).where(eq(postTags.postId, id)).orderBy(asc(postTags.tagId));
+  const t = await db
+    .select({ tagId: postTags.tagId })
+    .from(postTags)
+    .where(eq(postTags.postId, id))
+    .orderBy(asc(postTags.tagId));
   return { ...post, tagIds: t.map((x) => x.tagId) };
 }
 

@@ -11,7 +11,10 @@ export function RichText({
   doc,
   className,
   ...options
-}: RenderRichTextOptions & { doc: TiptapDoc | null | undefined; className?: string }) {
+}: RenderRichTextOptions & {
+  doc: TiptapDoc | null | undefined;
+  className?: string;
+}) {
   const content = renderRichText(doc, options);
   if (!content) return null;
   return <Prose className={className}>{content}</Prose>;

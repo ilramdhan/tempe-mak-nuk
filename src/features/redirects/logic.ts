@@ -17,7 +17,10 @@ export function normalizeFrom(from: string): string {
  * Detect a loop if `candidate` were added to `existing` (candidate replaces the rule with the
  * same `from`). Follows the chain from candidate.to; returns an Indonesian message or null.
  */
-export function findRedirectLoop(existing: RedirectRule[], candidate: RedirectRule): string | null {
+export function findRedirectLoop(
+  existing: RedirectRule[],
+  candidate: RedirectRule,
+): string | null {
   const from = normalizeFrom(candidate.from);
   const map = new Map<string, string>();
   for (const r of existing) map.set(normalizeFrom(r.from), r.to);
@@ -25,7 +28,8 @@ export function findRedirectLoop(existing: RedirectRule[], candidate: RedirectRu
   const seen = new Set<string>([from]);
   let cur = internalPath(candidate.to);
   while (cur !== null) {
-    if (cur === from) return "Redirect ini membuat perulangan (loop) ke dirinya sendiri.";
+    if (cur === from)
+      return "Redirect ini membuat perulangan (loop) ke dirinya sendiri.";
     if (seen.has(cur)) return "Rantai redirect berulang (loop).";
     seen.add(cur);
     const next = map.get(cur);

@@ -8,7 +8,12 @@ import type { SettingKey } from "@/db/schema/settings";
 import { cachedRead } from "@/features/_shared/db";
 import { tags } from "@/lib/cache-tags";
 
-import { mergeSettings, orderRulesFromSettings, SETTINGS_DEFAULTS, type Settings } from "./schema";
+import {
+  mergeSettings,
+  orderRulesFromSettings,
+  SETTINGS_DEFAULTS,
+  type Settings,
+} from "./schema";
 
 /**
  * All public settings (group ≠ private), validated per key and merged over defaults.
@@ -24,12 +29,16 @@ export async function getSettings(): Promise<Settings> {
       .where(ne(settingsTable.group, "private"));
     const { settings, invalidKeys } = mergeSettings(rows);
     if (invalidKeys.length && process.env.NODE_ENV !== "production")
-      console.warn(`[settings] invalid values replaced by defaults: ${invalidKeys.join(", ")}`);
+      console.warn(
+        `[settings] invalid values replaced by defaults: ${invalidKeys.join(", ")}`,
+      );
     return settings;
   });
 }
 
-export async function getSetting<K extends SettingKey>(key: K): Promise<Settings[K]> {
+export async function getSetting<K extends SettingKey>(
+  key: K,
+): Promise<Settings[K]> {
   return (await getSettings())[key];
 }
 
@@ -42,8 +51,15 @@ export async function getOrderRules() {
 export function formatSettingValue(value: unknown): string {
   if (value === null || value === undefined) return "";
   if (typeof value === "string") return value;
-  if (typeof value === "number" || typeof value === "boolean") return String(value);
-  if (Array.isArray(value)) return value.map(formatSettingValue).filter(Boolean).join(" · ");
-  if (typeof value === "object" && "summary" in value && typeof value.summary === "string") return value.summary;
+  if (typeof value === "number" || typeof value === "boolean")
+    return String(value);
+  if (Array.isArray(value))
+    return value.map(formatSettingValue).filter(Boolean).join(" · ");
+  if (
+    typeof value === "object" &&
+    "summary" in value &&
+    typeof value.summary === "string"
+  )
+    return value.summary;
   return "";
 }

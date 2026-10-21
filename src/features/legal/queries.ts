@@ -18,7 +18,9 @@ export type PublicLegalDocument = {
 };
 
 /** Highest published version whose effective date has passed (or is unset). */
-export async function getLegalDocument(slug: LegalSlug): Promise<PublicLegalDocument | null> {
+export async function getLegalDocument(
+  slug: LegalSlug,
+): Promise<PublicLegalDocument | null> {
   "use cache";
   cacheTag(tags.legal, tags.legalDoc(slug));
   return cachedRead("legal", "days", null, async (db) => {
@@ -36,7 +38,10 @@ export async function getLegalDocument(slug: LegalSlug): Promise<PublicLegalDocu
         and(
           eq(legalDocuments.slug, slug),
           eq(legalDocuments.status, "published"),
-          or(isNull(legalDocuments.effectiveAt), lte(legalDocuments.effectiveAt, sql`now()`)),
+          or(
+            isNull(legalDocuments.effectiveAt),
+            lte(legalDocuments.effectiveAt, sql`now()`),
+          ),
         ),
       )
       .orderBy(desc(legalDocuments.version))

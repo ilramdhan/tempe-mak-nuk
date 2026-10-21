@@ -32,7 +32,12 @@ export type ProductSummary = {
   cover: PublicMedia | null;
 };
 
-export type ProductShapeOption = { id: string; slug: string; name: string; description: string | null };
+export type ProductShapeOption = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+};
 export type ProductSizeOption = {
   id: string;
   name: string;
@@ -64,7 +69,11 @@ const mediaCols = {
 async function coversFor(db: Database, productIds: string[]) {
   if (!productIds.length) return new Map<string, PublicMedia>();
   const rows = await db
-    .select({ productId: productMedia.productId, sort: productMedia.sort, ...mediaCols })
+    .select({
+      productId: productMedia.productId,
+      sort: productMedia.sort,
+      ...mediaCols,
+    })
     .from(productMedia)
     .innerJoin(media, eq(media.id, productMedia.mediaId))
     .where(inArray(productMedia.productId, productIds))
@@ -72,7 +81,14 @@ async function coversFor(db: Database, productIds: string[]) {
   const map = new Map<string, PublicMedia>();
   for (const r of rows) {
     if (!map.has(r.productId))
-      map.set(r.productId, { id: r.id, url: r.url, alt: r.alt, width: r.width, height: r.height, blurDataUrl: r.blurDataUrl });
+      map.set(r.productId, {
+        id: r.id,
+        url: r.url,
+        alt: r.alt,
+        width: r.width,
+        height: r.height,
+        blurDataUrl: r.blurDataUrl,
+      });
   }
   return map;
 }
@@ -95,19 +111,28 @@ export async function getProducts(): Promise<ProductSummary[]> {
       .from(products)
       .where(eq(products.isActive, true))
       .orderBy(asc(products.sort), asc(products.name));
-    const covers = await coversFor(db, rows.map((r) => r.id));
+    const covers = await coversFor(
+      db,
+      rows.map((r) => r.id),
+    );
     return rows.map((r) => ({ ...r, cover: covers.get(r.id) ?? null }));
   });
 }
 
 /** Subset by slug, preserving the given order (unknown/inactive slugs skipped). */
-export async function getProductsBySlugs(slugs: readonly string[]): Promise<ProductSummary[]> {
+export async function getProductsBySlugs(
+  slugs: readonly string[],
+): Promise<ProductSummary[]> {
   const all = await getProducts();
   const bySlug = new Map(all.map((p) => [p.slug, p]));
-  return slugs.map((s) => bySlug.get(s)).filter((p): p is ProductSummary => Boolean(p));
+  return slugs
+    .map((s) => bySlug.get(s))
+    .filter((p): p is ProductSummary => Boolean(p));
 }
 
-export async function getProductBySlug(slug: string): Promise<ProductDetail | null> {
+export async function getProductBySlug(
+  slug: string,
+): Promise<ProductDetail | null> {
   "use cache";
   cacheTag(tags.products, tags.product(slug));
   return cachedRead("product", "days", null, async (db) => {
@@ -119,10 +144,23 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
     if (!p) return null;
     const [shapes, sizes, nutr, gallery] = await Promise.all([
       db
-        .select({ id: productShapes.id, slug: productShapes.slug, name: productShapes.name, description: productShapes.description })
+        .select({
+          id: productShapes.id,
+          slug: productShapes.slug,
+          name: productShapes.name,
+          description: productShapes.description,
+        })
         .from(productShapeLinks)
-        .innerJoin(productShapes, eq(productShapes.id, productShapeLinks.shapeId))
-        .where(and(eq(productShapeLinks.productId, p.id), eq(productShapes.active, true)))
+        .innerJoin(
+          productShapes,
+          eq(productShapes.id, productShapeLinks.shapeId),
+        )
+        .where(
+          and(
+            eq(productShapeLinks.productId, p.id),
+            eq(productShapes.active, true),
+          ),
+        )
         .orderBy(asc(productShapeLinks.sort), asc(productShapes.sort)),
       db
         .select({
@@ -135,9 +173,18 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
         })
         .from(productSizeLinks)
         .innerJoin(productSizes, eq(productSizes.id, productSizeLinks.sizeId))
-        .where(and(eq(productSizeLinks.productId, p.id), eq(productSizes.active, true)))
+        .where(
+          and(
+            eq(productSizeLinks.productId, p.id),
+            eq(productSizes.active, true),
+          ),
+        )
         .orderBy(asc(productSizeLinks.sort), asc(productSizes.sort)),
-      db.select().from(nutrition).where(eq(nutrition.productId, p.id)).orderBy(asc(nutrition.perGrams)),
+      db
+        .select()
+        .from(nutrition)
+        .where(eq(nutrition.productId, p.id))
+        .orderBy(asc(nutrition.perGrams)),
       db
         .select(mediaCols)
         .from(productMedia)
@@ -159,7 +206,10 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
       cover: gallery[0] ?? null,
       gallery,
       shapes,
-      sizes: sizes.map(({ basePrice, override, ...s }) => ({ ...s, price: override ?? basePrice })),
+      sizes: sizes.map(({ basePrice, override, ...s }) => ({
+        ...s,
+        price: override ?? basePrice,
+      })),
       nutrition: nutr.map((n) => ({
         id: n.id,
         perGrams: n.perGrams,
@@ -178,7 +228,10 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
 }
 
 export type ProductOptions = {
-  products: (ProductSummary & { shapeIds: string[]; sizes: { sizeId: string; price: number | null }[] })[];
+  products: (ProductSummary & {
+    shapeIds: string[];
+    sizes: { sizeId: string; price: number | null }[];
+  })[];
   shapes: ProductShapeOption[];
   sizes: (ProductSizeOption & { sort: number })[];
 };
@@ -204,7 +257,12 @@ export async function getProductOptions(): Promise<ProductOptions> {
         .where(eq(products.isActive, true))
         .orderBy(asc(products.sort)),
       db
-        .select({ id: productShapes.id, slug: productShapes.slug, name: productShapes.name, description: productShapes.description })
+        .select({
+          id: productShapes.id,
+          slug: productShapes.slug,
+          name: productShapes.name,
+          description: productShapes.description,
+        })
         .from(productShapes)
         .where(eq(productShapes.active, true))
         .orderBy(asc(productShapes.sort)),
@@ -223,22 +281,31 @@ export async function getProductOptions(): Promise<ProductOptions> {
       db.select().from(productShapeLinks).orderBy(asc(productShapeLinks.sort)),
       db.select().from(productSizeLinks).orderBy(asc(productSizeLinks.sort)),
     ]);
-    const covers = await coversFor(db, list.map((p) => p.id));
+    const covers = await coversFor(
+      db,
+      list.map((p) => p.id),
+    );
     return {
       shapes,
       sizes,
       products: list.map((p) => ({
         ...p,
         cover: covers.get(p.id) ?? null,
-        shapeIds: shapeLinks.filter((l) => l.productId === p.id).map((l) => l.shapeId),
-        sizes: sizeLinks.filter((l) => l.productId === p.id).map((l) => ({ sizeId: l.sizeId, price: l.price })),
+        shapeIds: shapeLinks
+          .filter((l) => l.productId === p.id)
+          .map((l) => l.shapeId),
+        sizes: sizeLinks
+          .filter((l) => l.productId === p.id)
+          .map((l) => ({ sizeId: l.sizeId, price: l.price })),
       })),
     };
   });
 }
 
 /** Slugs for generateStaticParams / sitemap. */
-export async function getProductSlugs(): Promise<{ slug: string; updatedAt: Date }[]> {
+export async function getProductSlugs(): Promise<
+  { slug: string; updatedAt: Date }[]
+> {
   "use cache";
   cacheTag(tags.products);
   return cachedRead("product-slugs", "days", [], (db) =>

@@ -17,12 +17,21 @@ test("Order Builder produces a WhatsApp link with the order message", async ({
   await page.reload();
 
   // Step 1: product
-  const product = page.getByRole("radiogroup").first().getByRole("radio").first();
+  const product = page
+    .getByRole("radiogroup")
+    .first()
+    .getByRole("radio")
+    .first();
   await expect(product).toBeVisible();
   await product.click();
   const variantName = (
-    await page.locator('label:has([role="radio"][aria-checked="true"])').first().innerText()
-  ).split("\n")[0]!.trim();
+    await page
+      .locator('label:has([role="radio"][aria-checked="true"])')
+      .first()
+      .innerText()
+  )
+    .split("\n")[0]!
+    .trim();
 
   const groups = page.getByRole("radiogroup");
   await groups.nth(1).getByRole("radio").first().click(); // shape
@@ -39,7 +48,8 @@ test("Order Builder produces a WhatsApp link with the order message", async ({
   const delivery = page.getByRole("radio", { name: /./ }).first();
   const deliveryInput = page.locator("#order-delivery");
   if (await deliveryInput.count()) await deliveryInput.fill("Ambil sendiri");
-  else if (!(await delivery.isChecked().catch(() => true))) await delivery.click();
+  else if (!(await delivery.isChecked().catch(() => true)))
+    await delivery.click();
   await page.getByRole("button", { name: /Lanjut/ }).click();
 
   // Step 3: customer

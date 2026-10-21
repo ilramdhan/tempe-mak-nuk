@@ -7,7 +7,12 @@ export type SeoOverride = {
   description?: string | null;
   noindex?: boolean | null;
   /** Explicit CMS image; overrides the `opengraph-image` file convention. */
-  ogImage?: { url: string; width?: number | null; height?: number | null; alt?: string | null } | null;
+  ogImage?: {
+    url: string;
+    width?: number | null;
+    height?: number | null;
+    alt?: string | null;
+  } | null;
 };
 
 export type BuildMetadataInput = {
@@ -32,7 +37,12 @@ export type BuildMetadataInput = {
 const iso = (d?: Date | string | null) =>
   d ? (d instanceof Date ? d.toISOString() : d) : undefined;
 
-const DEFAULT_OG_IMAGE = { url: "/og-default.png", width: 1200, height: 630, alt: null };
+const DEFAULT_OG_IMAGE = {
+  url: "/og-default.png",
+  width: 1200,
+  height: 630,
+  alt: null,
+};
 
 /**
  * Complete page `Metadata`: canonical, openGraph, twitter, robots.
@@ -43,11 +53,16 @@ export function buildMetadata(input: BuildMetadataInput): Metadata {
   const title = input.seo?.title || input.title || undefined;
   const description = input.seo?.description || input.description || undefined;
   const noindex = Boolean(input.noindex || input.seo?.noindex);
-  const img = input.seo?.ogImage ?? (input.ogImageFile ? null : DEFAULT_OG_IMAGE);
+  const img =
+    input.seo?.ogImage ?? (input.ogImageFile ? null : DEFAULT_OG_IMAGE);
   const article = input.type === "article";
 
   return {
-    title: title ? (input.titleAbsolute ? { absolute: title } : title) : undefined,
+    title: title
+      ? input.titleAbsolute
+        ? { absolute: title }
+        : title
+      : undefined,
     description,
     alternates: { canonical: input.path },
     robots: noindex ? { index: false, follow: false } : undefined,
@@ -59,7 +74,10 @@ export function buildMetadata(input: BuildMetadataInput): Metadata {
       locale: OG_LOCALE,
       type: input.type ?? "website",
       ...(article
-        ? { publishedTime: iso(input.publishedTime), modifiedTime: iso(input.modifiedTime) }
+        ? {
+            publishedTime: iso(input.publishedTime),
+            modifiedTime: iso(input.modifiedTime),
+          }
         : {}),
       ...(img
         ? {

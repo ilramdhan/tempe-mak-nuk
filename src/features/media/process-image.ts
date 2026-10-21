@@ -7,7 +7,11 @@
  */
 import sharp, { type Metadata } from "sharp";
 
-import { OUTPUT_MAX_SIDE, validateDimensions, type UploadMime } from "./upload-rules";
+import {
+  OUTPUT_MAX_SIDE,
+  validateDimensions,
+  type UploadMime,
+} from "./upload-rules";
 
 /** sharp `format` → MIME (only formats we accept). */
 const FORMAT_MIME: Record<string, UploadMime> = {
@@ -38,27 +42,46 @@ export type ProcessedImage = {
 export async function processImage(input: Buffer): Promise<ProcessedImage> {
   let meta: Metadata;
   try {
-    meta = await sharp(input, { failOn: "error", limitInputPixels: 60_000_000 }).metadata();
+    meta = await sharp(input, {
+      failOn: "error",
+      limitInputPixels: 60_000_000,
+    }).metadata();
   } catch {
-    throw new ImageProcessingError("Berkas bukan gambar yang valid atau rusak.");
+    throw new ImageProcessingError(
+      "Berkas bukan gambar yang valid atau rusak.",
+    );
   }
   const sourceMime = meta.format ? FORMAT_MIME[meta.format] : undefined;
   if (!sourceMime || (meta.format === "heif" && meta.compression !== "av1")) {
-    throw new ImageProcessingError("Format tidak didukung. Gunakan JPG, PNG, WebP, atau AVIF.");
+    throw new ImageProcessingError(
+      "Format tidak didukung. Gunakan JPG, PNG, WebP, atau AVIF.",
+    );
   }
-  if ((meta.pages ?? 1) > 1) throw new ImageProcessingError("Gambar animasi tidak didukung.");
+  if ((meta.pages ?? 1) > 1)
+    throw new ImageProcessingError("Gambar animasi tidak didukung.");
   const dimError = validateDimensions(meta.width, meta.height);
   if (dimError) throw new ImageProcessingError(dimError);
 
   try {
     const base = sharp(input, { failOn: "error", limitInputPixels: 60_000_000 })
       .rotate()
-      .resize({ width: OUTPUT_MAX_SIDE, height: OUTPUT_MAX_SIDE, fit: "inside", withoutEnlargement: true });
+      .resize({
+        width: OUTPUT_MAX_SIDE,
+        height: OUTPUT_MAX_SIDE,
+        fit: "inside",
+        withoutEnlargement: true,
+      });
 
     // sharp strips metadata by default (no keepMetadata/withMetadata call).
-    const { data, info } = await base.clone().webp({ quality: 80, effort: 4 }).toBuffer({ resolveWithObject: true });
+    const { data, info } = await base
+      .clone()
+      .webp({ quality: 80, effort: 4 })
+      .toBuffer({ resolveWithObject: true });
 
-    const lqip = await sharp(data).resize(16, 16, { fit: "inside" }).webp({ quality: 40 }).toBuffer();
+    const lqip = await sharp(data)
+      .resize(16, 16, { fit: "inside" })
+      .webp({ quality: 40 })
+      .toBuffer();
 
     return {
       buffer: data,

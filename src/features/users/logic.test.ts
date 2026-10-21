@@ -2,7 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import { checkRoleChange } from "./logic";
 
-const base = { actorId: "a", targetId: "b", currentRole: "owner", newRole: "editor", ownerCount: 2 } as const;
+const base = {
+  actorId: "a",
+  targetId: "b",
+  currentRole: "owner",
+  newRole: "editor",
+  ownerCount: 2,
+} as const;
 
 describe("checkRoleChange", () => {
   it("allows demoting another owner when others remain", () => {
@@ -15,7 +21,16 @@ describe("checkRoleChange", () => {
     expect(checkRoleChange({ ...base, ownerCount: 1 })).toMatch(/terakhir/);
   });
   it("allows promotion and rejects no-op", () => {
-    expect(checkRoleChange({ ...base, currentRole: "editor", newRole: "owner", ownerCount: 1 })).toBeNull();
-    expect(checkRoleChange({ ...base, newRole: "owner" })).toMatch(/tidak berubah/);
+    expect(
+      checkRoleChange({
+        ...base,
+        currentRole: "editor",
+        newRole: "owner",
+        ownerCount: 1,
+      }),
+    ).toBeNull();
+    expect(checkRoleChange({ ...base, newRole: "owner" })).toMatch(
+      /tidak berubah/,
+    );
   });
 });

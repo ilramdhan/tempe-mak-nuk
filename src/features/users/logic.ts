@@ -11,7 +11,8 @@ export function checkRoleChange(opts: {
   const { actorId, targetId, currentRole, newRole, ownerCount } = opts;
   if (currentRole === newRole) return "Peran tidak berubah.";
   if (currentRole === "owner" && newRole !== "owner") {
-    if (actorId === targetId) return "Anda tidak dapat menurunkan peran diri sendiri.";
+    if (actorId === targetId)
+      return "Anda tidak dapat menurunkan peran diri sendiri.";
     if (ownerCount <= 1) return "Tidak dapat menurunkan pemilik terakhir.";
   }
   return null;

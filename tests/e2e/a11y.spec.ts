@@ -37,7 +37,9 @@ for (const path of ROUTES) {
       impact: v.impact,
       help: v.help,
       nodes: v.nodes.length,
-      sample: v.nodes.slice(0, 3).map((n) => `${n.target.join(' ')} :: ${n.html.slice(0, 140)}`),
+      sample: v.nodes
+        .slice(0, 3)
+        .map((n) => `${n.target.join(" ")} :: ${n.html.slice(0, 140)}`),
     }));
     await info.attach("axe-summary", {
       body: JSON.stringify(summary, null, 2),
@@ -49,8 +51,8 @@ for (const path of ROUTES) {
         (v.impact === "serious" || v.impact === "critical") &&
         (STRICT || !KNOWN[path]?.includes(v.id)),
     );
-    expect(
-      bad.map((v) => `${v.id} (${v.impact}) x${v.nodes.length}`),
-    ).toEqual([]);
+    expect(bad.map((v) => `${v.id} (${v.impact}) x${v.nodes.length}`)).toEqual(
+      [],
+    );
   });
 }

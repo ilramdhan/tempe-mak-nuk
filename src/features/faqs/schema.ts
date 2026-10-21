@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { requiredText, sortSchema, uuidSchema } from "@/features/_shared/schema";
+import {
+  requiredText,
+  sortSchema,
+  uuidSchema,
+} from "@/features/_shared/schema";
 
 export const faqInputSchema = z.object({
   question: requiredText(300, "Pertanyaan"),

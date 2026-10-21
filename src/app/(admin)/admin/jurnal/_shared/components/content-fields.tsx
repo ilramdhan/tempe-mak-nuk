@@ -337,7 +337,10 @@ export function MediaSelect({
         noneLabel={noneLabel}
         invalid={!!errors[errorKey]}
         ariaDescribedBy={
-          [description ? `${id}-desc` : null, errors[errorKey] ? `${id}-err` : null]
+          [
+            description ? `${id}-desc` : null,
+            errors[errorKey] ? `${id}-err` : null,
+          ]
             .filter(Boolean)
             .join(" ") || undefined
         }

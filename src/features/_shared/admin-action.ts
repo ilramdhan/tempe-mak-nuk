@@ -4,9 +4,19 @@ import type { z } from "zod";
 
 import { getDb, type Database } from "@/db/client";
 import { writeAudit, type AuditAction } from "@/lib/audit";
-import { AuthError, requireRole, type AdminRole, type SessionUser } from "@/lib/auth/require-role";
+import {
+  AuthError,
+  requireRole,
+  type AdminRole,
+  type SessionUser,
+} from "@/lib/auth/require-role";
 
-import { fail, handleActionError, parseInput, type ActionResult } from "./action";
+import {
+  fail,
+  handleActionError,
+  parseInput,
+  type ActionResult,
+} from "./action";
 import { expireTags } from "./revalidate";
 
 type Tx = Parameters<Parameters<Database["transaction"]>[0]>[0];
@@ -31,7 +41,10 @@ export async function adminAction<S extends z.ZodType, R>(opts: {
   input: unknown;
   entity: string;
   action: AuditAction;
-  run: (data: z.output<S>, ctx: { tx: Tx; user: SessionUser }) => Promise<AdminActionOutcome<R> | ActionResult<never>>;
+  run: (
+    data: z.output<S>,
+    ctx: { tx: Tx; user: SessionUser },
+  ) => Promise<AdminActionOutcome<R> | ActionResult<never>>;
 }): Promise<ActionResult<R>> {
   let user: SessionUser;
   try {
@@ -45,7 +58,9 @@ export async function adminAction<S extends z.ZodType, R>(opts: {
   if (!parsed.success) return parsed.result;
 
   try {
-    const outcome = await getDb().transaction((tx) => opts.run(parsed.data, { tx, user }));
+    const outcome = await getDb().transaction((tx) =>
+      opts.run(parsed.data, { tx, user }),
+    );
     if ("ok" in outcome) return outcome;
     await writeAudit({
       actorId: user.id,

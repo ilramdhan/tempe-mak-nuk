@@ -32,7 +32,8 @@ import { ProductImage, productVariantLabel } from "./_components/product-image";
 export async function generateMetadata(): Promise<Metadata> {
   return pageMetadata({
     title: "Jenis Tempe: Klasik dan Tanpa Kulit",
-    description: "Kenali dua varian Tempe Mak Nuk: Klasik dengan kulit ari dan Original Tanpa Kulit yang lebih putih dan padat. Pilih bentuk dan ukuran sesuai kebutuhan.",
+    description:
+      "Kenali dua varian Tempe Mak Nuk: Klasik dengan kulit ari dan Original Tanpa Kulit yang lebih putih dan padat. Pilih bentuk dan ukuran sesuai kebutuhan.",
     path: "/produk",
   });
 }
@@ -69,7 +70,9 @@ export default async function ProdukPage() {
       <Section spacing="tight">
         <Container>
           <Stack gap="md" className="max-w-measure">
-            <Eyebrow rule tone="accent">Produk</Eyebrow>
+            <Eyebrow rule tone="accent">
+              Produk
+            </Eyebrow>
             <Heading level={1} size="display">
               Dua tempe, satu cara buat: pelan dan jujur
             </Heading>

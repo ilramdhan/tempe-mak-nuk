@@ -19,7 +19,14 @@ export default function UsersAdminPage() {
         title="Pengguna"
         description="Kelola akses admin. Pemilik dapat mengundang pengguna dan mengubah peran."
       />
-      <Suspense fallback={<Skeleton className="h-80 w-full rounded-lg" aria-label="Memuat pengguna" />}>
+      <Suspense
+        fallback={
+          <Skeleton
+            className="h-80 w-full rounded-lg"
+            aria-label="Memuat pengguna"
+          />
+        }
+      >
         <UsersContent />
       </Suspense>
     </>
@@ -30,5 +37,9 @@ async function UsersContent() {
   await connection();
   await requireRole("owner", { onFail: "redirect", next: "/admin/pengguna" });
   const rows = await listUsersForAdmin();
-  return <UserTable rows={rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() }))} />;
+  return (
+    <UserTable
+      rows={rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() }))}
+    />
+  );
 }

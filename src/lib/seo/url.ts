@@ -6,7 +6,8 @@ export const FALLBACK_SITE_URL = "http://localhost:3000";
  * NEXT_PUBLIC_SITE_URL → settings `site.url` → localhost. No trailing slash.
  */
 export function siteBaseUrl(settingsSiteUrl?: string | null): string {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL || settingsSiteUrl || FALLBACK_SITE_URL;
+  const raw =
+    process.env.NEXT_PUBLIC_SITE_URL || settingsSiteUrl || FALLBACK_SITE_URL;
   return raw.replace(/\/+$/, "");
 }
 

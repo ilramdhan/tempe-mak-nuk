@@ -35,7 +35,12 @@ export type TabDef = {
   sections: { title?: string; fields: FieldDef[] }[];
 };
 
-const f = (key: SettingKey, label: string, kind: FieldKind, extra: Partial<FieldDef> = {}): FieldDef => ({
+const f = (
+  key: SettingKey,
+  label: string,
+  kind: FieldKind,
+  extra: Partial<FieldDef> = {},
+): FieldDef => ({
   key,
   label,
   kind,
@@ -69,7 +74,9 @@ export const TABS: TabDef[] = [
           f("address.city", "Kota / kabupaten", "text"),
           f("address.province", "Provinsi", "text"),
           f("address.postalCode", "Kode pos", "text"),
-          f("address.country", "Negara (kode 2 huruf)", "text", { placeholder: "ID" }),
+          f("address.country", "Negara (kode 2 huruf)", "text", {
+            placeholder: "ID",
+          }),
         ],
       },
       {
@@ -81,7 +88,10 @@ export const TABS: TabDef[] = [
           f("maps.embedUrl", "Tautan embed peta", "url"),
         ],
       },
-      { title: "Jam operasional", fields: [f("hours", "Ringkasan jam buka", "hours")] },
+      {
+        title: "Jam operasional",
+        fields: [f("hours", "Ringkasan jam buka", "hours")],
+      },
     ],
   },
   {
@@ -95,7 +105,9 @@ export const TABS: TabDef[] = [
           f("contact.whatsapp", "Nomor WhatsApp (wa.me)", "phone", {
             hint: "Format internasional tanpa +, mis. 6281234567890. Awalan 0 diubah ke 62.",
           }),
-          f("contact.whatsappDisplay", "Tampilan nomor WhatsApp", "text", { placeholder: "+62 812-3456-7890" }),
+          f("contact.whatsappDisplay", "Tampilan nomor WhatsApp", "text", {
+            placeholder: "+62 812-3456-7890",
+          }),
           f("contact.email", "Email", "email"),
           f("contact.phone", "Telepon", "text"),
         ],
@@ -157,9 +169,13 @@ export const TABS: TabDef[] = [
       {
         title: "Harga, antar, pembayaran",
         fields: [
-          f("pricing.show", "Tampilkan harga (mode \"mulai dari\")", "boolean"),
-          f("delivery.areas", "Area pengantaran", "lines", { hint: "Satu area per baris." }),
-          f("payment.methods", "Metode pembayaran", "lines", { hint: "Satu metode per baris." }),
+          f("pricing.show", 'Tampilkan harga (mode "mulai dari")', "boolean"),
+          f("delivery.areas", "Area pengantaran", "lines", {
+            hint: "Satu area per baris.",
+          }),
+          f("payment.methods", "Metode pembayaran", "lines", {
+            hint: "Satu metode per baris.",
+          }),
         ],
       },
     ],
@@ -173,7 +189,9 @@ export const TABS: TabDef[] = [
       {
         title: "Situs",
         fields: [
-          f("site.url", "URL situs", "url", { placeholder: "https://tempemaknuk.com" }),
+          f("site.url", "URL situs", "url", {
+            placeholder: "https://tempemaknuk.com",
+          }),
           f("site.locale", "Locale", "text", { placeholder: "id-ID" }),
         ],
       },
@@ -181,16 +199,24 @@ export const TABS: TabDef[] = [
         title: "SEO default",
         fields: [
           f("seo.defaultTitle", "Judul default", "text"),
-          f("seo.titleTemplate", "Template judul", "text", { hint: "%s diganti judul halaman." }),
-          f("seo.defaultDescription", "Deskripsi default", "textarea", { hint: "Idealnya ≤ 160 karakter." }),
-          f("seo.defaultOgImageId", "Gambar OG default", "media", { hint: "Dipakai saat halaman tidak punya gambar berbagi sendiri." }),
+          f("seo.titleTemplate", "Template judul", "text", {
+            hint: "%s diganti judul halaman.",
+          }),
+          f("seo.defaultDescription", "Deskripsi default", "textarea", {
+            hint: "Idealnya ≤ 160 karakter.",
+          }),
+          f("seo.defaultOgImageId", "Gambar OG default", "media", {
+            hint: "Dipakai saat halaman tidak punya gambar berbagi sendiri.",
+          }),
         ],
       },
       {
         title: "CTA",
         fields: [
           f("cta.primaryLabel", "Label CTA utama", "text"),
-          f("cta.primaryHref", "Tautan CTA utama", "text", { placeholder: "/custom-order" }),
+          f("cta.primaryHref", "Tautan CTA utama", "text", {
+            placeholder: "/custom-order",
+          }),
           f("cta.waFloatEnabled", "Tombol WhatsApp melayang", "boolean"),
           f("cta.waFloatMessage", "Pesan awal WhatsApp melayang", "textarea"),
         ],
@@ -200,14 +226,19 @@ export const TABS: TabDef[] = [
   {
     id: "cookie",
     label: "Cookie",
-    description: "Konfigurasi banner persetujuan cookie (JSON). Naikkan version agar pengunjung diminta ulang.",
+    description:
+      "Konfigurasi banner persetujuan cookie (JSON). Naikkan version agar pengunjung diminta ulang.",
     ownerOnly: true,
-    sections: [{ fields: [f("consent.config", "Konfigurasi consent", "json")] }],
+    sections: [
+      { fields: [f("consent.config", "Konfigurasi consent", "json")] },
+    ],
   },
 ];
 
 /** Every settings key is covered by exactly one field. */
-export const ALL_FIELD_KEYS = TABS.flatMap((t) => t.sections.flatMap((s) => s.fields.map((x) => x.key)));
+export const ALL_FIELD_KEYS = TABS.flatMap((t) =>
+  t.sections.flatMap((s) => s.fields.map((x) => x.key)),
+);
 
 /** Draft (string/boolean) representation of a value. */
 export type Draft = string | boolean;
@@ -248,10 +279,15 @@ const KIND_MESSAGE: Partial<Record<FieldKind, string>> = {
   json: "JSON tidak valid.",
 };
 
-export type ParseResult = { ok: true; value: unknown } | { ok: false; message: string };
+export type ParseResult =
+  { ok: true; value: unknown } | { ok: false; message: string };
 
 /** Draft → validated value using the shared Zod schema (messages in Indonesian). */
-export function parseDraft(def: FieldDef, draft: Draft, current: Settings): ParseResult {
+export function parseDraft(
+  def: FieldDef,
+  draft: Draft,
+  current: Settings,
+): ParseResult {
   let raw: unknown;
   const s = typeof draft === "string" ? draft : "";
   switch (def.kind) {
@@ -260,7 +296,8 @@ export function parseDraft(def: FieldDef, draft: Draft, current: Settings): Pars
       break;
     case "int":
     case "number": {
-      if (s.trim() === "" || Number.isNaN(Number(s))) return { ok: false, message: KIND_MESSAGE[def.kind]! };
+      if (s.trim() === "" || Number.isNaN(Number(s)))
+        return { ok: false, message: KIND_MESSAGE[def.kind]! };
       raw = Number(s);
       break;
     }
@@ -268,12 +305,16 @@ export function parseDraft(def: FieldDef, draft: Draft, current: Settings): Pars
       raw = s.trim() === "" ? "" : normalizePhone(s);
       break;
     case "lines":
-      raw = s.split("\n").map((x) => x.trim()).filter(Boolean);
+      raw = s
+        .split("\n")
+        .map((x) => x.trim())
+        .filter(Boolean);
       break;
     case "ints": {
       const parts = s.split(/[,\s]+/).filter(Boolean);
       const nums = parts.map(Number);
-      if (nums.some((n) => !Number.isInteger(n))) return { ok: false, message: KIND_MESSAGE.ints! };
+      if (nums.some((n) => !Number.isInteger(n)))
+        return { ok: false, message: KIND_MESSAGE.ints! };
       raw = nums;
       break;
     }
@@ -295,7 +336,10 @@ export function parseDraft(def: FieldDef, draft: Draft, current: Settings): Pars
   const own = KIND_MESSAGE[def.kind];
   const msg = res.error.issues[0]?.message;
   const isGeneric = !msg || /^(Invalid|Too|Expected|String|Number)/.test(msg);
-  return { ok: false, message: isGeneric ? (own ?? "Nilai tidak valid.") : msg };
+  return {
+    ok: false,
+    message: isGeneric ? (own ?? "Nilai tidak valid.") : msg,
+  };
 }
 
 export function groupOf(key: SettingKey) {

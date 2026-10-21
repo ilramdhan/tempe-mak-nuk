@@ -12,41 +12,60 @@ import { tags } from "@/lib/cache-tags";
 
 import { faqInputSchema, type FaqInput } from "./schema";
 
-export async function createFaq(input: FaqInput): Promise<ActionResult<{ id: string }>> {
+export async function createFaq(
+  input: FaqInput,
+): Promise<ActionResult<{ id: string }>> {
   return adminAction({
     schema: faqInputSchema,
     input,
     entity: "faqs",
     action: "create",
     run: async (data, { tx }) => {
-      const [row] = await tx.insert(faqs).values(data).returning({ id: faqs.id });
+      const [row] = await tx
+        .insert(faqs)
+        .values(data)
+        .returning({ id: faqs.id });
       return { result: row, entityId: row.id, tags: [tags.faqs] };
     },
   });
 }
 
-export async function updateFaq(id: string, input: FaqInput): Promise<ActionResult> {
+export async function updateFaq(
+  id: string,
+  input: FaqInput,
+): Promise<ActionResult> {
   return adminAction({
     schema: faqInputSchema.extend({ id: uuidSchema }),
     input: { ...input, id },
     entity: "faqs",
     action: "update",
     run: async ({ id, ...data }, { tx }) => {
-      const rows = await tx.update(faqs).set(data).where(eq(faqs.id, id)).returning({ id: faqs.id });
+      const rows = await tx
+        .update(faqs)
+        .set(data)
+        .where(eq(faqs.id, id))
+        .returning({ id: faqs.id });
       if (!rows.length) return fail("FAQ tidak ditemukan.");
       return { result: undefined, entityId: id, tags: [tags.faqs] };
     },
   });
 }
 
-export async function setFaqVisibility(id: string, visible: boolean): Promise<ActionResult> {
+export async function setFaqVisibility(
+  id: string,
+  visible: boolean,
+): Promise<ActionResult> {
   return adminAction({
     schema: z.object({ id: uuidSchema, visible: z.boolean() }),
     input: { id, visible },
     entity: "faqs",
     action: "update",
     run: async ({ id, visible }, { tx }) => {
-      const rows = await tx.update(faqs).set({ visible }).where(eq(faqs.id, id)).returning({ id: faqs.id });
+      const rows = await tx
+        .update(faqs)
+        .set({ visible })
+        .where(eq(faqs.id, id))
+        .returning({ id: faqs.id });
       if (!rows.length) return fail("FAQ tidak ditemukan.");
       return { result: undefined, entityId: id, tags: [tags.faqs] };
     },
@@ -61,7 +80,10 @@ export async function deleteFaq(id: string): Promise<ActionResult> {
     entity: "faqs",
     action: "delete",
     run: async ({ id }, { tx }) => {
-      const [row] = await tx.delete(faqs).where(eq(faqs.id, id)).returning({ question: faqs.question });
+      const [row] = await tx
+        .delete(faqs)
+        .where(eq(faqs.id, id))
+        .returning({ question: faqs.question });
       if (!row) return fail("FAQ tidak ditemukan.");
       return { result: undefined, entityId: id, diff: row, tags: [tags.faqs] };
     },

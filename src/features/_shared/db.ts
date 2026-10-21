@@ -56,6 +56,8 @@ export async function cachedRead<T>(
 ): Promise<T> {
   const { data, degraded } = await withDb(label, fallback, run);
   // Preset names are overloads; widen once here.
-  (cacheLife as (profile: CacheProfile) => void)(degraded ? "minutes" : profile);
+  (cacheLife as (profile: CacheProfile) => void)(
+    degraded ? "minutes" : profile,
+  );
   return data;
 }

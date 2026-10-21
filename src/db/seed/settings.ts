@@ -27,7 +27,8 @@ const VALUES: Record<SettingKey, unknown> = {
   "geo.lat": -7.7023,
   "geo.lng": 110.6894,
   "maps.url": "https://maps.google.com/?q=-7.7023,110.6894",
-  "maps.embedUrl": "https://www.google.com/maps?q=-7.7023,110.6894&output=embed",
+  "maps.embedUrl":
+    "https://www.google.com/maps?q=-7.7023,110.6894&output=embed",
   "halal.number": "ID33110012345670124",
   "halal.issuer": "BPJPH Kementerian Agama RI",
   "halal.issuedAt": "2024-03-12",

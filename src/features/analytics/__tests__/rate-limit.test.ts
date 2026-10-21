@@ -24,12 +24,25 @@ describe("createRateLimiter", () => {
 
 describe("waClickInputSchema", () => {
   it("accepts identifiers, defaults kind", () => {
-    expect(waClickInputSchema.parse({ source: "home:hero" })).toEqual({ source: "home:hero", kind: "general", variant: null });
+    expect(waClickInputSchema.parse({ source: "home:hero" })).toEqual({
+      source: "home:hero",
+      kind: "general",
+      variant: null,
+    });
   });
   it("rejects free text / PII-like input and long strings", () => {
-    expect(waClickInputSchema.safeParse({ source: "Budi 0812 345" }).success).toBe(false);
-    expect(waClickInputSchema.safeParse({ source: "x".repeat(201) }).success).toBe(false);
-    expect(waClickInputSchema.safeParse({ source: "a", variant: "y".repeat(101) }).success).toBe(false);
-    expect(waClickInputSchema.safeParse({ source: "a", kind: "spam" }).success).toBe(false);
+    expect(
+      waClickInputSchema.safeParse({ source: "Budi 0812 345" }).success,
+    ).toBe(false);
+    expect(
+      waClickInputSchema.safeParse({ source: "x".repeat(201) }).success,
+    ).toBe(false);
+    expect(
+      waClickInputSchema.safeParse({ source: "a", variant: "y".repeat(101) })
+        .success,
+    ).toBe(false);
+    expect(
+      waClickInputSchema.safeParse({ source: "a", kind: "spam" }).success,
+    ).toBe(false);
   });
 });

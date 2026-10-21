@@ -12,7 +12,10 @@ import { postInputSchema } from "../../src/features/posts/schema";
 import { recipeInputSchema } from "../../src/features/recipes/schema";
 import { faqInputSchema } from "../../src/features/faqs/schema";
 import { testimonialInputSchema } from "../../src/features/testimonials/schema";
-import { navItemInputSchema, announcementInputSchema } from "../../src/features/navigation/schema";
+import {
+  navItemInputSchema,
+  announcementInputSchema,
+} from "../../src/features/navigation/schema";
 import { legalDocumentInputSchema } from "../../src/features/legal/schema";
 import type { z } from "zod";
 
@@ -20,7 +23,9 @@ const url = process.env.DATABASE_URL;
 if (!url) throw new Error("DATABASE_URL missing");
 const sql = postgres(url, { prepare: false, max: 1 });
 
-const rows = await sql<{ slug: string; sort: number; type: string; data: unknown }[]>`
+const rows = await sql<
+  { slug: string; sort: number; type: string; data: unknown }[]
+>`
   select p.slug, s.sort, s.type, s.data from page_sections s join pages p on p.id = s.page_id
   order by p.slug, s.sort`;
 let bad = 0;
@@ -29,17 +34,28 @@ for (const r of rows) {
   if (!res.success) {
     bad++;
     for (const i of res.error.issues)
-      console.log(`FAIL ${r.slug}#${r.sort} ${r.type}: ${i.path.join(".")} — ${i.message}`);
+      console.log(
+        `FAIL ${r.slug}#${r.sort} ${r.type}: ${i.path.join(".")} — ${i.message}`,
+      );
   }
 }
 console.log(`page_sections: ${rows.length} rows, ${bad} invalid`);
 
-const settingRows = await sql<{ key: string; value: unknown }[]>`select key, value from settings`;
+const settingRows = await sql<
+  { key: string; value: unknown }[]
+>`select key, value from settings`;
 const { invalidKeys } = mergeSettings(settingRows);
-console.log(`settings: ${settingRows.length} rows, invalid: ${invalidKeys.join(", ") || "none"}`);
+console.log(
+  `settings: ${settingRows.length} rows, invalid: ${invalidKeys.join(", ") || "none"}`,
+);
 
 const camel = (o: Record<string, unknown>) =>
-  Object.fromEntries(Object.entries(o).map(([k, v]) => [k.replace(/_([a-z])/g, (_, c) => c.toUpperCase()), v]));
+  Object.fromEntries(
+    Object.entries(o).map(([k, v]) => [
+      k.replace(/_([a-z])/g, (_, c) => c.toUpperCase()),
+      v,
+    ]),
+  );
 async function check(table: string, schema: z.ZodType, label: string) {
   const list = await sql.unsafe(`select * from ${table}`);
   let n = 0;
@@ -47,7 +63,10 @@ async function check(table: string, schema: z.ZodType, label: string) {
     const res = schema.safeParse(camel(r as Record<string, unknown>));
     if (!res.success) {
       n++;
-      for (const i of res.error.issues) console.log(`FAIL ${table} ${String((r as Record<string, unknown>)[label])}: ${i.path.join(".")} — ${i.message}`);
+      for (const i of res.error.issues)
+        console.log(
+          `FAIL ${table} ${String((r as Record<string, unknown>)[label])}: ${i.path.join(".")} — ${i.message}`,
+        );
     }
   }
   console.log(`${table}: ${list.length} rows, ${n} invalid`);

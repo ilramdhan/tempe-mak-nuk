@@ -57,7 +57,10 @@ const optText = (max: number) =>
 
 export const iconSchema = z.enum(ICON_NAMES);
 /** Unknown icon names degrade to null instead of failing the whole block. */
-const optIcon = iconSchema.nullish().catch(null).transform((v) => v ?? null);
+const optIcon = iconSchema
+  .nullish()
+  .catch(null)
+  .transform((v) => v ?? null);
 
 export const ctaLinkSchema = z.object({
   label: text(60).min(1),
@@ -81,10 +84,17 @@ const frame = {
     .regex(/^[a-z][a-z0-9-]{0,40}$/)
     .nullish()
     .transform((v) => v ?? null),
-  tone: z.enum(["default", "surface", "primary", "inverse"]).nullish().transform((v) => v ?? null),
+  tone: z
+    .enum(["default", "surface", "primary", "inverse"])
+    .nullish()
+    .transform((v) => v ?? null),
 };
 
-const heading = { eyebrow: optText(80), heading: optText(160), intro: optText(600) };
+const heading = {
+  eyebrow: optText(80),
+  heading: optText(160),
+  intro: optText(600),
+};
 
 export const heroBlockSchema = z.object({
   ...frame,
@@ -109,10 +119,15 @@ export const featureGridBlockSchema = z.object({
   ...frame,
   ...heading,
   items: z
-    .array(z.object({ icon: optIcon, title: text(100).min(1), body: optText(500) }))
+    .array(
+      z.object({ icon: optIcon, title: text(100).min(1), body: optText(500) }),
+    )
     .min(1)
     .max(12),
-  columns: z.union([z.literal(2), z.literal(3), z.literal(4)]).nullish().transform((v) => v ?? null),
+  columns: z
+    .union([z.literal(2), z.literal(3), z.literal(4)])
+    .nullish()
+    .transform((v) => v ?? null),
 });
 
 export const compareBlockSchema = z
@@ -121,7 +136,12 @@ export const compareBlockSchema = z
     ...heading,
     columns: z.array(text(80).min(1)).min(1).max(6),
     rows: z
-      .array(z.object({ label: text(120).min(1), values: z.array(text(300)).max(6) }))
+      .array(
+        z.object({
+          label: text(120).min(1),
+          values: z.array(text(300)).max(6),
+        }),
+      )
       .min(1)
       .max(40),
     note: optText(400),
@@ -141,7 +161,9 @@ export const stepsBlockSchema = z.object({
   ...frame,
   ...heading,
   items: z
-    .array(z.object({ title: text(120).min(1), body: optText(600), icon: optIcon }))
+    .array(
+      z.object({ title: text(120).min(1), body: optText(600), icon: optIcon }),
+    )
     .min(1)
     .max(12),
   cta: optCta,
@@ -177,15 +199,28 @@ export const faqListBlockSchema = z.object({
   ...frame,
   ...heading,
   /** "home" = FAQs flagged show_on_home, "all" = every visible FAQ (grouped by category). */
-  source: z.enum(["home", "all"]).nullish().transform((v) => v ?? null),
+  source: z
+    .enum(["home", "all"])
+    .nullish()
+    .transform((v) => v ?? null),
   /** FAQ category slug (categories.kind = 'faq'). Takes precedence over `source`. */
   category: z
     .string()
     .regex(/^[a-z0-9-]{1,120}$/)
     .nullish()
     .transform((v) => v ?? null),
-  ids: z.array(uuidSchema).max(50).nullish().transform((v) => v ?? null),
-  limit: z.number().int().min(1).max(100).nullish().transform((v) => v ?? null),
+  ids: z
+    .array(uuidSchema)
+    .max(50)
+    .nullish()
+    .transform((v) => v ?? null),
+  limit: z
+    .number()
+    .int()
+    .min(1)
+    .max(100)
+    .nullish()
+    .transform((v) => v ?? null),
   searchable: z.boolean().default(false),
   cta: optCta,
 });
@@ -193,7 +228,11 @@ export const faqListBlockSchema = z.object({
 export const testimonialListBlockSchema = z.object({
   ...frame,
   ...heading,
-  ids: z.array(uuidSchema).max(30).nullish().transform((v) => v ?? null),
+  ids: z
+    .array(uuidSchema)
+    .max(30)
+    .nullish()
+    .transform((v) => v ?? null),
   limit: z.number().int().min(1).max(30).default(3),
   cta: optCta,
 });
@@ -202,7 +241,13 @@ export const galleryBlockSchema = z.object({
   ...frame,
   ...heading,
   items: z
-    .array(z.object({ mediaId: uuidSchema, alt: optText(300), caption: optText(200) }))
+    .array(
+      z.object({
+        mediaId: uuidSchema,
+        alt: optText(300),
+        caption: optText(200),
+      }),
+    )
     .max(40),
   /** Shown when there are no items yet (e.g. "Foto menyusul"). */
   note: optText(300),
@@ -213,7 +258,11 @@ export const productTeaserBlockSchema = z.object({
   ...frame,
   ...heading,
   /** Empty/omitted = all active products by sort. */
-  productSlugs: z.array(z.string().regex(/^[a-z0-9-]{1,120}$/)).max(12).nullish().transform((v) => v ?? null),
+  productSlugs: z
+    .array(z.string().regex(/^[a-z0-9-]{1,120}$/))
+    .max(12)
+    .nullish()
+    .transform((v) => v ?? null),
   ctaLabel: optText(60),
   cta: optCta,
 });
@@ -228,7 +277,11 @@ export const slotCalendarPreviewBlockSchema = z.object({
 export const recipeTeaserBlockSchema = z.object({
   ...frame,
   ...heading,
-  slugs: z.array(z.string().regex(/^[a-z0-9-]{1,120}$/)).max(12).nullish().transform((v) => v ?? null),
+  slugs: z
+    .array(z.string().regex(/^[a-z0-9-]{1,120}$/))
+    .max(12)
+    .nullish()
+    .transform((v) => v ?? null),
   limit: z.number().int().min(1).max(12).default(3),
   cta: optCta,
 });
@@ -236,28 +289,47 @@ export const recipeTeaserBlockSchema = z.object({
 export const postTeaserBlockSchema = z.object({
   ...frame,
   ...heading,
-  slugs: z.array(z.string().regex(/^[a-z0-9-]{1,120}$/)).max(12).nullish().transform((v) => v ?? null),
+  slugs: z
+    .array(z.string().regex(/^[a-z0-9-]{1,120}$/))
+    .max(12)
+    .nullish()
+    .transform((v) => v ?? null),
   /** Category slug filter (categories.kind = 'post'). */
-  category: z.string().regex(/^[a-z0-9-]{1,120}$/).nullish().transform((v) => v ?? null),
+  category: z
+    .string()
+    .regex(/^[a-z0-9-]{1,120}$/)
+    .nullish()
+    .transform((v) => v ?? null),
   limit: z.number().int().min(1).max(12).default(3),
   cta: optCta,
 });
 
 export const trustStripBlockSchema = z.object({
   ...frame,
-  items: z.array(z.object({ icon: optIcon, label: text(80).min(1) })).min(1).max(8),
+  items: z
+    .array(z.object({ icon: optIcon, label: text(80).min(1) }))
+    .min(1)
+    .max(8),
 });
 
 export const logoStripBlockSchema = z.object({
   ...frame,
   ...heading,
   items: z
-    .array(z.object({ mediaId: uuidSchema.nullish().transform((v) => v ?? null), label: text(80).min(1), href: hrefSchema.nullish().transform((v) => v ?? null) }))
+    .array(
+      z.object({
+        mediaId: uuidSchema.nullish().transform((v) => v ?? null),
+        label: text(80).min(1),
+        href: hrefSchema.nullish().transform((v) => v ?? null),
+      }),
+    )
     .min(1)
     .max(16),
 });
 
-export const settingKeySchema = z.enum(SETTING_KEY_LIST as [string, ...string[]]);
+export const settingKeySchema = z.enum(
+  SETTING_KEY_LIST as [string, ...string[]],
+);
 
 export const splitBlockSchema = z.object({
   ...frame,
@@ -300,8 +372,12 @@ export const BLOCK_SCHEMAS = {
 
 export type BlockType = keyof typeof BLOCK_SCHEMAS;
 export const BLOCK_TYPES = Object.keys(BLOCK_SCHEMAS) as BlockType[];
-export type BlockDataMap = { [K in BlockType]: z.output<(typeof BLOCK_SCHEMAS)[K]> };
-export type BlockInputMap = { [K in BlockType]: z.input<(typeof BLOCK_SCHEMAS)[K]> };
+export type BlockDataMap = {
+  [K in BlockType]: z.output<(typeof BLOCK_SCHEMAS)[K]>;
+};
+export type BlockInputMap = {
+  [K in BlockType]: z.input<(typeof BLOCK_SCHEMAS)[K]>;
+};
 export type BlockData<K extends BlockType = BlockType> = BlockDataMap[K];
 
 /** Discriminated union over `{ type, data }` (the page_sections row shape). */
@@ -314,10 +390,19 @@ export const blockSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("stats"), data: statsBlockSchema }),
   z.object({ type: z.literal("cta"), data: ctaBlockSchema }),
   z.object({ type: z.literal("faqList"), data: faqListBlockSchema }),
-  z.object({ type: z.literal("testimonialList"), data: testimonialListBlockSchema }),
+  z.object({
+    type: z.literal("testimonialList"),
+    data: testimonialListBlockSchema,
+  }),
   z.object({ type: z.literal("gallery"), data: galleryBlockSchema }),
-  z.object({ type: z.literal("productTeaser"), data: productTeaserBlockSchema }),
-  z.object({ type: z.literal("slotCalendarPreview"), data: slotCalendarPreviewBlockSchema }),
+  z.object({
+    type: z.literal("productTeaser"),
+    data: productTeaserBlockSchema,
+  }),
+  z.object({
+    type: z.literal("slotCalendarPreview"),
+    data: slotCalendarPreviewBlockSchema,
+  }),
   z.object({ type: z.literal("recipeTeaser"), data: recipeTeaserBlockSchema }),
   z.object({ type: z.literal("postTeaser"), data: postTeaserBlockSchema }),
   z.object({ type: z.literal("trustStrip"), data: trustStripBlockSchema }),

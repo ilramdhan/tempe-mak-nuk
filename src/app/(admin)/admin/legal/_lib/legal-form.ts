@@ -16,8 +16,16 @@ export const LEGAL_SLUG_LABEL: Record<LegalSlugKey, string> = {
   cookies: "Kebijakan Cookie",
   ordering: "Kebijakan Pemesanan",
 };
-export const LEGAL_SLUG_ORDER: LegalSlugKey[] = ["privacy", "terms", "cookies", "ordering"];
-export const STATUS_LABEL: Record<LegalStatus, string> = { draft: "Draf", published: "Terbit" };
+export const LEGAL_SLUG_ORDER: LegalSlugKey[] = [
+  "privacy",
+  "terms",
+  "cookies",
+  "ordering",
+];
+export const STATUS_LABEL: Record<LegalStatus, string> = {
+  draft: "Draf",
+  published: "Terbit",
+};
 
 export type FieldErrors = Record<string, string>;
 
@@ -49,10 +57,14 @@ export function nextVersion(versions: readonly number[]): number {
   return versions.reduce((max, v) => (v > max ? v : max), 0) + 1;
 }
 
-export function groupBySlug(rows: readonly LegalRow[]): { slug: LegalSlugKey; rows: LegalRow[] }[] {
+export function groupBySlug(
+  rows: readonly LegalRow[],
+): { slug: LegalSlugKey; rows: LegalRow[] }[] {
   return LEGAL_SLUG_ORDER.map((slug) => ({
     slug,
-    rows: rows.filter((r) => r.slug === slug).sort((a, b) => b.version - a.version),
+    rows: rows
+      .filter((r) => r.slug === slug)
+      .sort((a, b) => b.version - a.version),
   })).filter((g) => g.rows.length > 0);
 }
 
@@ -66,7 +78,12 @@ export type DocDraft = {
   status: LegalStatus;
 };
 
-export const docDraftFrom = (d: { title: string; content: unknown; effectiveAt: Date | string | null; status: LegalStatus }): DocDraft => ({
+export const docDraftFrom = (d: {
+  title: string;
+  content: unknown;
+  effectiveAt: Date | string | null;
+  status: LegalStatus;
+}): DocDraft => ({
   title: d.title,
   content: (d.content ?? null) as DocContent,
   effectiveAt: toWibInput(d.effectiveAt),
@@ -74,45 +91,67 @@ export const docDraftFrom = (d: { title: string; content: unknown; effectiveAt: 
 });
 
 export const isDocDirty = (a: DocDraft, b: DocDraft) =>
-  a.title !== b.title || a.effectiveAt !== b.effectiveAt || a.status !== b.status || JSON.stringify(a.content ?? null) !== JSON.stringify(b.content ?? null);
+  a.title !== b.title ||
+  a.effectiveAt !== b.effectiveAt ||
+  a.status !== b.status ||
+  JSON.stringify(a.content ?? null) !== JSON.stringify(b.content ?? null);
 
 export function docToInput(slug: LegalSlugKey, version: number, d: DocDraft) {
-  return { slug, version, title: d.title, content: d.content ?? null, status: d.status, effectiveAt: fromWibInput(d.effectiveAt) };
+  return {
+    slug,
+    version,
+    title: d.title,
+    content: d.content ?? null,
+    status: d.status,
+    effectiveAt: fromWibInput(d.effectiveAt),
+  };
 }
 
 export function validateWith(schema: z.ZodType, input: unknown): FieldErrors {
   const res = schema.safeParse(input, { error: idErrorMap });
   if (res.success) return {};
   const out: FieldErrors = {};
-  for (const i of res.error.issues) out[i.path.map(String).join(".") || "_form"] ??= i.message;
+  for (const i of res.error.issues)
+    out[i.path.map(String).join(".") || "_form"] ??= i.message;
   return out;
 }
 
-export function fromServerErrors(fe: Record<string, string[]> | undefined): FieldErrors {
-  return Object.fromEntries(Object.entries(fe ?? {}).map(([k, v]) => [k, v[0] ?? "Tidak valid"]));
+export function fromServerErrors(
+  fe: Record<string, string[]> | undefined,
+): FieldErrors {
+  return Object.fromEntries(
+    Object.entries(fe ?? {}).map(([k, v]) => [k, v[0] ?? "Tidak valid"]),
+  );
 }
 
 export function validateDoc(draft: DocDraft): FieldErrors {
   const errors: FieldErrors = {};
   if (!draft.title.trim()) errors.title = "Judul wajib diisi";
   else if (draft.title.length > 160) errors.title = "Maksimal 160 karakter";
-  if (draft.effectiveAt.trim() && !fromWibInput(draft.effectiveAt)) errors.effectiveAt = "Format tanggal/jam tidak valid";
+  if (draft.effectiveAt.trim() && !fromWibInput(draft.effectiveAt))
+    errors.effectiveAt = "Format tanggal/jam tidak valid";
   return errors;
 }
 
 // ---- consent ----
 
 /** Config to save. `reask` raises the version so visitors are asked again. */
-export function buildConsentConfig(base: ConsentConfig, draft: ConsentConfig, reask: boolean): ConsentConfig {
+export function buildConsentConfig(
+  base: ConsentConfig,
+  draft: ConsentConfig,
+  reask: boolean,
+): ConsentConfig {
   return { ...draft, version: reask ? base.version + 1 : base.version };
 }
 
-export const isConsentDirty = (a: ConsentConfig, b: ConsentConfig) => JSON.stringify(a) !== JSON.stringify(b);
+export const isConsentDirty = (a: ConsentConfig, b: ConsentConfig) =>
+  JSON.stringify(a) !== JSON.stringify(b);
 
 export function validateConsent(config: ConsentConfig): FieldErrors {
   const errors = validateWith(consentConfigSchema, config);
   for (const [i, c] of config.categories.entries()) {
-    if (c.required && !c.label.trim()) errors[`categories.${i}.label`] ??= "Wajib diisi";
+    if (c.required && !c.label.trim())
+      errors[`categories.${i}.label`] ??= "Wajib diisi";
   }
   return errors;
 }

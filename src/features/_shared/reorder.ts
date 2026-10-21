@@ -18,10 +18,16 @@ export async function applyOrder(
 ): Promise<number> {
   if (ids.length === 0) return 0;
   const cases = sql.join(
-    ids.map((id, i) => sql`when ${sql.identifier(idCol.name)} = ${id}::uuid then ${i}`),
+    ids.map(
+      (id, i) =>
+        sql`when ${sql.identifier(idCol.name)} = ${id}::uuid then ${i}`,
+    ),
     sql` `,
   );
-  const inList = sql.join(ids.map((id) => sql`${id}::uuid`), sql`, `);
+  const inList = sql.join(
+    ids.map((id) => sql`${id}::uuid`),
+    sql`, `,
+  );
   const where = scope
     ? sql`${sql.identifier(idCol.name)} in (${inList}) and ${scope}`
     : sql`${sql.identifier(idCol.name)} in (${inList})`;

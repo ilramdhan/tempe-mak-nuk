@@ -2,7 +2,11 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { redirects } from "@/db/schema";
 import { getDb } from "@/db/client";
-import { buildRedirectMap, matchRedirect, type RedirectEntry } from "@/features/redirects/match";
+import {
+  buildRedirectMap,
+  matchRedirect,
+  type RedirectEntry,
+} from "@/features/redirects/match";
 import { updateSession } from "@/lib/supabase/proxy";
 
 /**
@@ -20,7 +24,11 @@ async function loadRedirects(): Promise<Map<string, RedirectEntry>> {
   if (!process.env.DATABASE_URL) return stale;
   try {
     const rows = await getDb()
-      .select({ from: redirects.from, to: redirects.to, permanent: redirects.permanent })
+      .select({
+        from: redirects.from,
+        to: redirects.to,
+        permanent: redirects.permanent,
+      })
       .from(redirects);
     cache = { map: buildRedirectMap(rows), expires: Date.now() + TTL_MS };
   } catch {

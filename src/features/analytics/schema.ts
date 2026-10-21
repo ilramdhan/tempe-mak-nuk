@@ -16,6 +16,8 @@ export const waClickInputSchema = z.object({
   source: ident(200),
   kind: z.enum(waClickKind.enumValues).default("general"),
   /** Product variant slug or CTA variant id. */
-  variant: ident(100).nullish().transform((v) => v ?? null),
+  variant: ident(100)
+    .nullish()
+    .transform((v) => v ?? null),
 });
 export type WaClickInput = z.input<typeof waClickInputSchema>;

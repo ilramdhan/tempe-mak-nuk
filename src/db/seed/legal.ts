@@ -4,16 +4,19 @@ import { legalDocuments } from "../schema";
 import type { LegalSlug } from "../schema/enums";
 import { doc, type Tx } from "./rich";
 
-const WARN = "**Dokumen contoh — perlu ditinjau ahli hukum.** Teks ini adalah draf awal dan belum menjadi nasihat hukum. Pemilik usaha wajib memeriksa dan menyesuaikannya sebelum dipakai secara resmi.";
+const WARN =
+  "**Dokumen contoh — perlu ditinjau ahli hukum.** Teks ini adalah draf awal dan belum menjadi nasihat hukum. Pemilik usaha wajib memeriksa dan menyesuaikannya sebelum dipakai secara resmi.";
 const DATE = "Berlaku sejak: 1 Januari 2026 · Versi 1";
-const WHO = "Pengendali data: **Usaha Tempe Mak Nuk** (merek dagang Tempe Mak Nuk), Jl. Raya Pedan No. 21, Dk. Kauman, Desa Kalangan, Kec. Pedan, Kabupaten Klaten, Jawa Tengah 57468. Email: halo@tempemaknuk.com. WhatsApp: +62 812-3456-7890. (Data identitas ini diambil dari Pengaturan situs dan dapat berubah.)";
+const WHO =
+  "Pengendali data: **Usaha Tempe Mak Nuk** (merek dagang Tempe Mak Nuk), Jl. Raya Pedan No. 21, Dk. Kauman, Desa Kalangan, Kec. Pedan, Kabupaten Klaten, Jawa Tengah 57468. Email: halo@tempemaknuk.com. WhatsApp: +62 812-3456-7890. (Data identitas ini diambil dari Pengaturan situs dan dapat berubah.)";
 
 const DOCS: { slug: LegalSlug; title: string; blocks: string[] }[] = [
   {
     slug: "privacy",
     title: "Kebijakan Privasi",
     blocks: [
-      WARN, DATE,
+      WARN,
+      DATE,
       "Kebijakan ini menjelaskan bagaimana Tempe Mak Nuk mengumpulkan, menggunakan, dan melindungi data pribadi Anda, selaras dengan Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi (UU PDP).",
       "## 1. Pengendali data",
       WHO,
@@ -52,7 +55,8 @@ const DOCS: { slug: LegalSlug; title: string; blocks: string[] }[] = [
     slug: "terms",
     title: "Syarat dan Ketentuan",
     blocks: [
-      WARN, DATE,
+      WARN,
+      DATE,
       "Dengan menggunakan situs tempemaknuk.com dan memesan lewat WhatsApp, Anda menyetujui syarat berikut.",
       "## 1. Tentang kami",
       WHO,
@@ -61,7 +65,7 @@ const DOCS: { slug: LegalSlug; title: string; blocks: string[] }[] = [
       "## 3. Informasi produk",
       "Kami berupaya menampilkan informasi seakurat mungkin. Foto bersifat ilustrasi karena tempe adalah produk buatan tangan dan bentuk, warna, serta ukuran dapat sedikit berbeda antar-produksi. Informasi gizi bersumber dari data rujukan (misalnya TKPI Kemenkes RI) dan bukan hasil uji laboratorium produk kami. Informasi di situs adalah informasi umum, bukan nasihat medis.",
       "## 4. Pemesanan dan harga",
-      "Pesanan dianggap sah setelah slot dan rincian dikonfirmasi lewat WhatsApp. Harga yang ditampilkan di situs bersifat \"mulai dari\"; harga final dikonfirmasi saat pemesanan. Aturan PO, pembayaran, dan pembatalan diatur dalam [Kebijakan Pemesanan](/kebijakan-pemesanan).",
+      'Pesanan dianggap sah setelah slot dan rincian dikonfirmasi lewat WhatsApp. Harga yang ditampilkan di situs bersifat "mulai dari"; harga final dikonfirmasi saat pemesanan. Aturan PO, pembayaran, dan pembatalan diatur dalam [Kebijakan Pemesanan](/kebijakan-pemesanan).',
       "## 5. Alergen",
       "Produk kami berbahan kedelai. Pelanggan bertanggung jawab memastikan produk sesuai kondisi kesehatan dan alergi masing-masing.",
       "## 6. Batasan tanggung jawab",
@@ -78,7 +82,8 @@ const DOCS: { slug: LegalSlug; title: string; blocks: string[] }[] = [
     slug: "cookies",
     title: "Kebijakan Cookie",
     blocks: [
-      WARN, DATE,
+      WARN,
+      DATE,
       "Cookie adalah berkas kecil yang disimpan peramban Anda. Kami memakainya secukupnya dan meminta persetujuan Anda untuk yang bersifat opsional.",
       "## Kategori cookie",
       "### Wajib (selalu aktif)",
@@ -88,7 +93,7 @@ const DOCS: { slug: LegalSlug; title: string; blocks: string[] }[] = [
       "### Pemasaran (opsional)",
       "Dipakai untuk mengukur iklan dan menampilkan konten relevan di platform lain. Saat ini belum ada skrip pemasaran aktif; bila ditambahkan, hanya dimuat setelah Anda setuju.",
       "## Mengelola pilihan",
-      "Anda dapat mengubah pilihan kapan saja lewat tautan \"Pengaturan cookie\" di bagian bawah halaman, atau menghapus cookie lewat pengaturan peramban. Bila versi kebijakan berubah, kami akan menanyakan lagi.",
+      'Anda dapat mengubah pilihan kapan saja lewat tautan "Pengaturan cookie" di bagian bawah halaman, atau menghapus cookie lewat pengaturan peramban. Bila versi kebijakan berubah, kami akan menanyakan lagi.',
       "## Informasi lebih lanjut",
       "Lihat [Kebijakan Privasi](/kebijakan-privasi) untuk hak Anda atas data pribadi, atau hubungi halo@tempemaknuk.com.",
     ],
@@ -97,7 +102,8 @@ const DOCS: { slug: LegalSlug; title: string; blocks: string[] }[] = [
     slug: "ordering",
     title: "Kebijakan Pemesanan dan PO",
     blocks: [
-      WARN, DATE,
+      WARN,
+      DATE,
       "Tempe Mak Nuk dibuat sesuai pesanan (pre-order, PO). Berikut aturannya.",
       "## 1. Lead time dan batas waktu",
       "- Lead time: **4 hari**. Contoh: tempe dipakai hari Selasa, PO paling lambat Jumat.",

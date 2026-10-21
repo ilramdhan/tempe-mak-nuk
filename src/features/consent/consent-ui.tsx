@@ -86,7 +86,7 @@ export function ConsentUi({
           aria-labelledby={titleId}
           data-pending={stored === undefined ? "" : undefined}
           suppressHydrationWarning
-          className="fixed inset-x-0 data-pending:invisible bottom-0 z-50 border-t border-border bg-background p-4 shadow-lg sm:inset-x-4 sm:bottom-4 sm:rounded-2xl sm:border"
+          className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background p-4 shadow-lg data-pending:invisible sm:inset-x-4 sm:bottom-4 sm:rounded-2xl sm:border"
         >
           <div className="mx-auto flex max-w-4xl flex-col gap-4 md:flex-row md:items-center">
             <div className="flex-1 text-sm">

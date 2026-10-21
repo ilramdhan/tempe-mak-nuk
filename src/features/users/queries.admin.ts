@@ -18,10 +18,16 @@ export type AdminUserRow = {
 /** Owner-only caller must gate. Emails come from auth.users via the service-role client. */
 export async function listUsersForAdmin(): Promise<AdminUserRow[]> {
   await requireRole("owner", { onFail: "redirect" });
-  const rows = await getDb().select().from(profiles).orderBy(asc(profiles.createdAt));
+  const rows = await getDb()
+    .select()
+    .from(profiles)
+    .orderBy(asc(profiles.createdAt));
   const emails = new Map<string, string>();
   try {
-    const { data } = await createAdminClient().auth.admin.listUsers({ page: 1, perPage: 200 });
+    const { data } = await createAdminClient().auth.admin.listUsers({
+      page: 1,
+      perPage: 200,
+    });
     for (const u of data?.users ?? []) if (u.email) emails.set(u.id, u.email);
   } catch {
     // email column degrades to empty
@@ -36,6 +42,9 @@ export async function listUsersForAdmin(): Promise<AdminUserRow[]> {
 }
 
 export async function countOwners(db = getDb()): Promise<number> {
-  const rows = await db.select({ id: profiles.id }).from(profiles).where(eq(profiles.role, "owner"));
+  const rows = await db
+    .select({ id: profiles.id })
+    .from(profiles)
+    .where(eq(profiles.role, "owner"));
   return rows.length;
 }

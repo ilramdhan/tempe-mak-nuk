@@ -14,7 +14,10 @@ const map = buildRedirectMap([
 describe("matchRedirect", () => {
   it("normalizes trailing slash on both sides", () => {
     expect(matchRedirect(map, "/lama")).toEqual({ to: "/produk", status: 301 });
-    expect(matchRedirect(map, "/lama/")).toEqual({ to: "/produk", status: 301 });
+    expect(matchRedirect(map, "/lama/")).toEqual({
+      to: "/produk",
+      status: 301,
+    });
   });
   it("is case-sensitive", () => {
     expect(matchRedirect(map, "/Lama")).toBeNull();
@@ -27,7 +30,9 @@ describe("matchRedirect", () => {
     expect(matchRedirect(map, "/promo", "?utm=a")?.to).toBe("/produk?x=1");
   });
   it("leaves external targets untouched", () => {
-    expect(matchRedirect(map, "/ext", "?a=1")?.to).toBe("https://example.com/a");
+    expect(matchRedirect(map, "/ext", "?a=1")?.to).toBe(
+      "https://example.com/a",
+    );
   });
   it("ignores self redirects and protected paths", () => {
     expect(matchRedirect(map, "/loop")).toBeNull();

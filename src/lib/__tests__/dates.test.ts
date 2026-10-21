@@ -33,7 +33,11 @@ describe("dates (Asia/Jakarta)", () => {
     expect(addDays("2028-02-28", 1)).toBe("2028-02-29");
     expect(addDays("2026-03-01", -1)).toBe("2026-02-28");
     expect(diffDays("2026-10-16", "2026-10-20")).toBe(4);
-    expect(dateRange("2026-10-30", 3)).toEqual(["2026-10-30", "2026-10-31", "2026-11-01"]);
+    expect(dateRange("2026-10-30", 3)).toEqual([
+      "2026-10-30",
+      "2026-10-31",
+      "2026-11-01",
+    ]);
   });
 
   it("weekdayOf: 0 = Sunday", () => {

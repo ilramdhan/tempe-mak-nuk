@@ -23,7 +23,9 @@ const C = {
 
 async function loadFont() {
   try {
-    return await readFile(path.join(process.cwd(), "src/lib/og/fonts/fraunces-600.woff"));
+    return await readFile(
+      path.join(process.cwd(), "src/lib/og/fonts/fraunces-600.woff"),
+    );
   } catch {
     return null;
   }
@@ -32,13 +34,20 @@ async function loadFont() {
 /** Cover box rendered at 340×340 in the card → 2× for crispness. */
 const COVER_PX = 680;
 /** Raster types accepted from storage; uploads are WebP since P5.8 (satori itself only takes png/jpeg). */
-const COVER_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
+const COVER_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/avif",
+]);
 
 /**
  * Fetch cover and re-encode to a square JPEG data URI via sharp (WebP/AVIF → JPEG, so satori can
  * draw it; also shrinks the payload). Node runtime only. Null on any failure.
  */
-async function loadCover(url: string | null | undefined): Promise<string | null> {
+async function loadCover(
+  url: string | null | undefined,
+): Promise<string | null> {
   if (!url || !/^https?:\/\//.test(url)) return null;
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
@@ -84,103 +93,186 @@ export type OgInput = {
   coverUrl?: string | null;
 };
 
-export async function renderOg({ eyebrow, title, subtitle, coverUrl }: OgInput): Promise<ImageResponse> {
-  const [name, fontData, cover] = await Promise.all([brandName(), loadFont(), loadCover(coverUrl)]);
+export async function renderOg({
+  eyebrow,
+  title,
+  subtitle,
+  coverUrl,
+}: OgInput): Promise<ImageResponse> {
+  const [name, fontData, cover] = await Promise.all([
+    brandName(),
+    loadFont(),
+    loadCover(coverUrl),
+  ]);
   const display = fontData ? "Fraunces" : "Geist";
   const t = truncate(title, cover ? 70 : 90);
   const size = t.length > 60 ? 54 : t.length > 36 ? 64 : 76;
 
   return new ImageResponse(
-    (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        background: C.paper,
+        color: C.ink,
+        fontFamily: "Geist",
+        position: "relative",
+      }}
+    >
+      {/* tekstur ringan: pita kedelai + garis ragi */}
       <div
         style={{
-          width: "100%",
-          height: "100%",
+          position: "absolute",
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: 16,
+          background: C.leaf,
           display: "flex",
-          background: C.paper,
-          color: C.ink,
-          fontFamily: "Geist",
-          position: "relative",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          left: 16,
+          top: 0,
+          bottom: 0,
+          width: 4,
+          background: C.gold,
+          display: "flex",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          right: -120,
+          bottom: -160,
+          width: 420,
+          height: 420,
+          borderRadius: 420,
+          background: C.surface,
+          display: "flex",
+        }}
+      />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          flex: 1,
+          padding: "56px 64px 52px 84px",
         }}
       >
-        {/* tekstur ringan: pita kedelai + garis ragi */}
-        <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 16, background: C.leaf, display: "flex" }} />
-        <div style={{ position: "absolute", left: 16, top: 0, bottom: 0, width: 4, background: C.gold, display: "flex" }} />
-        <div
-          style={{
-            position: "absolute",
-            right: -120,
-            bottom: -160,
-            width: 420,
-            height: 420,
-            borderRadius: 420,
-            background: C.surface,
-            display: "flex",
-          }}
-        />
-        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", flex: 1, padding: "56px 64px 52px 84px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 52,
+              height: 52,
+              borderRadius: 8,
+              background: C.leaf,
+              color: C.paper,
+              fontFamily: display,
+              fontSize: 30,
+            }}
+          >
+            T
+          </div>
+          <div
+            style={{
+              fontFamily: display,
+              fontSize: 32,
+              color: C.leaf,
+              display: "flex",
+            }}
+          >
+            {name}
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 48 }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+              gap: 20,
+            }}
+          >
+            {eyebrow ? (
+              <div
+                style={{
+                  display: "flex",
+                  fontSize: 24,
+                  letterSpacing: 4,
+                  textTransform: "uppercase",
+                  color: C.goldStrong,
+                }}
+              >
+                {eyebrow}
+              </div>
+            ) : null}
             <div
               style={{
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 52,
-                height: 52,
-                borderRadius: 8,
-                background: C.leaf,
-                color: C.paper,
                 fontFamily: display,
-                fontSize: 30,
+                fontSize: size,
+                lineHeight: 1.1,
+                color: C.ink,
               }}
             >
-              T
+              {t}
             </div>
-            <div style={{ fontFamily: display, fontSize: 32, color: C.leaf, display: "flex" }}>{name}</div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 48 }}>
-            <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 20 }}>
-              {eyebrow ? (
-                <div
-                  style={{
-                    display: "flex",
-                    fontSize: 24,
-                    letterSpacing: 4,
-                    textTransform: "uppercase",
-                    color: C.goldStrong,
-                  }}
-                >
-                  {eyebrow}
-                </div>
-              ) : null}
-              <div style={{ display: "flex", fontFamily: display, fontSize: size, lineHeight: 1.1, color: C.ink }}>{t}</div>
-              {subtitle ? (
-                <div style={{ display: "flex", fontSize: 28, lineHeight: 1.35, color: C.muted }}>
-                  {truncate(subtitle, 110)}
-                </div>
-              ) : null}
-            </div>
-            {cover ? (
-              // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
-              <img
-                src={cover}
-                width={340}
-                height={340}
-                style={{ width: 340, height: 340, objectFit: "cover", borderRadius: 16, border: "6px solid #FEFCF9" }}
-              />
+            {subtitle ? (
+              <div
+                style={{
+                  display: "flex",
+                  fontSize: 28,
+                  lineHeight: 1.35,
+                  color: C.muted,
+                }}
+              >
+                {truncate(subtitle, 110)}
+              </div>
             ) : null}
           </div>
+          {cover ? (
+            // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+            <img
+              src={cover}
+              width={340}
+              height={340}
+              style={{
+                width: 340,
+                height: 340,
+                objectFit: "cover",
+                borderRadius: 16,
+                border: "6px solid #FEFCF9",
+              }}
+            />
+          ) : null}
+        </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 24, color: C.muted }}>
-            <div style={{ display: "flex" }}>{OG_TAGLINE}</div>
-          </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            fontSize: 24,
+            color: C.muted,
+          }}
+        >
+          <div style={{ display: "flex" }}>{OG_TAGLINE}</div>
         </div>
       </div>
-    ),
+    </div>,
     {
       ...OG_SIZE,
-      fonts: fontData ? [{ name: "Fraunces", data: fontData, weight: 600, style: "normal" }] : undefined,
+      fonts: fontData
+        ? [{ name: "Fraunces", data: fontData, weight: 600, style: "normal" }]
+        : undefined,
     },
   );
 }

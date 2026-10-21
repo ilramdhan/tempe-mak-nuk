@@ -46,11 +46,7 @@ export type SlotOverrideInput = {
 };
 
 export type AvailabilityStatus =
-  | "available"
-  | "nearly"
-  | "full"
-  | "closed"
-  | "past-cutoff";
+  "available" | "nearly" | "full" | "closed" | "past-cutoff";
 
 export type DayAvailability = {
   date: DateKey;
@@ -92,13 +88,19 @@ function buildCtx(input: Omit<AvailabilityInput, "now">): Ctx {
   };
 }
 
-function closedInfo(ctx: Ctx, date: DateKey): { closed: boolean; holiday: string | null } {
+function closedInfo(
+  ctx: Ctx,
+  date: DateKey,
+): { closed: boolean; holiday: string | null } {
   const override = ctx.overrides.get(date);
   const holiday = ctx.holidays.get(date) ?? null;
   if (override?.status === "closed") return { closed: true, holiday };
   if (override?.status === "open") return { closed: false, holiday };
   if (holiday) return { closed: true, holiday };
-  return { closed: ctx.rules.closedWeekdays.includes(weekdayOf(date)), holiday: null };
+  return {
+    closed: ctx.rules.closedWeekdays.includes(weekdayOf(date)),
+    holiday: null,
+  };
 }
 
 function deadlineFor(ctx: Ctx, useDate: DateKey): Date {
@@ -129,7 +131,14 @@ function evaluate(ctx: Ctx, date: DateKey, now: Date): DayAvailability {
   const booked = Math.max(0, override?.booked ?? 0);
   const remaining = Math.max(0, capacity - booked);
   const { closed, holiday } = closedInfo(ctx, date);
-  const base = { date, weekday: weekdayOf(date), capacity, booked, remaining, holiday };
+  const base = {
+    date,
+    weekday: weekdayOf(date),
+    capacity,
+    booked,
+    remaining,
+    holiday,
+  };
 
   if (closed) {
     return {
@@ -182,7 +191,10 @@ function evaluate(ctx: Ctx, date: DateKey, now: Date): DayAvailability {
 }
 
 /** Availability for a single date. */
-export function getDayAvailability(date: DateKey, input: AvailabilityInput): DayAvailability {
+export function getDayAvailability(
+  date: DateKey,
+  input: AvailabilityInput,
+): DayAvailability {
   if (!isDateKey(date)) throw new RangeError(`Invalid date: ${date}`);
   return evaluate(buildCtx(input), date, input.now);
 }
@@ -206,8 +218,9 @@ export function earliestOrderableDate(
 ): DateKey | null {
   const today = toDateKey(input.now);
   return (
-    computeAvailability({ ...input, from: today, days: searchDays }).find((d) => d.orderable)
-      ?.date ?? null
+    computeAvailability({ ...input, from: today, days: searchDays }).find(
+      (d) => d.orderable,
+    )?.date ?? null
   );
 }
 

@@ -73,7 +73,9 @@ export default async function FaqPage() {
       <Section spacing="tight">
         <Container size="prose">
           <Stack gap="md">
-            <Eyebrow rule tone="accent">FAQ</Eyebrow>
+            <Eyebrow rule tone="accent">
+              FAQ
+            </Eyebrow>
             <Heading level={1} size="display">
               Pertanyaan yang sering ditanyakan
             </Heading>

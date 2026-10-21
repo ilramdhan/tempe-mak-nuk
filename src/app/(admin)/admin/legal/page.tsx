@@ -21,7 +21,14 @@ export default function LegalAdminPage() {
         title="Legal & Privasi"
         description="Dokumen legal berversi dan teks persetujuan cookie. Hanya pemilik yang dapat mengubah."
       />
-      <Suspense fallback={<Skeleton className="h-96 w-full rounded-lg" aria-label="Memuat dokumen legal" />}>
+      <Suspense
+        fallback={
+          <Skeleton
+            className="h-96 w-full rounded-lg"
+            aria-label="Memuat dokumen legal"
+          />
+        }
+      >
         <LegalContent />
       </Suspense>
     </>
@@ -31,7 +38,10 @@ export default function LegalAdminPage() {
 async function LegalContent() {
   await connection();
   await requireRole("owner", { onFail: "redirect", next: "/admin/legal" });
-  const [docs, { settings }] = await Promise.all([listLegalDocumentsForAdmin(), getSettingsForAdmin()]);
+  const [docs, { settings }] = await Promise.all([
+    listLegalDocumentsForAdmin(),
+    getSettingsForAdmin(),
+  ]);
   const rows: LegalRow[] = docs.map((d) => ({
     id: d.id,
     slug: d.slug,

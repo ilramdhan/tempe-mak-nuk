@@ -33,8 +33,17 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { ImagePlaceholder, type PlaceholderTexture } from "@/components/brand/textures";
-import { Eyebrow, Heading, Lead, Stack, type HeadingLevel } from "@/components/site/primitives";
+import {
+  ImagePlaceholder,
+  type PlaceholderTexture,
+} from "@/components/brand/textures";
+import {
+  Eyebrow,
+  Heading,
+  Lead,
+  Stack,
+  type HeadingLevel,
+} from "@/components/site/primitives";
 import { Button } from "@/components/ui/button";
 import type { PublicMedia } from "@/features/media/queries";
 import { cn } from "@/lib/utils";
@@ -72,10 +81,18 @@ export const ICONS: Record<IconName, LucideIcon> = {
   wheat: Wheat,
 };
 
-export function BlockIcon({ name, className }: { name: IconName | null | undefined; className?: string }) {
+export function BlockIcon({
+  name,
+  className,
+}: {
+  name: IconName | null | undefined;
+  className?: string;
+}) {
   if (!name) return null;
   const Icon = ICONS[name];
-  return <Icon aria-hidden className={cn("size-5", className)} strokeWidth={1.75} />;
+  return (
+    <Icon aria-hidden className={cn("size-5", className)} strokeWidth={1.75} />
+  );
 }
 
 /** Shared context passed from <BlockRenderer> to every block. */
@@ -92,7 +109,8 @@ export type BlockContext = {
 
 export type BlockProps<D> = { data: D; ctx: BlockContext };
 
-const isInternal = (href: string) => href.startsWith("/") || href.startsWith("#");
+const isInternal = (href: string) =>
+  href.startsWith("/") || href.startsWith("#");
 
 /** Link that uses next/link internally and adds rel/target for external URLs. */
 export function SmartLink({
@@ -100,7 +118,10 @@ export function SmartLink({
   className,
   children,
   ...rest
-}: { href: string; className?: string; children: ReactNode } & Omit<React.ComponentProps<"a">, "href">) {
+}: { href: string; className?: string; children: ReactNode } & Omit<
+  React.ComponentProps<"a">,
+  "href"
+>) {
   if (isInternal(href))
     return (
       <Link href={href} className={className} {...rest}>
@@ -139,8 +160,18 @@ export function CtaButton({
   );
 }
 
-export function CtaRow({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn("flex flex-wrap items-center gap-3", className)}>{children}</div>;
+export function CtaRow({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex flex-wrap items-center gap-3", className)}>
+      {children}
+    </div>
+  );
 }
 
 /** Eyebrow + heading + intro used at the top of most blocks. */
@@ -161,8 +192,19 @@ export function BlockHeader({
 }) {
   if (!eyebrow && !heading && !intro) return null;
   return (
-    <Stack gap="sm" className={cn("max-w-measure", align === "center" && "mx-auto items-center text-center", className)}>
-      {eyebrow ? <Eyebrow rule={align === "start"} tone="accent">{eyebrow}</Eyebrow> : null}
+    <Stack
+      gap="sm"
+      className={cn(
+        "max-w-measure",
+        align === "center" && "mx-auto items-center text-center",
+        className,
+      )}
+    >
+      {eyebrow ? (
+        <Eyebrow rule={align === "start"} tone="accent">
+          {eyebrow}
+        </Eyebrow>
+      ) : null}
       {heading ? <Heading level={level}>{heading}</Heading> : null}
       {intro ? <Lead muted>{intro}</Lead> : null}
     </Stack>
@@ -180,7 +222,8 @@ export function BlockMedia({
   priority = false,
   className,
 }: {
-  image: BlockImage | { mediaId: string; alt?: string | null } | null | undefined;
+  image:
+    BlockImage | { mediaId: string; alt?: string | null } | null | undefined;
   media: Record<string, PublicMedia>;
   /** Placeholder caption when no image (without "Foto:" prefix). */
   caption: string;
@@ -191,11 +234,22 @@ export function BlockMedia({
   className?: string;
 }) {
   const m = image ? media[image.mediaId] : undefined;
-  if (!m) return <ImagePlaceholder caption={caption} aspect={aspect} texture={texture} className={className} />;
+  if (!m)
+    return (
+      <ImagePlaceholder
+        caption={caption}
+        aspect={aspect}
+        texture={texture}
+        className={className}
+      />
+    );
   const alt = image?.alt || m.alt;
   return (
     <div
-      className={cn("relative w-full overflow-hidden rounded-lg border border-border bg-surface", className)}
+      className={cn(
+        "relative w-full overflow-hidden rounded-lg border border-border bg-surface",
+        className,
+      )}
       style={{ aspectRatio: aspect }}
     >
       <Image
@@ -205,7 +259,9 @@ export function BlockMedia({
         sizes={sizes}
         preload={priority}
         className="object-cover"
-        {...(m.blurDataUrl ? { placeholder: "blur" as const, blurDataURL: m.blurDataUrl } : {})}
+        {...(m.blurDataUrl
+          ? { placeholder: "blur" as const, blurDataURL: m.blurDataUrl }
+          : {})}
       />
     </div>
   );

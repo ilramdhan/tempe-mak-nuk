@@ -12,13 +12,18 @@ export function businessFromSettings(s: Settings): BusinessInfo {
     telephone: s["contact.whatsappDisplay"] || s["contact.phone"],
     email: s["contact.email"],
     address: {
-      street: [s["address.street"], s["address.village"]].filter(Boolean).join(", "),
+      street: [s["address.street"], s["address.village"]]
+        .filter(Boolean)
+        .join(", "),
       locality: s["address.district"] || s["address.city"],
       region: s["address.province"],
       postalCode: s["address.postalCode"],
       country: s["address.country"],
     },
-    geo: s["geo.lat"] || s["geo.lng"] ? { lat: s["geo.lat"], lng: s["geo.lng"] } : null,
+    geo:
+      s["geo.lat"] || s["geo.lng"]
+        ? { lat: s["geo.lat"], lng: s["geo.lng"] }
+        : null,
     mapUrl: s["maps.url"],
     hours: s.hours.days ?? [],
     sameAs: [

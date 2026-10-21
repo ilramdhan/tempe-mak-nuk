@@ -15,18 +15,34 @@ import { LEGAL_SLUG_LABEL } from "../_lib/legal-form";
 
 export const metadata: Metadata = { title: "Edit dokumen legal" };
 
-export default function EditLegalPage({ params }: PageProps<"/admin/legal/[id]">) {
+export default function EditLegalPage({
+  params,
+}: PageProps<"/admin/legal/[id]">) {
   return (
-    <Suspense fallback={<Skeleton className="h-96 w-full rounded-lg" aria-label="Memuat editor" />}>
+    <Suspense
+      fallback={
+        <Skeleton
+          className="h-96 w-full rounded-lg"
+          aria-label="Memuat editor"
+        />
+      }
+    >
       <EditContent params={params} />
     </Suspense>
   );
 }
 
-async function EditContent({ params }: { params: PageProps<"/admin/legal/[id]">["params"] }) {
+async function EditContent({
+  params,
+}: {
+  params: PageProps<"/admin/legal/[id]">["params"];
+}) {
   const { id } = await params;
   await connection();
-  await requireRole("owner", { onFail: "redirect", next: `/admin/legal/${id}` });
+  await requireRole("owner", {
+    onFail: "redirect",
+    next: `/admin/legal/${id}`,
+  });
   if (!uuidSchema.safeParse(id).success) notFound();
   const doc = await getLegalDocumentForAdmin(id);
   if (!doc) notFound();
@@ -46,7 +62,12 @@ async function EditContent({ params }: { params: PageProps<"/admin/legal/[id]">[
         id={doc.id}
         slug={doc.slug}
         version={doc.version}
-        initial={{ title: doc.title, content: doc.content, effectiveAt: doc.effectiveAt?.toISOString() ?? null, status: doc.status }}
+        initial={{
+          title: doc.title,
+          content: doc.content,
+          effectiveAt: doc.effectiveAt?.toISOString() ?? null,
+          status: doc.status,
+        }}
       />
     </>
   );

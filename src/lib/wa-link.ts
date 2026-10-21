@@ -28,7 +28,9 @@ export const WA_MAX_TEXT = 4000;
  * "+62 812-3456-7890" → "6281234567890", "0812…" → "62812…".
  * Returns null when the result is not a plausible number (8–15 digits, E.164).
  */
-export function normalizeWaNumber(input: string | null | undefined): string | null {
+export function normalizeWaNumber(
+  input: string | null | undefined,
+): string | null {
   if (!input) return null;
   let digits = input.replace(/\D+/g, "");
   if (digits.startsWith("00")) digits = digits.slice(2);
@@ -61,7 +63,11 @@ function renderLine(line: WaLine): string | null {
 }
 
 /** Build the plain-text message (newline separated). */
-export function buildWaMessage({ greeting, lines = [], footer }: WaMessage): string {
+export function buildWaMessage({
+  greeting,
+  lines = [],
+  footer,
+}: WaMessage): string {
   const parts: string[] = [];
   if (greeting) parts.push(cleanText(greeting));
   for (const l of lines) {
@@ -72,10 +78,15 @@ export function buildWaMessage({ greeting, lines = [], footer }: WaMessage): str
     .map(cleanText)
     .filter((f) => f.trim().length > 0);
   if (footers.length) parts.push("", ...footers);
-  let text = parts.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  let text = parts
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
   if (text.length > WA_MAX_TEXT) {
     // Truncate on a code point boundary (never split surrogate pairs / emoji).
-    text = `${Array.from(text).slice(0, WA_MAX_TEXT - 1).join("")}…`;
+    text = `${Array.from(text)
+      .slice(0, WA_MAX_TEXT - 1)
+      .join("")}…`;
   }
   return text;
 }
@@ -97,5 +108,7 @@ export function buildWaLink(
       : message
         ? buildWaMessage(message)
         : "";
-  return text ? `https://wa.me/${n}?text=${encodeURIComponent(text)}` : `https://wa.me/${n}`;
+  return text
+    ? `https://wa.me/${n}?text=${encodeURIComponent(text)}`
+    : `https://wa.me/${n}`;
 }

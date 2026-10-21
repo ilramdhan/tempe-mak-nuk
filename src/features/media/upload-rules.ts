@@ -34,10 +34,16 @@ export function isUploadMime(type: string): type is UploadMime {
 }
 
 /** Check declared type + size (cheap; done on the client and again on the server). */
-export function validateUploadFile(file: { type: string; size: number; name?: string }): string | null {
+export function validateUploadFile(file: {
+  type: string;
+  size: number;
+  name?: string;
+}): string | null {
   const type = (file.type || "").toLowerCase();
-  if (type === "image/svg+xml" || /\.svg$/i.test(file.name ?? "")) return "Berkas SVG tidak diizinkan.";
-  if (!isUploadMime(type)) return "Format tidak didukung. Gunakan JPG, PNG, WebP, atau AVIF.";
+  if (type === "image/svg+xml" || /\.svg$/i.test(file.name ?? ""))
+    return "Berkas SVG tidak diizinkan.";
+  if (!isUploadMime(type))
+    return "Format tidak didukung. Gunakan JPG, PNG, WebP, atau AVIF.";
   if (file.size <= 0) return "Berkas kosong.";
   if (file.size > UPLOAD_MAX_BYTES) {
     return `Ukuran berkas ${formatBytes(file.size)} melebihi batas ${formatBytes(UPLOAD_MAX_BYTES)}.`;
@@ -46,26 +52,46 @@ export function validateUploadFile(file: { type: string; size: number; name?: st
 }
 
 /** Check decoded dimensions (after sharp reads the header). */
-export function validateDimensions(width: number | undefined, height: number | undefined): string | null {
+export function validateDimensions(
+  width: number | undefined,
+  height: number | undefined,
+): string | null {
   if (!width || !height) return "Dimensi gambar tidak terbaca.";
   if (width < INPUT_MIN_SIDE || height < INPUT_MIN_SIDE) {
     return `Gambar terlalu kecil (minimal ${INPUT_MIN_SIDE}×${INPUT_MIN_SIDE} px).`;
   }
-  if (width > INPUT_MAX_SIDE || height > INPUT_MAX_SIDE || width * height > INPUT_MAX_PIXELS) {
+  if (
+    width > INPUT_MAX_SIDE ||
+    height > INPUT_MAX_SIDE ||
+    width * height > INPUT_MAX_PIXELS
+  ) {
     return `Gambar terlalu besar (maksimal ${INPUT_MAX_SIDE} px per sisi / ${INPUT_MAX_PIXELS / 1_000_000} MP).`;
   }
   return null;
 }
 
 /** Fit (w,h) inside a `max`×`max` box without enlarging. */
-export function fitWithin(width: number, height: number, max = OUTPUT_MAX_SIDE): { width: number; height: number } {
+export function fitWithin(
+  width: number,
+  height: number,
+  max = OUTPUT_MAX_SIDE,
+): { width: number; height: number } {
   const scale = Math.min(1, max / Math.max(width, height));
-  return { width: Math.max(1, Math.round(width * scale)), height: Math.max(1, Math.round(height * scale)) };
+  return {
+    width: Math.max(1, Math.round(width * scale)),
+    height: Math.max(1, Math.round(height * scale)),
+  };
 }
 
 /** EXIF orientations 5–8 swap width/height after auto-rotate. */
-export function orientedSize(width: number, height: number, orientation?: number) {
-  return orientation && orientation >= 5 ? { width: height, height: width } : { width, height };
+export function orientedSize(
+  width: number,
+  height: number,
+  orientation?: number,
+) {
+  return orientation && orientation >= 5
+    ? { width: height, height: width }
+    : { width, height };
 }
 
 /**

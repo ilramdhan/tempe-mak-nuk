@@ -13,20 +13,24 @@ export type PostSeed = {
   blocks: string[];
 };
 
-const CTA = "Ingin mencoba sendiri? [Cek slot dan PO via WhatsApp](/cara-pesan), atau lihat [dua varian tempe kami](/produk).";
-const NOTE_MEDIS = "Catatan: tulisan ini informasi umum, bukan nasihat medis. Untuk kondisi kesehatan tertentu, konsultasikan dengan dokter atau ahli gizi.";
+const CTA =
+  "Ingin mencoba sendiri? [Cek slot dan PO via WhatsApp](/cara-pesan), atau lihat [dua varian tempe kami](/produk).";
+const NOTE_MEDIS =
+  "Catatan: tulisan ini informasi umum, bukan nasihat medis. Untuk kondisi kesehatan tertentu, konsultasikan dengan dokter atau ahli gizi.";
 
 export const POSTS: PostSeed[] = [
   {
     slug: "beda-tempe-dengan-dan-tanpa-kulit-ari",
     title: "Beda Tempe dengan dan Tanpa Kulit Ari",
-    excerpt: "Dua varian dari kedelai yang sama, tapi tekstur, rasa, dan pemakaiannya berbeda. Ini cara memilih yang pas untuk dapur Anda.",
+    excerpt:
+      "Dua varian dari kedelai yang sama, tapi tekstur, rasa, dan pemakaiannya berbeda. Ini cara memilih yang pas untuk dapur Anda.",
     category: "tips-tempe",
     tags: ["tempe-tanpa-kulit", "varian", "memilih-tempe"],
     status: "published",
     daysAgo: 21,
     seoTitle: "Beda Tempe dengan dan Tanpa Kulit Ari — Tempe Mak Nuk",
-    seoDescription: "Beda tempe dengan kulit dan tanpa kulit ari: tekstur, rasa, pemakaian, dan cara memilih. Panduan dari dapur Tempe Mak Nuk, Klaten.",
+    seoDescription:
+      "Beda tempe dengan kulit dan tanpa kulit ari: tekstur, rasa, pemakaian, dan cara memilih. Panduan dari dapur Tempe Mak Nuk, Klaten.",
     blocks: [
       "Kalau Anda pernah membandingkan dua tempe di pasar, mungkin Anda sadar bahwa warnanya tidak selalu sama. Ada yang tampak berbintik gelap, ada yang bersih putih. Perbedaan itu sering kali berasal dari satu hal kecil: kulit ari kedelai. Di dapur kami, Mak Nuk membuat dua varian, **Tempe Klasik** dan **Tempe Original Tanpa Kulit**. Tulisan ini menjelaskan bedanya supaya Anda bisa memilih tanpa menebak.",
       "## Apa itu kulit ari kedelai",
@@ -36,7 +40,7 @@ export const POSTS: PostSeed[] = [
       "Untuk varian tanpa kulit, kedelai yang sudah direndam kami kupas satu per satu dengan tangan dan dicuci berulang sampai kulit arinya terpisah bersih. Proses ini memakan waktu dan tenaga lebih banyak, itulah sebabnya harga mulai dari varian ini sedikit lebih tinggi. Setelah itu kedelai direbus, ditiriskan, diberi ragi, dibungkus, lalu difermentasi seperti biasa. Bahannya tetap tiga: kedelai, air, ragi. Anda bisa melihat urutan lengkapnya di halaman [proses pembuatan](/proses).",
       "## Tempe Klasik vs Original Tanpa Kulit",
       "Ringkasnya begini.",
-      "- **Tempe Klasik**: kedelai dengan kulit ari. Tampilan sedikit bertotol, tekstur lebih berserat, rasa gurih dengan aroma kedelai yang terasa. Rasanya \"tempe rumahan\" yang banyak orang kenal.",
+      '- **Tempe Klasik**: kedelai dengan kulit ari. Tampilan sedikit bertotol, tekstur lebih berserat, rasa gurih dengan aroma kedelai yang terasa. Rasanya "tempe rumahan" yang banyak orang kenal.',
       "- **Tempe Original Tanpa Kulit**: kedelai dikupas bersih. Lebih putih, padat, dan lembut, dengan aroma yang lebih ringan sehingga minim langu.",
       "Kedua varian bisa dipesan dalam bentuk dan ukuran bebas lewat [Custom Order](/custom-order), tanpa minimum order.",
       "## Tekstur dan rasa",
@@ -53,7 +57,7 @@ export const POSTS: PostSeed[] = [
       "## Soal gizi dan serat",
       "Secara umum, tempe kedelai adalah sumber protein nabati. Tabel Komposisi Pangan Indonesia (TKPI) 2019 dari Kemenkes RI mencatat tempe kedelai murni sekitar 20,8 g protein dan 1,4 g serat per 100 g. Angka itu adalah angka rujukan untuk tempe secara umum, bukan hasil uji laboratorium untuk produk kami. Karena kulit ari mengandung serat, secara teori kandungan serat tempe dengan kulit bisa sedikit lebih tinggi dibanding yang dikupas, tetapi kami tidak mengklaim angka perbedaannya tanpa data uji. Selisihnya, dalam praktik, kecil dibanding perbedaan cara memasak.",
       "## Mana yang harus dipilih",
-      "Tidak ada yang \"lebih benar\". Pilih berdasarkan masakan dan selera:",
+      'Tidak ada yang "lebih benar". Pilih berdasarkan masakan dan selera:',
       "- Suka rasa tempe yang gurih dan tegas, atau memasak tempe berbumbu kuat: **Klasik**.",
       "- Ingin tekstur lembut, tampilan putih bersih, aroma ringan, atau irisan tipis rapi: **Original Tanpa Kulit**.",
       "- Masih ragu: pesan keduanya dalam ukuran kecil dan bandingkan sendiri. Tidak ada minimum order.",
@@ -64,15 +68,17 @@ export const POSTS: PostSeed[] = [
   {
     slug: "cara-menyimpan-tempe-tanpa-pengawet",
     title: "Cara Menyimpan Tempe Tanpa Pengawet",
-    excerpt: "Tempe segar tanpa pengawet terus berubah setiap hari. Begini cara menyimpannya, kapan harus dimasak, dan kapan sebaiknya dibuang.",
+    excerpt:
+      "Tempe segar tanpa pengawet terus berubah setiap hari. Begini cara menyimpannya, kapan harus dimasak, dan kapan sebaiknya dibuang.",
     category: "tips-tempe",
     tags: ["menyimpan-tempe", "tanpa-pengawet", "tips-dapur"],
     status: "published",
     daysAgo: 14,
     seoTitle: "Cara Menyimpan Tempe Tanpa Pengawet — Tempe Mak Nuk",
-    seoDescription: "Cara menyimpan tempe tanpa pengawet: suhu ruang, kulkas, freezer, tanda tempe rusak, dan ide memakai tempe semangit.",
+    seoDescription:
+      "Cara menyimpan tempe tanpa pengawet: suhu ruang, kulkas, freezer, tanda tempe rusak, dan ide memakai tempe semangit.",
     blocks: [
-      "Tempe yang kami buat hanya berisi kedelai, air, dan ragi. Tidak ada pengawet. Konsekuensinya jujur saja: tempe ini tidak berhenti \"hidup\" setelah dibungkus. Kalau Anda tahu cara menyimpannya, tempe tetap enak lebih lama. Kalau tidak, ia cepat melewati masa terbaiknya. Berikut panduan praktis dari dapur kami.",
+      'Tempe yang kami buat hanya berisi kedelai, air, dan ragi. Tidak ada pengawet. Konsekuensinya jujur saja: tempe ini tidak berhenti "hidup" setelah dibungkus. Kalau Anda tahu cara menyimpannya, tempe tetap enak lebih lama. Kalau tidak, ia cepat melewati masa terbaiknya. Berikut panduan praktis dari dapur kami.',
       "## Kenapa tempe tanpa pengawet cepat berubah",
       "Tempe adalah hasil fermentasi oleh jamur, umumnya *Rhizopus*. Jamur ini terus aktif selama suhu dan kelembapan mendukung. Pada suhu ruang di Indonesia yang hangat, jamur terus berkembang: miselium putih makin tebal, lalu mulai berspora dan muncul bintik abu-abu atau kehitaman, aroma menjadi tajam seperti amonia. Perubahan ini wajar, tapi mengubah rasa dan tekstur. Pengawet kimia memang memperlambatnya, dan karena kami memilih tidak memakainya, perlambatan itu harus Anda lakukan lewat suhu.",
       "## Hari pertama sampai ketiga: suhu ruang",
@@ -108,15 +114,17 @@ export const POSTS: PostSeed[] = [
   {
     slug: "tempe-untuk-mpasi",
     title: "Tempe untuk MPASI: Yang Perlu Diperhatikan Orang Tua",
-    excerpt: "Tempe sering dipilih sebagai lauk MPASI. Berikut hal-hal yang perlu diperhatikan soal tekstur, kebersihan, dan alergi, dengan rujukan sumber resmi.",
+    excerpt:
+      "Tempe sering dipilih sebagai lauk MPASI. Berikut hal-hal yang perlu diperhatikan soal tekstur, kebersihan, dan alergi, dengan rujukan sumber resmi.",
     category: "gizi-tempe",
     tags: ["mpasi", "tempe-tanpa-kulit", "gizi"],
     status: "draft",
     seoTitle: "Tempe untuk MPASI: Panduan Orang Tua — Tempe Mak Nuk",
-    seoDescription: "Tempe untuk MPASI: tekstur, pengolahan higienis, alergi kedelai, dan ide menu. Informasi umum, bukan nasihat medis.",
+    seoDescription:
+      "Tempe untuk MPASI: tekstur, pengolahan higienis, alergi kedelai, dan ide menu. Informasi umum, bukan nasihat medis.",
     blocks: [
       NOTE_MEDIS,
-      "Banyak orang tua bertanya kepada kami apakah tempe cocok untuk MPASI. Pertanyaan itu wajar: tempe murah, mudah dicari, dan lembut bila dimasak dengan benar. Kami bukan tenaga kesehatan, jadi tulisan ini tidak menjawab \"boleh atau tidak untuk anak Anda\". Tulisan ini merangkum hal-hal yang biasanya perlu diperhatikan, lengkap dengan arahan untuk membaca sumber resmi.",
+      'Banyak orang tua bertanya kepada kami apakah tempe cocok untuk MPASI. Pertanyaan itu wajar: tempe murah, mudah dicari, dan lembut bila dimasak dengan benar. Kami bukan tenaga kesehatan, jadi tulisan ini tidak menjawab "boleh atau tidak untuk anak Anda". Tulisan ini merangkum hal-hal yang biasanya perlu diperhatikan, lengkap dengan arahan untuk membaca sumber resmi.',
       "## Kapan tempe boleh dikenalkan",
       "Rekomendasi MPASI di Indonesia disusun oleh Kementerian Kesehatan dan Ikatan Dokter Anak Indonesia (IDAI). Secara umum, makanan pendamping mulai diperkenalkan ketika bayi berusia sekitar 6 bulan dan menunjukkan tanda siap, sementara protein nabati seperti tempe termasuk bahan yang lazim muncul dalam menu. Detail usia, porsi, dan urutan pengenalan sebaiknya mengikuti buku KIA dan saran dokter anak Anda. Kami sengaja tidak menyebut angka porsi karena kebutuhan tiap anak berbeda. Silakan rujuk panduan resmi di situs [Kemenkes](https://www.kemkes.go.id) dan [IDAI](https://www.idai.or.id).",
       "## Kenapa varian tanpa kulit lebih lembut",
@@ -145,20 +153,22 @@ export const POSTS: PostSeed[] = [
   {
     slug: "kenapa-harus-po-tempe",
     title: "Kenapa Harus PO Tempe?",
-    excerpt: "Pesan dulu terdengar merepotkan. Ini alasan di balik sistem PO Mak Nuk, dan cara memakainya agar tempe sampai tepat waktu.",
+    excerpt:
+      "Pesan dulu terdengar merepotkan. Ini alasan di balik sistem PO Mak Nuk, dan cara memakainya agar tempe sampai tepat waktu.",
     category: "cerita-dapur",
     tags: ["po", "cara-pesan", "fermentasi"],
     status: "published",
     daysAgo: 7,
     seoTitle: "Kenapa Harus PO Tempe? — Tempe Mak Nuk",
-    seoDescription: "Kenapa tempe handmade harus pre order: fermentasi butuh waktu, kapasitas dapur terbatas. Aturan PO Mak Nuk dan tips pesan untuk acara.",
+    seoDescription:
+      "Kenapa tempe handmade harus pre order: fermentasi butuh waktu, kapasitas dapur terbatas. Aturan PO Mak Nuk dan tips pesan untuk acara.",
     blocks: [
-      "\"Beli tempe kok harus pesan dulu?\" Kami sering mendengar pertanyaan itu, dan wajar. Di pasar, tempe tinggal ambil. Di dapur Mak Nuk, tempe dibuat sesuai pesanan. Tulisan ini menjelaskan alasannya tanpa jargon, supaya Anda paham dan tidak merasa dipersulit.",
+      '"Beli tempe kok harus pesan dulu?" Kami sering mendengar pertanyaan itu, dan wajar. Di pasar, tempe tinggal ambil. Di dapur Mak Nuk, tempe dibuat sesuai pesanan. Tulisan ini menjelaskan alasannya tanpa jargon, supaya Anda paham dan tidak merasa dipersulit.',
       "## Tempe tidak bisa dipercepat",
       "Tempe adalah hasil fermentasi. Setelah kedelai direbus, diberi ragi, dan dibungkus, jamur butuh waktu untuk tumbuh dan mengikat biji-biji kedelai menjadi satu blok padat. Pada suhu ruang tropis, fermentasi tempe umumnya berlangsung sekitar satu sampai dua hari, tergantung suhu, kelembapan, dan jumlah ragi. Anda tidak bisa memaksanya selesai dalam beberapa jam tanpa mengorbankan hasil: terlalu cepat, tempe belum padat dan rasa belum terbentuk; terlalu lama, ia sudah berubah menjadi tempe semangit.",
       "Sebelum fermentasi pun ada tahapan yang makan waktu: sortir, rendam, kupas (untuk varian tanpa kulit), rebus, tiriskan. Silakan lihat urutannya di halaman [proses](/proses). Semua itu dikerjakan dengan tangan, dalam satu dapur rumahan.",
       "## Kapasitas dapur kecil, kualitas dijaga",
-      "Dapur kami kecil, dan itu pilihan sadar. Jumlah yang bisa kami buat dengan baik dalam sehari terbatas, itulah mengapa kami memakai sistem slot: sekitar 8 pelanggan per hari (angka ini dapat berubah, dan selalu bisa dicek lewat kalender slot). Dengan membatasi, kami bisa memastikan tiap blok mendapat perhatian yang sama. Kami lebih memilih berkata \"slot penuh, coba tanggal lain\" daripada menerima semua pesanan lalu mengorbankan mutu.",
+      'Dapur kami kecil, dan itu pilihan sadar. Jumlah yang bisa kami buat dengan baik dalam sehari terbatas, itulah mengapa kami memakai sistem slot: sekitar 8 pelanggan per hari (angka ini dapat berubah, dan selalu bisa dicek lewat kalender slot). Dengan membatasi, kami bisa memastikan tiap blok mendapat perhatian yang sama. Kami lebih memilih berkata "slot penuh, coba tanggal lain" daripada menerima semua pesanan lalu mengorbankan mutu.',
       "Ada alasan praktis juga. Tanpa pengawet, tempe tidak bisa ditimbun berhari-hari untuk menunggu pembeli. Dengan PO, tidak ada tempe yang terbuang, dan Anda menerima tempe yang baru selesai difermentasi.",
       "## Aturan PO Mak Nuk (lead time dan cutoff)",
       "Aturan kami sederhana:",
@@ -182,15 +192,17 @@ export const POSTS: PostSeed[] = [
   {
     slug: "tempe-vs-daging-perbandingan-protein",
     title: "Tempe vs Daging: Membaca Angka Protein dengan Jujur",
-    excerpt: "Berapa protein dalam tempe, dan bagaimana membandingkannya dengan daging? Cara membaca tabel gizi tanpa klaim berlebihan.",
+    excerpt:
+      "Berapa protein dalam tempe, dan bagaimana membandingkannya dengan daging? Cara membaca tabel gizi tanpa klaim berlebihan.",
     category: "gizi-tempe",
     tags: ["protein", "gizi", "tkpi"],
     status: "draft",
     seoTitle: "Tempe vs Daging: Perbandingan Protein — Tempe Mak Nuk",
-    seoDescription: "Protein tempe per 100 gram menurut TKPI, cara membandingkannya dengan daging, dan tips memakai tempe sebagai pengganti sebagian lauk hewani.",
+    seoDescription:
+      "Protein tempe per 100 gram menurut TKPI, cara membandingkannya dengan daging, dan tips memakai tempe sebagai pengganti sebagian lauk hewani.",
     blocks: [
       NOTE_MEDIS,
-      "Pertanyaan yang sering muncul: \"Lebih banyak protein mana, tempe atau daging?\" Jawabannya tidak sesederhana satu angka. Tulisan ini mengajak Anda membaca tabel gizi dengan tenang, memahami apa yang diukur, dan memakai tempe dalam menu tanpa membesar-besarkan.",
+      'Pertanyaan yang sering muncul: "Lebih banyak protein mana, tempe atau daging?" Jawabannya tidak sesederhana satu angka. Tulisan ini mengajak Anda membaca tabel gizi dengan tenang, memahami apa yang diukur, dan memakai tempe dalam menu tanpa membesar-besarkan.',
       "## Protein tempe per 100 g",
       "Tabel Komposisi Pangan Indonesia (TKPI) 2019 yang diterbitkan Kementerian Kesehatan RI mencatat tempe kedelai murni mengandung kira-kira 20,8 g protein per 100 g, bersama 8,8 g lemak, 13,5 g karbohidrat, dan 1,4 g serat. Angka ini merupakan nilai rujukan umum, bukan hasil uji laboratorium produk kami, dan Anda bisa memeriksanya sendiri di situs [Panganku Kemenkes](https://www.panganku.org). Basis USDA FoodData Central juga memuat entri tempe dengan angka dalam kisaran yang serupa, meski bahan dan metode pengukurannya bisa berbeda.",
       "## Daging ayam dan sapi sebagai pembanding",
@@ -206,23 +218,25 @@ export const POSTS: PostSeed[] = [
       "- Campurkan tempe potong dadu ke dalam masakan daging cincang, seperti sambal goreng atau tumisan.",
       "- Ganti satu-dua hari lauk hewani dalam seminggu dengan olahan tempe, misalnya [sambal goreng tempe](/resep/sambal-goreng-tempe).",
       "- Padukan dengan sayur dan karbohidrat lokal untuk menu seimbang.",
-      "Hindari mengaitkan tempe dengan klaim \"lebih sehat dari daging\"; kami tidak membuat klaim itu karena tidak ada satu jawaban yang berlaku untuk semua orang. Informasi gizi umum lainnya ada di halaman [manfaat tempe](/manfaat-tempe), dan pilihan varian di halaman [produk](/produk).",
+      'Hindari mengaitkan tempe dengan klaim "lebih sehat dari daging"; kami tidak membuat klaim itu karena tidak ada satu jawaban yang berlaku untuk semua orang. Informasi gizi umum lainnya ada di halaman [manfaat tempe](/manfaat-tempe), dan pilihan varian di halaman [produk](/produk).',
       CTA,
     ],
   },
   {
     slug: "mengenal-ragi-tempe",
     title: "Mengenal Ragi Tempe: Jamur Kecil di Balik Blok Putih",
-    excerpt: "Apa sebenarnya ragi tempe, mengapa suhu penting, dan bagaimana miselium putih menandai tempe yang jadi.",
+    excerpt:
+      "Apa sebenarnya ragi tempe, mengapa suhu penting, dan bagaimana miselium putih menandai tempe yang jadi.",
     category: "cerita-dapur",
     tags: ["ragi-tempe", "fermentasi", "proses"],
     status: "draft",
     seoTitle: "Mengenal Ragi Tempe dan Rhizopus — Tempe Mak Nuk",
-    seoDescription: "Apa itu ragi tempe, peran jamur Rhizopus, pentingnya suhu dan kelembapan, serta tanda miselium putih pada tempe yang berhasil.",
+    seoDescription:
+      "Apa itu ragi tempe, peran jamur Rhizopus, pentingnya suhu dan kelembapan, serta tanda miselium putih pada tempe yang berhasil.",
     blocks: [
       "Dari tiga bahan tempe, ragi paling jarang dibicarakan. Padahal tanpa ragi, kedelai rebus hanya tinggal kedelai rebus. Di sinilah keajaiban kecil terjadi. Tulisan ini mengenalkan ragi tempe dengan bahasa awam, berdasarkan pengetahuan umum ilmu pangan.",
       "## Apa itu ragi tempe",
-      "Di pasar, ragi tempe sering disebut laru tempe. Bentuknya bubuk halus berisi spora jamur yang sengaja dibiakkan pada media seperti tepung beras atau serbuk daun. Dalam istilah teknis, bahan ini adalah kultur starter. Kata \"ragi\" di sini sebenarnya kurang tepat secara biologi, karena ragi (yeast) dan kapang (mold) berbeda kelompok, tapi dalam bahasa sehari-hari orang Indonesia menyebutnya ragi, dan kami pun memakai istilah itu.",
+      'Di pasar, ragi tempe sering disebut laru tempe. Bentuknya bubuk halus berisi spora jamur yang sengaja dibiakkan pada media seperti tepung beras atau serbuk daun. Dalam istilah teknis, bahan ini adalah kultur starter. Kata "ragi" di sini sebenarnya kurang tepat secara biologi, karena ragi (yeast) dan kapang (mold) berbeda kelompok, tapi dalam bahasa sehari-hari orang Indonesia menyebutnya ragi, dan kami pun memakai istilah itu.',
       "## Jamur Rhizopus dan perannya",
       "Kapang utama dalam tempe adalah dari genus *Rhizopus*, umumnya *Rhizopus oligosporus*. Selama fermentasi, benang-benang halusnya (hifa) tumbuh menembus dan menyelubungi biji kedelai, menyatukannya menjadi blok padat yang bisa diiris. Jamur ini juga menghasilkan enzim yang menguraikan sebagian komponen kedelai, itulah mengapa tekstur dan rasa kedelai berubah menjadi khas tempe. Ini penjelasan umum dari literatur ilmu pangan; detail mekanismenya jauh lebih kompleks.",
       "## Kenapa suhu dan kelembapan penting",
@@ -232,10 +246,10 @@ export const POSTS: PostSeed[] = [
       "## Miselium putih: tanda tempe jadi",
       "Tempe yang jadi ditandai miselium putih merata yang menyatukan seluruh biji, tempe padat saat ditekan dan tidak tercerai-berai, serta aroma segar mirip kedelai dan jamur ringan. Kalau ada bintik abu-abu atau kehitaman tipis, itu biasanya spora dari jamur yang sama menandakan tempe sedang menua. Warna lain seperti merah muda, hijau, atau oranye, apalagi bila disertai lendir dan bau busuk, adalah tanda kontaminasi dan tempe sebaiknya dibuang. Lihat panduan [menyimpan tempe](/jurnal/cara-menyimpan-tempe-tanpa-pengawet).",
       "## Mitos soal ragi",
-      "- **\"Ragi tempe itu bahan kimia.\"** Ragi tempe adalah kultur mikroba hidup, bukan zat kimia sintetis. Namun mikroba tetap menjalankan reaksi kimia (semua fermentasi begitu), karena itu kami lebih suka menyebut \"tanpa bahan kimia tambahan\".",
-      "- **\"Semakin banyak ragi, semakin cepat dan enak.\"** Lebih cepat mungkin, lebih enak belum tentu.",
-      "- **\"Tempe harus dibungkus daun pisang atau tidak jadi.\"** Daun pisang tradisional dan punya aroma khas, tapi plastik berlubang pun bisa dipakai bila ventilasinya tepat.",
-      "- **\"Bintik hitam artinya tempe beracun.\"** Tidak selalu, tapi gunakan pertimbangan dan aturan kewaspadaan: ragu, buang.",
+      '- **"Ragi tempe itu bahan kimia."** Ragi tempe adalah kultur mikroba hidup, bukan zat kimia sintetis. Namun mikroba tetap menjalankan reaksi kimia (semua fermentasi begitu), karena itu kami lebih suka menyebut "tanpa bahan kimia tambahan".',
+      '- **"Semakin banyak ragi, semakin cepat dan enak."** Lebih cepat mungkin, lebih enak belum tentu.',
+      '- **"Tempe harus dibungkus daun pisang atau tidak jadi."** Daun pisang tradisional dan punya aroma khas, tapi plastik berlubang pun bisa dipakai bila ventilasinya tepat.',
+      '- **"Bintik hitam artinya tempe beracun."** Tidak selalu, tapi gunakan pertimbangan dan aturan kewaspadaan: ragu, buang.',
       "Ingin mengenal lebih jauh latar budaya tempe? Baca [sejarah tempe di Jawa Tengah](/jurnal/sejarah-tempe-di-jawa-tengah).",
       CTA,
     ],
@@ -243,12 +257,14 @@ export const POSTS: PostSeed[] = [
   {
     slug: "ide-menu-katering-dari-tempe",
     title: "Ide Menu Katering dari Tempe",
-    excerpt: "Dari nasi kotak sampai prasmanan hajatan: ide menu tempe yang praktis, seragam, dan mudah dijaga kualitasnya untuk katering.",
+    excerpt:
+      "Dari nasi kotak sampai prasmanan hajatan: ide menu tempe yang praktis, seragam, dan mudah dijaga kualitasnya untuk katering.",
     category: "katering",
     tags: ["katering", "menu", "kemitraan"],
     status: "draft",
     seoTitle: "Ide Menu Katering dari Tempe — Tempe Mak Nuk",
-    seoDescription: "Ide menu katering tempe untuk nasi kotak, hajatan, dan kantor, plus tips menjaga ukuran seragam dan cara pesan tempe jumlah besar.",
+    seoDescription:
+      "Ide menu katering tempe untuk nasi kotak, hajatan, dan kantor, plus tips menjaga ukuran seragam dan cara pesan tempe jumlah besar.",
     blocks: [
       "Bagi dapur katering, tempe adalah lauk yang mudah disayangi: akrab di lidah banyak orang, fleksibel diolah, dan harganya bersahabat. Tantangannya ada pada konsistensi: ukuran potongan, tingkat kematangan, dan ketepatan jadwal. Tulisan ini merangkum ide menu sekaligus cara memastikan tempenya tidak merepotkan dapur Anda.",
       "## Kenapa tempe cocok untuk katering",
@@ -261,7 +277,7 @@ export const POSTS: PostSeed[] = [
       "## Menu prasmanan dan hajatan",
       "Prasmanan memungkinkan variasi. Beberapa pasangan yang kerap dipakai: [sambal goreng tempe](/resep/sambal-goreng-tempe) dengan nasi putih, [mendoan](/resep/tempe-mendoan) hangat sebagai camilan pembuka, dan tempe penyet atau tempe bacem sebagai lauk pendamping. Siapkan jumlah sesuai tamu dengan cadangan wajar, dan hindari menyimpan lauk goreng terlalu lama di suhu ruang karena kualitas dan keamanannya menurun.",
       "## Menu sehat kantor",
-      "Untuk snack box atau makan siang kantor, tempe kukus dengan sambal ringan, tumis tempe sayur, atau tempe panggang dengan bumbu sederhana jadi pilihan yang ringan. Kami tidak menyebut menu ini \"diet\" atau \"rendah kalori\", karena itu bergantung bumbu dan porsi Anda. Anda bebas menyesuaikan sesuai kebutuhan klien.",
+      'Untuk snack box atau makan siang kantor, tempe kukus dengan sambal ringan, tumis tempe sayur, atau tempe panggang dengan bumbu sederhana jadi pilihan yang ringan. Kami tidak menyebut menu ini "diet" atau "rendah kalori", karena itu bergantung bumbu dan porsi Anda. Anda bebas menyesuaikan sesuai kebutuhan klien.',
       "Satu catatan tentang porsi: perkirakan sekitar 1–2 potong tempe per kotak untuk lauk pendamping, atau lebih bila tempe menjadi lauk utama. Angka ini sekadar titik awal. Sesuaikan dengan menu lain yang ikut disajikan dan kebiasaan makan tamu Anda, dan jangan ragu berdiskusi dengan kami soal jumlah bila belum yakin.",
       "Soal rasa, usahakan satu menu tempe mewakili satu karakter: satu yang manis (bacem atau orek kecap), satu yang pedas (sambal goreng atau penyet), dan satu yang gurih netral (goreng atau mendoan). Dengan begitu tamu dengan selera berbeda tetap menemukan pilihan, dan dapur tidak perlu menyiapkan terlalu banyak resep sekaligus.",
       "## Menjaga ukuran dan matang seragam",
@@ -278,17 +294,19 @@ export const POSTS: PostSeed[] = [
   {
     slug: "sejarah-tempe-di-jawa-tengah",
     title: "Sejarah Tempe di Jawa Tengah",
-    excerpt: "Dari dapur Jawa hingga dunia: sekilas sejarah tempe, apa yang diketahui, dan bagian mana yang masih perlu diverifikasi.",
+    excerpt:
+      "Dari dapur Jawa hingga dunia: sekilas sejarah tempe, apa yang diketahui, dan bagian mana yang masih perlu diverifikasi.",
     category: "cerita-dapur",
     tags: ["sejarah", "jawa-tengah", "warisan"],
     status: "draft",
     seoTitle: "Sejarah Tempe di Jawa Tengah — Tempe Mak Nuk",
-    seoDescription: "Sekilas sejarah tempe di Jawa dan Jawa Tengah, peran Klaten, perubahan kemasan, serta warisan Mak Nuk sejak 2001.",
+    seoDescription:
+      "Sekilas sejarah tempe di Jawa dan Jawa Tengah, peran Klaten, perubahan kemasan, serta warisan Mak Nuk sejak 2001.",
     blocks: [
-      "CATATAN EDITOR (hapus sebelum terbit): beberapa fakta sejarah di bawah ditandai \"perlu dicek\". Verifikasi dengan jurnal atau buku rujukan dan tambahkan tautan sumber sebelum dipublikasikan.",
+      'CATATAN EDITOR (hapus sebelum terbit): beberapa fakta sejarah di bawah ditandai "perlu dicek". Verifikasi dengan jurnal atau buku rujukan dan tambahkan tautan sumber sebelum dipublikasikan.',
       "Tempe sering disebut makanan asli Indonesia, dan Jawa dianggap sebagai tempat ia berkembang. Namun menelusuri sejarahnya tidak semudah menunjuk satu tahun. Tulisan ini merangkum apa yang umum diketahui, dengan jujur menandai bagian yang masih perlu dicek.",
       "## Asal-usul tempe di Jawa",
-      "Tempe diyakini berkembang dalam budaya Jawa, kemungkinan berabad-abad lalu, seiring tersebarnya budidaya kedelai dan teknik fermentasi pangan. Sebagian peneliti menyebut kemungkinan pengaruh teknik fermentasi dari Tiongkok pada tradisi makanan dari kedelai, tetapi bukti pastinya terbatas (perlu dicek). Yang lebih kuat: kata \"tempe\" sudah muncul dalam naskah Jawa, salah satunya sering dikutip adalah Serat Centhini yang disusun pada awal abad ke-19 (perlu dicek halaman dan edisinya sebelum dikutip).",
+      'Tempe diyakini berkembang dalam budaya Jawa, kemungkinan berabad-abad lalu, seiring tersebarnya budidaya kedelai dan teknik fermentasi pangan. Sebagian peneliti menyebut kemungkinan pengaruh teknik fermentasi dari Tiongkok pada tradisi makanan dari kedelai, tetapi bukti pastinya terbatas (perlu dicek). Yang lebih kuat: kata "tempe" sudah muncul dalam naskah Jawa, salah satunya sering dikutip adalah Serat Centhini yang disusun pada awal abad ke-19 (perlu dicek halaman dan edisinya sebelum dikutip).',
       "## Tempe dalam dapur Jawa Tengah",
       "Di Jawa Tengah, tempe hadir dalam rupa yang sangat beragam. Mendoan khas Banyumas disajikan setengah matang dengan adonan tepung berbumbu daun bawang. Di Yogyakarta dan Solo, tempe bacem berbumbu gula kelapa dan rempah menjadi lauk pendamping gudeg dan nasi liwet. Ada pula sambal goreng tempe, tempe penyet, hingga keripik. Tempe bukan sekadar lauk murah, tapi bagian dari rasa sehari-hari: sarapan, bekal, hingga hajatan.",
       "## Klaten dan sentra tempe rumahan",

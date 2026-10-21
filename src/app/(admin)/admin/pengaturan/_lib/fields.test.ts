@@ -17,12 +17,20 @@ describe("settings admin fields", () => {
   });
   it("validates WA and URL with Indonesian messages", () => {
     const wa = defs.find((d) => d.key === "contact.whatsapp")!;
-    expect(parseDraft(wa, "123", SETTINGS_DEFAULTS)).toMatchObject({ ok: false });
-    expect(parseDraft(wa, "08123456789", SETTINGS_DEFAULTS)).toEqual({ ok: true, value: "628123456789" });
+    expect(parseDraft(wa, "123", SETTINGS_DEFAULTS)).toMatchObject({
+      ok: false,
+    });
+    expect(parseDraft(wa, "08123456789", SETTINGS_DEFAULTS)).toEqual({
+      ok: true,
+      value: "628123456789",
+    });
     const ig = defs.find((d) => d.key === "social.instagram")!;
     const bad = parseDraft(ig, "instagram", SETTINGS_DEFAULTS);
     expect(bad.ok).toBe(false);
     if (!bad.ok) expect(bad.message).toMatch(/URL/);
-    expect(parseDraft(ig, "", SETTINGS_DEFAULTS)).toEqual({ ok: true, value: "" });
+    expect(parseDraft(ig, "", SETTINGS_DEFAULTS)).toEqual({
+      ok: true,
+      value: "",
+    });
   });
 });

@@ -7,7 +7,13 @@ import { TABS } from "../_lib/fields";
 import { RedirectManager, type RedirectRow } from "./redirect-manager";
 import { SettingsForm } from "./settings-form";
 
-export function SettingsTabs({ settings, redirects }: { settings: Settings; redirects: RedirectRow[] }) {
+export function SettingsTabs({
+  settings,
+  redirects,
+}: {
+  settings: Settings;
+  redirects: RedirectRow[];
+}) {
   return (
     <Tabs defaultValue={TABS[0].id}>
       <div className="overflow-x-auto">
@@ -27,7 +33,9 @@ export function SettingsTabs({ settings, redirects }: { settings: Settings; redi
         </TabsContent>
       ))}
       <TabsContent value="redirect" className="flex flex-col gap-4">
-        <p className="text-sm text-muted-foreground">Alihkan URL lama ke URL baru (cegah 404 dan jaga SEO).</p>
+        <p className="text-sm text-muted-foreground">
+          Alihkan URL lama ke URL baru (cegah 404 dan jaga SEO).
+        </p>
         <RedirectManager rows={redirects} />
       </TabsContent>
     </Tabs>

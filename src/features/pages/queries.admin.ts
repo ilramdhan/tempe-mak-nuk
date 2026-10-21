@@ -19,12 +19,22 @@ export async function getPageForAdmin(id: string) {
   const db = getDb();
   const [page] = await db.select().from(pages).where(eq(pages.id, id)).limit(1);
   if (!page) return null;
-  const rows = await db.select().from(pageSections).where(eq(pageSections.pageId, id)).orderBy(asc(pageSections.sort));
+  const rows = await db
+    .select()
+    .from(pageSections)
+    .where(eq(pageSections.pageId, id))
+    .orderBy(asc(pageSections.sort));
   return {
     ...page,
     sections: rows.map((s) => {
       const res = blockSchema.safeParse({ type: s.type, data: s.data });
-      return { ...s, valid: res.success, issues: res.success ? [] : res.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`) };
+      return {
+        ...s,
+        valid: res.success,
+        issues: res.success
+          ? []
+          : res.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`),
+      };
     }),
   };
 }

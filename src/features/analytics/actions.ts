@@ -17,9 +17,15 @@ const allow = createRateLimiter({ limit: 20, windowMs: 60_000 });
 /** One-way, salted, truncated hash — used only as an in-memory map key, never stored. */
 async function clientKey(): Promise<string> {
   const h = await headers();
-  const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown";
+  const ip =
+    h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    h.get("x-real-ip") ||
+    "unknown";
   const salt = process.env.REVALIDATE_SECRET ?? "tmn";
-  return createHash("sha256").update(`${salt}:${ip}`).digest("base64url").slice(0, 16);
+  return createHash("sha256")
+    .update(`${salt}:${ip}`)
+    .digest("base64url")
+    .slice(0, 16);
 }
 
 export type TrackResult = { ok: boolean };
@@ -38,7 +44,10 @@ export async function trackWaClick(input: WaClickInput): Promise<TrackResult> {
     await getDb().insert(waClicks).values(parsed.data);
     return { ok: true };
   } catch (error) {
-    console.warn("[analytics] trackWaClick failed:", error instanceof Error ? error.message : error);
+    console.warn(
+      "[analytics] trackWaClick failed:",
+      error instanceof Error ? error.message : error,
+    );
     return { ok: false };
   }
 }

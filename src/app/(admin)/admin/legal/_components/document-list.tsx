@@ -31,18 +31,27 @@ export function DocumentList({ rows }: { rows: LegalRow[] }) {
     });
   }
 
-  if (groups.length === 0) return <p className="text-sm text-muted-foreground">Belum ada dokumen legal.</p>;
+  if (groups.length === 0)
+    return (
+      <p className="text-sm text-muted-foreground">Belum ada dokumen legal.</p>
+    );
 
   return (
     <div className="flex flex-col gap-4">
       {groups.map(({ slug, rows: versions }) => (
-        <section key={slug} aria-labelledby={`lg-${slug}`} className="rounded-lg border border-border bg-card p-4">
+        <section
+          key={slug}
+          aria-labelledby={`lg-${slug}`}
+          className="rounded-lg border border-border bg-card p-4"
+        >
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h2 id={`lg-${slug}`} className="font-medium">
                 {LEGAL_SLUG_LABEL[slug]}
               </h2>
-              <p className="text-xs text-muted-foreground">Alamat publik: {LEGAL_ROUTES[slug]}</p>
+              <p className="text-xs text-muted-foreground">
+                Alamat publik: {LEGAL_ROUTES[slug]}
+              </p>
             </div>
             <Button
               type="button"
@@ -56,16 +65,30 @@ export function DocumentList({ rows }: { rows: LegalRow[] }) {
           </div>
           <ul className="mt-3 divide-y divide-border">
             {versions.map((r) => (
-              <li key={r.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2 text-sm">
-                <Link href={`/admin/legal/${r.id}`} className="font-medium underline-offset-2 hover:underline">
+              <li
+                key={r.id}
+                className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2 text-sm"
+              >
+                <Link
+                  href={`/admin/legal/${r.id}`}
+                  className="font-medium underline-offset-2 hover:underline"
+                >
                   Versi {r.version}
                 </Link>
-                <Badge variant={r.status === "published" ? "default" : "secondary"}>{STATUS_LABEL[r.status]}</Badge>
+                <Badge
+                  variant={r.status === "published" ? "default" : "secondary"}
+                >
+                  {STATUS_LABEL[r.status]}
+                </Badge>
                 <span className="text-muted-foreground">
-                  {r.effectiveAt ? `Berlaku ${formatWib(r.effectiveAt)}` : "Tanggal berlaku belum diatur"}
+                  {r.effectiveAt
+                    ? `Berlaku ${formatWib(r.effectiveAt)}`
+                    : "Tanggal berlaku belum diatur"}
                 </span>
                 {r.sample ? (
-                  <span className="text-accent-strong">Dokumen contoh — perlu ditinjau ahli hukum</span>
+                  <span className="text-accent-strong">
+                    Dokumen contoh — perlu ditinjau ahli hukum
+                  </span>
                 ) : null}
               </li>
             ))}

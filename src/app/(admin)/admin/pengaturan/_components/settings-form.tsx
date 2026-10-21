@@ -23,7 +23,13 @@ import type { Settings } from "@/features/settings/schema";
 
 import { useAdminMutation } from "../../slot/_components/use-action";
 import { useUnsavedGuard } from "../../halaman/_components/use-unsaved-guard";
-import { parseDraft, toDraft, type Draft, type FieldDef, type TabDef } from "../_lib/fields";
+import {
+  parseDraft,
+  toDraft,
+  type Draft,
+  type FieldDef,
+  type TabDef,
+} from "../_lib/fields";
 
 function inputProps(kind: FieldDef["kind"]) {
   switch (kind) {
@@ -47,12 +53,21 @@ function inputProps(kind: FieldDef["kind"]) {
 }
 
 /** One form per settings group. Validates with the shared Zod schemas, then calls updateSettings. */
-export function SettingsForm({ tab, settings }: { tab: TabDef; settings: Settings }) {
+export function SettingsForm({
+  tab,
+  settings,
+}: {
+  tab: TabDef;
+  settings: Settings;
+}) {
   const isOwner = useHasRole("owner");
   const canEdit = !tab.ownerOnly || isOwner;
   const fields = useMemo(() => tab.sections.flatMap((s) => s.fields), [tab]);
   const initial = useMemo(
-    () => Object.fromEntries(fields.map((d) => [d.key, toDraft(d, settings[d.key])])) as Record<string, Draft>,
+    () =>
+      Object.fromEntries(
+        fields.map((d) => [d.key, toDraft(d, settings[d.key])]),
+      ) as Record<string, Draft>,
     [fields, settings],
   );
   const [values, setValues] = useState<Record<string, Draft>>(initial);
@@ -82,7 +97,11 @@ export function SettingsForm({ tab, settings }: { tab: TabDef; settings: Setting
       onDone: (res) => {
         if (res.ok) setBase(snapshot);
         else if (res.fieldErrors) {
-          setErrors(Object.fromEntries(Object.entries(res.fieldErrors).map(([k, v]) => [k, v[0]])));
+          setErrors(
+            Object.fromEntries(
+              Object.entries(res.fieldErrors).map(([k, v]) => [k, v[0]]),
+            ),
+          );
         }
       },
     });
@@ -93,13 +112,22 @@ export function SettingsForm({ tab, settings }: { tab: TabDef; settings: Setting
     setErrors({});
   }
 
-  const set = (key: string, v: Draft) => setValues((cur) => ({ ...cur, [key]: v }));
+  const set = (key: string, v: Draft) =>
+    setValues((cur) => ({ ...cur, [key]: v }));
 
   return (
-    <form onSubmit={save} noValidate className="flex flex-col gap-6 rounded-lg border border-border bg-card p-4 sm:p-6">
+    <form
+      onSubmit={save}
+      noValidate
+      className="flex flex-col gap-6 rounded-lg border border-border bg-card p-4 sm:p-6"
+    >
       {!canEdit ? (
-        <p role="note" className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
-          Hanya pemilik yang dapat mengubah pengaturan ini. Anda melihat dalam mode baca.
+        <p
+          role="note"
+          className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground"
+        >
+          Hanya pemilik yang dapat mengubah pengaturan ini. Anda melihat dalam
+          mode baca.
         </p>
       ) : null}
       <fieldset disabled={!canEdit || pending} className="contents">
@@ -113,7 +141,11 @@ export function SettingsForm({ tab, settings }: { tab: TabDef; settings: Setting
                 const hintId = d.hint ? `${id}-hint` : undefined;
                 if (d.kind === "boolean") {
                   return (
-                    <Field key={d.key} orientation="horizontal" data-invalid={!!err}>
+                    <Field
+                      key={d.key}
+                      orientation="horizontal"
+                      data-invalid={!!err}
+                    >
                       <Switch
                         id={id}
                         checked={values[d.key] === true}
@@ -137,12 +169,20 @@ export function SettingsForm({ tab, settings }: { tab: TabDef; settings: Setting
                         noneLabel="Belum ada gambar default"
                         onChange={(m) => set(d.key, m ?? "")}
                       />
-                      {d.hint ? <FieldDescription id={hintId}>{d.hint}</FieldDescription> : null}
+                      {d.hint ? (
+                        <FieldDescription id={hintId}>
+                          {d.hint}
+                        </FieldDescription>
+                      ) : null}
                       <FieldError>{err}</FieldError>
                     </Field>
                   );
                 }
-                const multi = d.kind === "textarea" || d.kind === "lines" || d.kind === "hours" || d.kind === "json";
+                const multi =
+                  d.kind === "textarea" ||
+                  d.kind === "lines" ||
+                  d.kind === "hours" ||
+                  d.kind === "json";
                 return (
                   <Field key={d.key} data-invalid={!!err}>
                     <FieldLabel htmlFor={id}>{d.label}</FieldLabel>
@@ -150,8 +190,12 @@ export function SettingsForm({ tab, settings }: { tab: TabDef; settings: Setting
                       <Textarea
                         id={id}
                         value={String(values[d.key])}
-                        rows={d.kind === "json" ? 14 : d.kind === "textarea" ? 3 : 4}
-                        className={d.kind === "json" ? "font-mono text-xs" : undefined}
+                        rows={
+                          d.kind === "json" ? 14 : d.kind === "textarea" ? 3 : 4
+                        }
+                        className={
+                          d.kind === "json" ? "font-mono text-xs" : undefined
+                        }
                         aria-invalid={!!err}
                         aria-describedby={hintId}
                         onChange={(e) => set(d.key, e.target.value)}
@@ -167,7 +211,9 @@ export function SettingsForm({ tab, settings }: { tab: TabDef; settings: Setting
                         onChange={(e) => set(d.key, e.target.value)}
                       />
                     )}
-                    {d.hint ? <FieldDescription id={hintId}>{d.hint}</FieldDescription> : null}
+                    {d.hint ? (
+                      <FieldDescription id={hintId}>{d.hint}</FieldDescription>
+                    ) : null}
                     <FieldError>{err}</FieldError>
                   </Field>
                 );
@@ -179,10 +225,17 @@ export function SettingsForm({ tab, settings }: { tab: TabDef; settings: Setting
       {canEdit ? (
         <div className="flex flex-wrap items-center gap-3">
           <Button type="submit" disabled={pending || !dirty}>
-            {pending ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : null}
+            {pending ? (
+              <LoaderCircle className="animate-spin" aria-hidden="true" />
+            ) : null}
             Simpan
           </Button>
-          <Button type="button" variant="ghost" disabled={pending || !dirty} onClick={reset}>
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={pending || !dirty}
+            onClick={reset}
+          >
             Batalkan
           </Button>
           {dirty ? (

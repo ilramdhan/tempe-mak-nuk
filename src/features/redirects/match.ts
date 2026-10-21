@@ -10,7 +10,9 @@ export function isProtectedPath(pathname: string): boolean {
 }
 
 /** Lookup keyed by normalized `from` (trim + strip trailing slashes; case-sensitive, as stored). */
-export function buildRedirectMap(rules: readonly RedirectEntry[]): Map<string, RedirectEntry> {
+export function buildRedirectMap(
+  rules: readonly RedirectEntry[],
+): Map<string, RedirectEntry> {
   const map = new Map<string, RedirectEntry>();
   for (const r of rules) {
     const key = normalizeFrom(r.from);
@@ -40,11 +42,14 @@ export function matchRedirect(
     const targetPath = normalizeFrom(to.split(/[?#]/)[0] ?? "");
     if (targetPath === key) return null;
   }
-  const withQuery = internal && search && !to.includes("?") ? insertSearch(to, search) : to;
+  const withQuery =
+    internal && search && !to.includes("?") ? insertSearch(to, search) : to;
   return { to: withQuery, status: rule.permanent ? 301 : 302 };
 }
 
 function insertSearch(to: string, search: string): string {
   const hashAt = to.indexOf("#");
-  return hashAt === -1 ? to + search : to.slice(0, hashAt) + search + to.slice(hashAt);
+  return hashAt === -1
+    ? to + search
+    : to.slice(0, hashAt) + search + to.slice(hashAt);
 }

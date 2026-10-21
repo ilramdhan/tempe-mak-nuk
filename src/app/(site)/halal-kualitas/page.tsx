@@ -6,7 +6,13 @@ import { Container } from "@/components/site/primitives";
 import { BlockRenderer } from "@/features/pages/blocks/block-renderer";
 import { getPage, getPageMeta } from "@/features/pages/queries";
 import { getSettings } from "@/features/settings/queries";
-import { businessFromSettings, JsonLd, organizationJsonLd, siteBaseUrl, webPageJsonLd } from "@/lib/seo";
+import {
+  businessFromSettings,
+  JsonLd,
+  organizationJsonLd,
+  siteBaseUrl,
+  webPageJsonLd,
+} from "@/lib/seo";
 import { pageMetadata } from "@/lib/seo/server";
 
 const SLUG = "halal-kualitas";

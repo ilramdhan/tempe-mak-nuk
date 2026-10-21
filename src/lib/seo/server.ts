@@ -5,7 +5,12 @@ import type { Metadata } from "next";
 import { getMedia } from "@/features/media/queries";
 import { getSettings } from "@/features/settings/queries";
 
-import { buildMetadata, OG_LOCALE, type BuildMetadataInput, type SeoOverride } from "./metadata";
+import {
+  buildMetadata,
+  OG_LOCALE,
+  type BuildMetadataInput,
+  type SeoOverride,
+} from "./metadata";
 import { businessFromSettings } from "./settings";
 import { siteBaseUrl } from "./url";
 
@@ -17,22 +22,37 @@ export async function getSeoContext() {
 }
 
 /** Resolve a CMS `seo.ogImageId` to an explicit image (null → use the file convention). */
-export async function seoImage(ogImageId?: string | null): Promise<SeoOverride["ogImage"]> {
+export async function seoImage(
+  ogImageId?: string | null,
+): Promise<SeoOverride["ogImage"]> {
   if (!ogImageId) return null;
   const m = await getMedia(ogImageId);
-  return m ? { url: m.url, width: m.width, height: m.height, alt: m.alt } : null;
+  return m
+    ? { url: m.url, width: m.width, height: m.height, alt: m.alt }
+    : null;
 }
 
 type PageMetadataInput = Omit<BuildMetadataInput, "siteName" | "seo"> & {
-  seo?: { title?: string | null; description?: string | null; noindex?: boolean | null; ogImageId?: string | null } | null;
+  seo?: {
+    title?: string | null;
+    description?: string | null;
+    noindex?: boolean | null;
+    ogImageId?: string | null;
+  } | null;
 };
 
 /** `buildMetadata` with siteName from settings and the CMS og image resolved. */
-export async function pageMetadata(input: PageMetadataInput): Promise<Metadata> {
-  const [settings, ogImage] = await Promise.all([getSettings(), seoImage(input.seo?.ogImageId)]);
+export async function pageMetadata(
+  input: PageMetadataInput,
+): Promise<Metadata> {
+  const [settings, ogImage] = await Promise.all([
+    getSettings(),
+    seoImage(input.seo?.ogImageId),
+  ]);
   return buildMetadata({
     ...input,
-    description: input.description || settings["seo.defaultDescription"] || undefined,
+    description:
+      input.description || settings["seo.defaultDescription"] || undefined,
     siteName: settings["business.name"],
     seo: input.seo ? { ...input.seo, ogImage } : null,
   });
@@ -47,10 +67,19 @@ export async function rootMetadata(): Promise<Metadata> {
   const title = settings["seo.defaultTitle"] || name;
   return {
     metadataBase: new URL(base),
-    title: { template: settings["seo.titleTemplate"] || `%s — ${name}`, default: title },
+    title: {
+      template: settings["seo.titleTemplate"] || `%s — ${name}`,
+      default: title,
+    },
     description,
     applicationName: name,
-    openGraph: { siteName: name, locale: OG_LOCALE, type: "website", title, description },
+    openGraph: {
+      siteName: name,
+      locale: OG_LOCALE,
+      type: "website",
+      title,
+      description,
+    },
     twitter: { card: "summary_large_image", title, description },
   };
 }

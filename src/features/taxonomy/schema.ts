@@ -1,7 +1,12 @@
 import { z } from "zod";
 
 import { categoryKind } from "@/db/schema/enums";
-import { optionalText, requiredText, slugSchema, sortSchema } from "@/features/_shared/schema";
+import {
+  optionalText,
+  requiredText,
+  slugSchema,
+  sortSchema,
+} from "@/features/_shared/schema";
 
 export const categoryKindSchema = z.enum(categoryKind.enumValues);
 

@@ -6,10 +6,26 @@ import { RECIPES } from "./recipes-data";
 import { doc, readingMinutes, type Tx } from "./rich";
 
 const POST_CATS = [
-  ["tips-tempe", "Tips Tempe", "Panduan memilih, menyimpan, dan mengolah tempe."],
-  ["gizi-tempe", "Gizi Tempe", "Gizi tempe dengan rujukan sumber resmi, tanpa klaim medis."],
-  ["cerita-dapur", "Cerita Dapur", "Proses, sejarah, dan cerita dari dapur Mak Nuk."],
-  ["katering", "Katering", "Ide dan panduan untuk katering, restoran, dan acara."],
+  [
+    "tips-tempe",
+    "Tips Tempe",
+    "Panduan memilih, menyimpan, dan mengolah tempe.",
+  ],
+  [
+    "gizi-tempe",
+    "Gizi Tempe",
+    "Gizi tempe dengan rujukan sumber resmi, tanpa klaim medis.",
+  ],
+  [
+    "cerita-dapur",
+    "Cerita Dapur",
+    "Proses, sejarah, dan cerita dari dapur Mak Nuk.",
+  ],
+  [
+    "katering",
+    "Katering",
+    "Ide dan panduan untuk katering, restoran, dan acara.",
+  ],
 ] as const;
 const RECIPE_CATS = [
   ["gorengan", "Gorengan", "Camilan dan lauk yang digoreng."],
@@ -25,13 +41,28 @@ const RECIPE_CAT_OF: Record<string, string> = {
   "tempe-penyet": "lauk-nasi",
 };
 const titleCase = (s: string) =>
-  s.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
+  s
+    .split("-")
+    .map((w) => w[0].toUpperCase() + w.slice(1))
+    .join(" ");
 
 export async function seedContent(tx: Tx, productIds: Record<string, string>) {
   // categories (post + recipe). FAQ categories are seeded in faqs.ts.
   const catRows = [
-    ...POST_CATS.map(([slug, name, description], sort) => ({ kind: "post" as const, slug, name, description, sort })),
-    ...RECIPE_CATS.map(([slug, name, description], sort) => ({ kind: "recipe" as const, slug, name, description, sort })),
+    ...POST_CATS.map(([slug, name, description], sort) => ({
+      kind: "post" as const,
+      slug,
+      name,
+      description,
+      sort,
+    })),
+    ...RECIPE_CATS.map(([slug, name, description], sort) => ({
+      kind: "recipe" as const,
+      slug,
+      name,
+      description,
+      sort,
+    })),
   ];
   const cats = await tx
     .insert(categories)
@@ -45,7 +76,11 @@ export async function seedContent(tx: Tx, productIds: Record<string, string>) {
         updatedAt: sql`now()`,
       },
     })
-    .returning({ id: categories.id, kind: categories.kind, slug: categories.slug });
+    .returning({
+      id: categories.id,
+      kind: categories.kind,
+      slug: categories.slug,
+    });
   const catId = (kind: string, slug: string) =>
     cats.find((c) => c.kind === kind && c.slug === slug)!.id;
 
@@ -53,7 +88,10 @@ export async function seedContent(tx: Tx, productIds: Record<string, string>) {
   const tagRows = await tx
     .insert(tags)
     .values(tagSlugs.map((slug) => ({ slug, name: titleCase(slug) })))
-    .onConflictDoUpdate({ target: tags.slug, set: { name: sql`excluded.name`, updatedAt: sql`now()` } })
+    .onConflictDoUpdate({
+      target: tags.slug,
+      set: { name: sql`excluded.name`, updatedAt: sql`now()` },
+    })
     .returning({ id: tags.id, slug: tags.slug });
 
   let published = 0;
@@ -83,12 +121,19 @@ export async function seedContent(tx: Tx, productIds: Record<string, string>) {
       .returning({ id: posts.id });
     await tx.delete(postTags).where(eq(postTags.postId, row.id));
     await tx.insert(postTags).values(
-      p.tags.map((t) => ({ postId: row.id, tagId: tagRows.find((r) => r.slug === t)!.id })),
+      p.tags.map((t) => ({
+        postId: row.id,
+        tagId: tagRows.find((r) => r.slug === t)!.id,
+      })),
     );
   }
 
   for (const [i, r] of RECIPES.entries()) {
-    const content = doc([...r.intro, "## Tips", ...r.tips.map((t) => `- ${t}`)]);
+    const content = doc([
+      ...r.intro,
+      "## Tips",
+      ...r.tips.map((t) => `- ${t}`),
+    ]);
     const base = {
       title: r.title,
       excerpt: r.excerpt,
@@ -106,8 +151,21 @@ export async function seedContent(tx: Tx, productIds: Record<string, string>) {
     };
     await tx
       .insert(recipes)
-      .values({ slug: r.slug, publishedAt: new Date(Date.now() - (i + 1) * 3 * 86_400_000), ...base })
-      .onConflictDoUpdate({ target: recipes.slug, set: { ...base, updatedAt: sql`now()` } });
+      .values({
+        slug: r.slug,
+        publishedAt: new Date(Date.now() - (i + 1) * 3 * 86_400_000),
+        ...base,
+      })
+      .onConflictDoUpdate({
+        target: recipes.slug,
+        set: { ...base, updatedAt: sql`now()` },
+      });
   }
-  return { categories: catRows.length, tags: tagRows.length, posts: POSTS.length, postsPublished: published, recipes: RECIPES.length };
+  return {
+    categories: catRows.length,
+    tags: tagRows.length,
+    posts: POSTS.length,
+    postsPublished: published,
+    recipes: RECIPES.length,
+  };
 }

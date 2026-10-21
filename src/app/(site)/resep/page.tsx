@@ -60,7 +60,9 @@ export default async function ResepPage() {
       <Section spacing="tight">
         <Container>
           <Stack gap="md">
-            <Eyebrow rule tone="accent">Resep</Eyebrow>
+            <Eyebrow rule tone="accent">
+              Resep
+            </Eyebrow>
             <Heading level={1} size="display">
               Resep Tempe Rumahan
             </Heading>

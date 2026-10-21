@@ -9,7 +9,10 @@ import { isExternalHref, sanitizeHref } from "./render";
 
 const INLINE_RE = /\*\*(.+?)\*\*|\*(.+?)\*|\[([^\]]+?)\]\(([^)\s]+?)\)/g;
 
-export function renderInline(src: string, opts: { internalHosts?: readonly string[] } = {}): ReactNode[] {
+export function renderInline(
+  src: string,
+  opts: { internalHosts?: readonly string[] } = {},
+): ReactNode[] {
   const out: ReactNode[] = [];
   let last = 0;
   let i = 0;
@@ -41,8 +44,15 @@ export function renderInline(src: string, opts: { internalHosts?: readonly strin
   return out;
 }
 
-export function renderLightMarkdown(src: string, opts: { internalHosts?: readonly string[] } = {}): ReactNode {
-  const paragraphs = src.replace(/\r\n?/g, "\n").split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+export function renderLightMarkdown(
+  src: string,
+  opts: { internalHosts?: readonly string[] } = {},
+): ReactNode {
+  const paragraphs = src
+    .replace(/\r\n?/g, "\n")
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
   return paragraphs.map((p, pi) => (
     <p key={pi}>
       {p.split("\n").map((line, li) => (

@@ -20,16 +20,16 @@ Situs web bisnis tempe keluarga Mak Nuk: katalog produk, jurnal & resep, kalende
 
 Salin `.env.example` ke `.env.local` (dan `.env` untuk skrip/drizzle), lalu isi. Jangan pernah commit nilai rahasia.
 
-| Variabel | Keterangan |
-| --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | URL publik tanpa garis miring akhir. **Wajib di produksi** (canonical, sitemap, OG). |
-| `NEXT_PUBLIC_SUPABASE_URL` | URL proyek Supabase |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Kunci anon (publik) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Hanya server. Jangan diekspos ke klien. |
-| `DATABASE_URL` | Koneksi runtime lewat pooler transaksi (port **6543**) |
-| `DIRECT_URL` | Koneksi langsung/session (port 5432) untuk migrasi |
-| `CRON_SECRET` | Rahasia route cron, min. 16 karakter |
-| `REVALIDATE_SECRET` | Rahasia route revalidate, min. 16 karakter |
+| Variabel                        | Keterangan                                                                           |
+| ------------------------------- | ------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_SITE_URL`          | URL publik tanpa garis miring akhir. **Wajib di produksi** (canonical, sitemap, OG). |
+| `NEXT_PUBLIC_SUPABASE_URL`      | URL proyek Supabase                                                                  |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Kunci anon (publik)                                                                  |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Hanya server. Jangan diekspos ke klien.                                              |
+| `DATABASE_URL`                  | Koneksi runtime lewat pooler transaksi (port **6543**)                               |
+| `DIRECT_URL`                    | Koneksi langsung/session (port 5432) untuk migrasi                                   |
+| `CRON_SECRET`                   | Rahasia route cron, min. 16 karakter                                                 |
+| `REVALIDATE_SECRET`             | Rahasia route revalidate, min. 16 karakter                                           |
 
 Validasi ada di `src/lib/env.ts`. Set `SKIP_ENV_VALIDATION=1` untuk build CI tanpa Supabase asli.
 
@@ -49,28 +49,28 @@ Pengguna pertama yang dibuat di Supabase Auth otomatis menjadi `owner` (trigger 
 
 Pintasan via `Makefile`: jalankan `make` untuk daftar lengkap. Yang paling sering:
 
-| Make | Fungsi |
-| --- | --- |
-| `make setup` | Install, migrasi, seed, dan bucket media (project/DB baru) |
-| `make dev` / `build` / `start` / `stop` | Dev server, build, serve di :3100, matikan server |
-| `make check` | typecheck + lint + unit test |
-| `make verify` | check + build + e2e (sebelum commit) |
-| `make e2e` / `e2e-strict` / `e2e-admin` / `screenshots` | Playwright |
-| `make db-status` / `db-migrate` | Status / terapkan migrasi lewat pooler 6543 (`scripts/dev/migrate.mts`) |
-| `make db-seed` / `bucket` | Seed / bucket Storage `media` |
+| Make                                                    | Fungsi                                                                  |
+| ------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `make setup`                                            | Install, migrasi, seed, dan bucket media (project/DB baru)              |
+| `make dev` / `build` / `start` / `stop`                 | Dev server, build, serve di :3100, matikan server                       |
+| `make check`                                            | typecheck + lint + unit test                                            |
+| `make verify`                                           | check + build + e2e (sebelum commit)                                    |
+| `make e2e` / `e2e-strict` / `e2e-admin` / `screenshots` | Playwright                                                              |
+| `make db-status` / `db-migrate`                         | Status / terapkan migrasi lewat pooler 6543 (`scripts/dev/migrate.mts`) |
+| `make db-seed` / `bucket`                               | Seed / bucket Storage `media`                                           |
 
 `pnpm db:migrate` (drizzle-kit) memakai `DIRECT_URL` port 5432 yang sering diblokir dan gagal tanpa pesan; pakai `make db-migrate`.
 
 Script pnpm:
 
-| Perintah | Fungsi |
-| --- | --- |
-| `pnpm dev` / `build` / `start` | Jalankan, build, dan serve produksi |
-| `pnpm typecheck` | `next typegen` + `tsc --noEmit` |
-| `pnpm lint` / `format:check` | ESLint / Prettier |
-| `pnpm test` | Vitest (unit) |
-| `pnpm db:generate` | Buat migrasi dari skema Drizzle |
-| `pnpm test:e2e` | Playwright (butuh `pnpm build`; otomatis `pnpm start -p 3100`). Test admin butuh `E2E_ADMIN_EMAIL` dan `E2E_ADMIN_PASSWORD` (akun editor khusus test) dan di-skip bila kosong. |
+| Perintah                       | Fungsi                                                                                                                                                                         |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm dev` / `build` / `start` | Jalankan, build, dan serve produksi                                                                                                                                            |
+| `pnpm typecheck`               | `next typegen` + `tsc --noEmit`                                                                                                                                                |
+| `pnpm lint` / `format:check`   | ESLint / Prettier                                                                                                                                                              |
+| `pnpm test`                    | Vitest (unit)                                                                                                                                                                  |
+| `pnpm db:generate`             | Buat migrasi dari skema Drizzle                                                                                                                                                |
+| `pnpm test:e2e`                | Playwright (butuh `pnpm build`; otomatis `pnpm start -p 3100`). Test admin butuh `E2E_ADMIN_EMAIL` dan `E2E_ADMIN_PASSWORD` (akun editor khusus test) dan di-skip bila kosong. |
 
 Tes RLS ada di `tests/rls` (lihat README di sana).
 

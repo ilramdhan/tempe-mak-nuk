@@ -6,7 +6,9 @@ import { getDb } from "@/db/client";
 import { recipes, type ContentStatus } from "@/db/schema";
 import { requireRole } from "@/lib/auth/require-role";
 
-export async function listRecipesForAdmin(opts: { status?: ContentStatus } = {}) {
+export async function listRecipesForAdmin(
+  opts: { status?: ContentStatus } = {},
+) {
   await requireRole("editor", { onFail: "redirect" });
   return getDb()
     .select({
@@ -26,6 +28,10 @@ export async function listRecipesForAdmin(opts: { status?: ContentStatus } = {})
 
 export async function getRecipeForAdmin(id: string) {
   await requireRole("editor", { onFail: "redirect" });
-  const [row] = await getDb().select().from(recipes).where(eq(recipes.id, id)).limit(1);
+  const [row] = await getDb()
+    .select()
+    .from(recipes)
+    .where(eq(recipes.id, id))
+    .limit(1);
   return row ?? null;
 }

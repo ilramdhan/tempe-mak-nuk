@@ -10,11 +10,16 @@ async function siteUrl(): Promise<string> {
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
   // Only the production deployment is indexable (previews/local: block all).
-  const indexable = !process.env.VERCEL_ENV || process.env.VERCEL_ENV === "production";
+  const indexable =
+    !process.env.VERCEL_ENV || process.env.VERCEL_ENV === "production";
   if (!indexable) return { rules: { userAgent: "*", disallow: "/" } };
   const base = await siteUrl();
   return {
-    rules: { userAgent: "*", allow: "/", disallow: ["/admin", "/api", "/dev", "/auth", "/login"] },
+    rules: {
+      userAgent: "*",
+      allow: "/",
+      disallow: ["/admin", "/api", "/dev", "/auth", "/login"],
+    },
     ...(base ? { sitemap: `${base}/sitemap.xml`, host: base } : {}),
   };
 }

@@ -30,12 +30,36 @@ const TKPI = {
 };
 
 const SHAPES = [
-  ["balok-klasik", "Balok klasik", "Balok persegi panjang, bentuk paling umum. Cocok untuk goreng, bacem, dan tumis."],
-  ["lembaran-tipis", "Lembaran tipis (mendoan/keripik)", "Dipipihkan tipis dan lebar, pas untuk mendoan atau keripik tempe."],
-  ["silinder", "Silinder (lontong)", "Bulat panjang seperti lontong, mudah diiris rata untuk katering."],
-  ["bungkus-daun-bulat", "Bungkus daun bulat", "Bulat kecil dibungkus daun, tampilan tradisional untuk oleh-oleh dan hantaran."],
-  ["mini-dadu", "Mini/dadu", "Potongan kecil seragam untuk orek, sambal goreng, dan MPASI."],
-  ["custom", "Custom request", "Punya bentuk sendiri? Ceritakan, kami coba wujudkan tanpa minimum order."],
+  [
+    "balok-klasik",
+    "Balok klasik",
+    "Balok persegi panjang, bentuk paling umum. Cocok untuk goreng, bacem, dan tumis.",
+  ],
+  [
+    "lembaran-tipis",
+    "Lembaran tipis (mendoan/keripik)",
+    "Dipipihkan tipis dan lebar, pas untuk mendoan atau keripik tempe.",
+  ],
+  [
+    "silinder",
+    "Silinder (lontong)",
+    "Bulat panjang seperti lontong, mudah diiris rata untuk katering.",
+  ],
+  [
+    "bungkus-daun-bulat",
+    "Bungkus daun bulat",
+    "Bulat kecil dibungkus daun, tampilan tradisional untuk oleh-oleh dan hantaran.",
+  ],
+  [
+    "mini-dadu",
+    "Mini/dadu",
+    "Potongan kecil seragam untuk orek, sambal goreng, dan MPASI.",
+  ],
+  [
+    "custom",
+    "Custom request",
+    "Punya bentuk sendiri? Ceritakan, kami coba wujudkan tanpa minimum order.",
+  ],
 ] as const;
 
 const SIZES = [
@@ -46,7 +70,8 @@ const SIZES = [
   ["Custom dimensi", null, "Sesuai permintaan", null],
 ] as const;
 
-const PACKS = "Kemasan: daun pisang (tradisional), plastik food-grade berlubang, atau kombinasi daun dan plastik.";
+const PACKS =
+  "Kemasan: daun pisang (tradisional), plastik food-grade berlubang, atau kombinasi daun dan plastik.";
 
 export async function seedProducts(tx: Tx) {
   const classic = doc([
@@ -58,7 +83,8 @@ export async function seedProducts(tx: Tx) {
     "- Orek tempe dan sambal goreng untuk nasi kotak",
     "- Tumisan dan sayur berkuah",
     "## Bentuk dan ukuran",
-    "Tersedia dalam beberapa bentuk (balok, lembaran, silinder, bungkus daun, dadu) dan ukuran dari kecil sampai jumbo katering. Tanpa minimum order. " + PACKS,
+    "Tersedia dalam beberapa bentuk (balok, lembaran, silinder, bungkus daun, dadu) dan ukuran dari kecil sampai jumbo katering. Tanpa minimum order. " +
+      PACKS,
     "## Penyimpanan",
     "Karena tanpa pengawet, tempe segar paling enak dimasak dalam 1–2 hari. Bila ingin disimpan lebih lama, masukkan ke kulkas atau freezer. Panduan lengkap ada di [Cara menyimpan tempe tanpa pengawet](/jurnal/cara-menyimpan-tempe-tanpa-pengawet).",
   ]);
@@ -71,7 +97,8 @@ export async function seedProducts(tx: Tx) {
     "- Mendoan dan keripik tempe dengan irisan tipis yang rapi",
     "- Katering dan restoran yang butuh tampilan seragam",
     "## Bentuk dan ukuran",
-    "Sama seperti varian Klasik, bentuk dan ukuran bisa dipilih bebas tanpa minimum order. " + PACKS,
+    "Sama seperti varian Klasik, bentuk dan ukuran bisa dipilih bebas tanpa minimum order. " +
+      PACKS,
     "## Penyimpanan",
     "Simpan seperti tempe segar lainnya: masak dalam 1–2 hari, atau kulkas dan freezer untuk lebih lama. Lihat [panduan penyimpanan](/jurnal/cara-menyimpan-tempe-tanpa-pengawet).",
   ]);
@@ -129,7 +156,11 @@ export async function seedProducts(tx: Tx) {
   }
 
   const shapeRows = SHAPES.map(([slug, name, description], sort) => ({
-    slug, name, description, sort, active: true,
+    slug,
+    name,
+    description,
+    sort,
+    active: true,
   }));
   const shapeIds = await tx
     .insert(productShapes)
@@ -147,7 +178,13 @@ export async function seedProducts(tx: Tx) {
 
   // product_sizes has no unique natural key -> deterministic ids.
   const sizeRows = SIZES.map(([name, weightGrams, dims, price], sort) => ({
-    id: stableId(`size:${name}`), name, weightGrams, dims, price, sort, active: true,
+    id: stableId(`size:${name}`),
+    name,
+    weightGrams,
+    dims,
+    price,
+    sort,
+    active: true,
   }));
   await tx
     .insert(productSizes)
@@ -167,7 +204,13 @@ export async function seedProducts(tx: Tx) {
   for (const slug of Object.keys(ids)) {
     await tx
       .insert(productShapeLinks)
-      .values(shapeIds.map((s, sort) => ({ productId: ids[slug], shapeId: s.id, sort })))
+      .values(
+        shapeIds.map((s, sort) => ({
+          productId: ids[slug],
+          shapeId: s.id,
+          sort,
+        })),
+      )
       .onConflictDoNothing();
     // Medium price follows the product's "from" price; other sizes use size defaults (null = on request).
     await tx
@@ -177,7 +220,12 @@ export async function seedProducts(tx: Tx) {
           productId: ids[slug],
           sizeId: s.id,
           sort,
-          price: s.name === "Sedang" ? (slug === "tempe-klasik" ? 5000 : 7000) : null,
+          price:
+            s.name === "Sedang"
+              ? slug === "tempe-klasik"
+                ? 5000
+                : 7000
+              : null,
         })),
       )
       .onConflictDoUpdate({
@@ -203,5 +251,10 @@ export async function seedProducts(tx: Tx) {
         },
       });
   }
-  return { products: prods.length, shapes: shapeRows.length, sizes: sizeRows.length, productIds: ids };
+  return {
+    products: prods.length,
+    shapes: shapeRows.length,
+    sizes: sizeRows.length,
+    productIds: ids,
+  };
 }

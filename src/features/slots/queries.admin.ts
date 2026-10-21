@@ -12,8 +12,16 @@ export async function getSlotCalendarForAdmin(from: DateKey, to: DateKey) {
   await requireRole("editor", { onFail: "redirect" });
   const db = getDb();
   const [days, hol] = await Promise.all([
-    db.select().from(slotDays).where(and(gte(slotDays.date, from), lte(slotDays.date, to))).orderBy(asc(slotDays.date)),
-    db.select().from(holidays).where(and(gte(holidays.date, from), lte(holidays.date, to))).orderBy(asc(holidays.date)),
+    db
+      .select()
+      .from(slotDays)
+      .where(and(gte(slotDays.date, from), lte(slotDays.date, to)))
+      .orderBy(asc(slotDays.date)),
+    db
+      .select()
+      .from(holidays)
+      .where(and(gte(holidays.date, from), lte(holidays.date, to)))
+      .orderBy(asc(holidays.date)),
   ]);
   return { slotDays: days, holidays: hol };
 }

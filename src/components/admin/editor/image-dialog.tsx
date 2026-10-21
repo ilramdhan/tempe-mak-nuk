@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 
-import { MediaPicker, type MediaLibraryItem } from "@/components/admin/media-picker";
+import {
+  MediaPicker,
+  type MediaLibraryItem,
+} from "@/components/admin/media-picker";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -43,10 +46,7 @@ export function ImageDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         {open ? (
-          <ImageForm
-            onSubmit={onSubmit}
-            onCancel={() => onOpenChange(false)}
-          />
+          <ImageForm onSubmit={onSubmit} onCancel={() => onOpenChange(false)} />
         ) : null}
       </DialogContent>
     </Dialog>
@@ -60,7 +60,10 @@ function ImageForm({
   onSubmit: (image: ImageInsert) => void;
   onCancel: () => void;
 }) {
-  const [picked, setPicked] = useState<Pick<MediaLibraryItem, "id" | "url" | "alt"> | null>(null);
+  const [picked, setPicked] = useState<Pick<
+    MediaLibraryItem,
+    "id" | "url" | "alt"
+  > | null>(null);
   const [url, setUrl] = useState("");
   const [alt, setAlt] = useState("");
   const [caption, setCaption] = useState("");

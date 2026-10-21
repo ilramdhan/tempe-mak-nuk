@@ -8,10 +8,12 @@ const calls: { entity: string; action: string; role?: string }[] = [];
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/features/_shared/admin-action", () => ({
-  adminAction: vi.fn(async (opts: { entity: string; action: string; role?: string }) => {
-    calls.push({ entity: opts.entity, action: opts.action, role: opts.role });
-    return { ok: false, error: "stub" };
-  }),
+  adminAction: vi.fn(
+    async (opts: { entity: string; action: string; role?: string }) => {
+      calls.push({ entity: opts.entity, action: opts.action, role: opts.role });
+      return { ok: false, error: "stub" };
+    },
+  ),
 }));
 vi.mock("@/lib/auth/require-role", () => ({
   requireRole: vi.fn(),
@@ -28,7 +30,9 @@ beforeEach(() => {
   calls.length = 0;
 });
 
-async function roleOf(run: () => Promise<unknown>): Promise<string | undefined> {
+async function roleOf(
+  run: () => Promise<unknown>,
+): Promise<string | undefined> {
   await run();
   expect(calls).toHaveLength(1);
   return calls[0].role;
@@ -36,31 +40,103 @@ async function roleOf(run: () => Promise<unknown>): Promise<string | undefined> 
 
 describe("owner-only server actions", () => {
   it.each([
-    ["deleteFaq", () => import("@/features/faqs/actions").then((m) => m.deleteFaq(ID))],
-    ["deleteTestimonial", () => import("@/features/testimonials/actions").then((m) => m.deleteTestimonial(ID))],
-    ["deleteNavItem", () => import("@/features/navigation/actions").then((m) => m.deleteNavItem(ID))],
-    ["deleteAnnouncement", () => import("@/features/navigation/actions").then((m) => m.deleteAnnouncement(ID))],
-    ["deleteMedia", () => import("@/features/media/actions").then((m) => m.deleteMedia(ID))],
-    ["deleteProduct", () => import("@/features/products/actions").then((m) => m.deleteProduct(ID))],
-    ["deleteProductShape", () => import("@/features/products/actions").then((m) => m.deleteProductShape(ID))],
-    ["deleteProductSize", () => import("@/features/products/actions").then((m) => m.deleteProductSize(ID))],
-    ["deletePage", () => import("@/features/pages/actions").then((m) => m.deletePage(ID))],
+    [
+      "deleteFaq",
+      () => import("@/features/faqs/actions").then((m) => m.deleteFaq(ID)),
+    ],
+    [
+      "deleteTestimonial",
+      () =>
+        import("@/features/testimonials/actions").then((m) =>
+          m.deleteTestimonial(ID),
+        ),
+    ],
+    [
+      "deleteNavItem",
+      () =>
+        import("@/features/navigation/actions").then((m) =>
+          m.deleteNavItem(ID),
+        ),
+    ],
+    [
+      "deleteAnnouncement",
+      () =>
+        import("@/features/navigation/actions").then((m) =>
+          m.deleteAnnouncement(ID),
+        ),
+    ],
+    [
+      "deleteMedia",
+      () => import("@/features/media/actions").then((m) => m.deleteMedia(ID)),
+    ],
+    [
+      "deleteProduct",
+      () =>
+        import("@/features/products/actions").then((m) => m.deleteProduct(ID)),
+    ],
+    [
+      "deleteProductShape",
+      () =>
+        import("@/features/products/actions").then((m) =>
+          m.deleteProductShape(ID),
+        ),
+    ],
+    [
+      "deleteProductSize",
+      () =>
+        import("@/features/products/actions").then((m) =>
+          m.deleteProductSize(ID),
+        ),
+    ],
+    [
+      "deletePage",
+      () => import("@/features/pages/actions").then((m) => m.deletePage(ID)),
+    ],
     [
       "upsertRedirect",
-      () => import("@/features/pages/actions").then((m) => m.upsertRedirect({ from: "/a", to: "/b", permanent: true })),
+      () =>
+        import("@/features/pages/actions").then((m) =>
+          m.upsertRedirect({ from: "/a", to: "/b", permanent: true }),
+        ),
     ],
-    ["deleteRedirect", () => import("@/features/pages/actions").then((m) => m.deleteRedirect(ID))],
-    ["removeRedirect", () => import("@/features/redirects/actions").then((m) => m.removeRedirect(ID))],
-    ["deleteMediaAndFile", () => import("@/features/media/library-actions").then((m) => m.deleteMediaAndFile(ID))],
-    ["setUserRole", () => import("@/features/users/actions").then((m) => m.setUserRole({ id: ID, role: "editor" }))],
+    [
+      "deleteRedirect",
+      () =>
+        import("@/features/pages/actions").then((m) => m.deleteRedirect(ID)),
+    ],
+    [
+      "removeRedirect",
+      () =>
+        import("@/features/redirects/actions").then((m) =>
+          m.removeRedirect(ID),
+        ),
+    ],
+    [
+      "deleteMediaAndFile",
+      () =>
+        import("@/features/media/library-actions").then((m) =>
+          m.deleteMediaAndFile(ID),
+        ),
+    ],
+    [
+      "setUserRole",
+      () =>
+        import("@/features/users/actions").then((m) =>
+          m.setUserRole({ id: ID, role: "editor" }),
+        ),
+    ],
   ])("%s requires owner", async (_name, run) => {
     expect(await roleOf(run)).toBe("owner");
   });
 
   it("updateSettings: owner for business keys, editor for contact keys", async () => {
     const { updateSettings } = await import("@/features/settings/actions");
-    expect(await roleOf(() => updateSettings({ "business.name": "X" }))).toBe("owner");
+    expect(await roleOf(() => updateSettings({ "business.name": "X" }))).toBe(
+      "owner",
+    );
     calls.length = 0;
-    expect(await roleOf(() => updateSettings({ "contact.email": "a@b.co" }))).toBe("editor");
+    expect(
+      await roleOf(() => updateSettings({ "contact.email": "a@b.co" })),
+    ).toBe("editor");
   });
 });

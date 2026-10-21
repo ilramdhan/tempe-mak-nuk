@@ -9,5 +9,8 @@ import { requireRole } from "@/lib/auth/require-role";
 /** Admin: all FAQs incl. hidden. */
 export async function listFaqsForAdmin() {
   await requireRole("editor", { onFail: "redirect" });
-  return getDb().select().from(faqs).orderBy(asc(faqs.categoryId), asc(faqs.sort));
+  return getDb()
+    .select()
+    .from(faqs)
+    .orderBy(asc(faqs.categoryId), asc(faqs.sort));
 }

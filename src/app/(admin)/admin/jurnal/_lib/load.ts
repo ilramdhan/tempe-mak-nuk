@@ -4,10 +4,7 @@ import { getPostForAdmin } from "@/features/posts/queries.admin";
 import type { TiptapDoc } from "@/lib/rich-text/schema";
 
 import type { PostEditorOptions } from "../_components/post-editor";
-import {
-  loadCategoryOptions,
-  loadTagOptions,
-} from "../_shared/lib/load";
+import { loadCategoryOptions, loadTagOptions } from "../_shared/lib/load";
 import { visibilityOf } from "../_shared/lib/publish";
 import { postDraftFromRecord, type PostDraft } from "./post-draft";
 

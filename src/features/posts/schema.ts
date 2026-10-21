@@ -13,7 +13,12 @@ import {
 
 export const contentStatusSchema = z.enum(contentStatus.enumValues);
 
-const withPublishRule = <T extends { status: string; publishedAt: Date | null }>(v: T, ctx: z.RefinementCtx) => {
+const withPublishRule = <
+  T extends { status: string; publishedAt: Date | null },
+>(
+  v: T,
+  ctx: z.RefinementCtx,
+) => {
   if (v.status === "scheduled" && !v.publishedAt) {
     ctx.addIssue({
       code: "custom",
@@ -34,7 +39,13 @@ export const postInputSchema = z
     authorId: uuidSchema.nullish().transform((v) => v ?? null),
     status: contentStatusSchema.default("draft"),
     publishedAt: dateTimeSchema,
-    readingMinutes: z.coerce.number().int().min(1).max(600).nullish().transform((v) => v ?? null),
+    readingMinutes: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(600)
+      .nullish()
+      .transform((v) => v ?? null),
     seo: seoSchema,
     tagIds: z.array(uuidSchema).max(30).optional(),
   })

@@ -55,7 +55,9 @@ export function MediaLibrary({
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [q, setQ] = useState("");
   const [loading, startLoading] = useTransition();
-  const [error, setError] = useState<string | null>(loadError ? "Gagal memuat media. Muat ulang halaman." : null);
+  const [error, setError] = useState<string | null>(
+    loadError ? "Gagal memuat media. Muat ulang halaman." : null,
+  );
   const [showUpload, setShowUpload] = useState(false);
   const [editing, setEditing] = useState<MediaLibraryItem | null>(null);
   const [deleting, setDeleting] = useState<MediaLibraryItem | null>(null);
@@ -66,15 +68,22 @@ export function MediaLibrary({
     const req = ++reqRef.current;
     startLoading(async () => {
       try {
-        const res = await searchMediaLibrary({ q: query || undefined, limit: PAGE_SIZE, offset });
+        const res = await searchMediaLibrary({
+          q: query || undefined,
+          limit: PAGE_SIZE,
+          offset,
+        });
         if (req !== reqRef.current) return;
         if (res.ok) {
-          setItems((prev) => (offset ? [...prev, ...res.data.items] : res.data.items));
+          setItems((prev) =>
+            offset ? [...prev, ...res.data.items] : res.data.items,
+          );
           setHasMore(res.data.hasMore);
           setError(null);
         } else setError(res.error);
       } catch {
-        if (req === reqRef.current) setError("Gagal terhubung ke server. Coba lagi.");
+        if (req === reqRef.current)
+          setError("Gagal terhubung ke server. Coba lagi.");
       }
     });
   }
@@ -117,16 +126,27 @@ export function MediaLibrary({
             onChange={(e) => setQ(e.target.value)}
           />
         </div>
-        <Button type="button" onClick={() => setShowUpload((v) => !v)} aria-expanded={showUpload}>
-          <Upload aria-hidden /> {showUpload ? "Tutup unggahan" : "Unggah gambar"}
+        <Button
+          type="button"
+          onClick={() => setShowUpload((v) => !v)}
+          aria-expanded={showUpload}
+        >
+          <Upload aria-hidden />{" "}
+          {showUpload ? "Tutup unggahan" : "Unggah gambar"}
         </Button>
       </div>
 
       {showUpload ? (
-        <section aria-label="Unggah gambar" className="rounded-lg border border-border p-4">
+        <section
+          aria-label="Unggah gambar"
+          className="rounded-lg border border-border p-4"
+        >
           <MediaUploader
             onUploaded={(item) => {
-              setItems((prev) => [item, ...prev.filter((p) => p.id !== item.id)]);
+              setItems((prev) => [
+                item,
+                ...prev.filter((p) => p.id !== item.id),
+              ]);
               toast.success(`Terunggah: ${item.alt}`);
             }}
           />
@@ -141,12 +161,20 @@ export function MediaLibrary({
 
       {items.length === 0 && !loading ? (
         <p className="rounded-lg border border-dashed border-border py-12 text-center text-sm text-muted-foreground">
-          {q ? "Tidak ada media yang cocok." : "Belum ada media. Klik “Unggah gambar” untuk mulai."}
+          {q
+            ? "Tidak ada media yang cocok."
+            : "Belum ada media. Klik “Unggah gambar” untuk mulai."}
         </p>
       ) : (
-        <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6" aria-label="Daftar media">
+        <ul
+          className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
+          aria-label="Daftar media"
+        >
           {items.map((m) => (
-            <li key={m.id} className="flex flex-col overflow-hidden rounded-lg border border-border">
+            <li
+              key={m.id}
+              className="flex flex-col overflow-hidden rounded-lg border border-border"
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={m.url}
@@ -155,7 +183,14 @@ export function MediaLibrary({
                 width={m.width ?? undefined}
                 height={m.height ?? undefined}
                 className="aspect-square w-full bg-surface object-cover"
-                style={m.blurDataUrl ? { backgroundImage: `url(${m.blurDataUrl})`, backgroundSize: "cover" } : undefined}
+                style={
+                  m.blurDataUrl
+                    ? {
+                        backgroundImage: `url(${m.blurDataUrl})`,
+                        backgroundSize: "cover",
+                      }
+                    : undefined
+                }
               />
               <div className="flex flex-1 flex-col gap-1 p-2">
                 <p className="line-clamp-2 text-sm" title={m.alt}>
@@ -206,12 +241,19 @@ export function MediaLibrary({
       )}
 
       {loading ? (
-        <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground" aria-live="polite">
+        <p
+          className="flex items-center justify-center gap-2 text-sm text-muted-foreground"
+          aria-live="polite"
+        >
           <Loader2 className="size-4 animate-spin" aria-hidden /> Memuat…
         </p>
       ) : hasMore ? (
         <div className="flex justify-center">
-          <Button type="button" variant="secondary" onClick={() => load(q.trim(), items.length)}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => load(q.trim(), items.length)}
+          >
             Muat lebih banyak
           </Button>
         </div>
@@ -222,7 +264,9 @@ export function MediaLibrary({
           item={editing}
           onClose={() => setEditing(null)}
           onSaved={(alt) => {
-            setItems((prev) => prev.map((p) => (p.id === editing.id ? { ...p, alt } : p)));
+            setItems((prev) =>
+              prev.map((p) => (p.id === editing.id ? { ...p, alt } : p)),
+            );
             setEditing(null);
           }}
         />
@@ -277,10 +321,16 @@ function EditAltDialog({
         <form onSubmit={save} className="flex flex-col gap-4">
           <DialogHeader>
             <DialogTitle>Ubah teks alt</DialogTitle>
-            <DialogDescription>Jelaskan isi gambar untuk pembaca layar & mesin pencari.</DialogDescription>
+            <DialogDescription>
+              Jelaskan isi gambar untuk pembaca layar & mesin pencari.
+            </DialogDescription>
           </DialogHeader>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={item.url} alt="" className="max-h-48 w-full rounded-md object-contain" />
+          <img
+            src={item.url}
+            alt=""
+            className="max-h-48 w-full rounded-md object-contain"
+          />
           <div className="flex flex-col gap-1">
             <Label htmlFor={id}>Teks alt *</Label>
             <Input
@@ -347,19 +397,25 @@ function DeleteDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Hapus media?</AlertDialogTitle>
           <AlertDialogDescription>
-            “{item.alt}” akan dihapus permanen beserta berkasnya di penyimpanan. Tindakan ini tidak bisa dibatalkan.
+            “{item.alt}” akan dihapus permanen beserta berkasnya di penyimpanan.
+            Tindakan ini tidak bisa dibatalkan.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="text-sm" aria-live="polite">
           {usage === null && !usageError ? (
             <p className="flex items-center gap-2 text-muted-foreground">
-              <Loader2 className="size-4 animate-spin" aria-hidden /> Memeriksa pemakaian…
+              <Loader2 className="size-4 animate-spin" aria-hidden /> Memeriksa
+              pemakaian…
             </p>
           ) : usageError ? (
-            <p className="text-muted-foreground">Pemakaian tidak dapat diperiksa.</p>
+            <p className="text-muted-foreground">
+              Pemakaian tidak dapat diperiksa.
+            </p>
           ) : usage && usage.length ? (
             <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3">
-              <p className="font-medium text-destructive">Media ini masih dipakai di {usage.length} tempat:</p>
+              <p className="font-medium text-destructive">
+                Media ini masih dipakai di {usage.length} tempat:
+              </p>
               <ul className="mt-1 list-disc pl-5">
                 {usage.slice(0, 10).map((u) => (
                   <li key={`${u.kind}:${u.label}`}>
@@ -367,11 +423,17 @@ function DeleteDialog({
                   </li>
                 ))}
               </ul>
-              {usage.length > 10 ? <p className="mt-1">…dan {usage.length - 10} lainnya.</p> : null}
-              <p className="mt-2">Gambar di tempat tersebut akan hilang / kembali ke placeholder.</p>
+              {usage.length > 10 ? (
+                <p className="mt-1">…dan {usage.length - 10} lainnya.</p>
+              ) : null}
+              <p className="mt-2">
+                Gambar di tempat tersebut akan hilang / kembali ke placeholder.
+              </p>
             </div>
           ) : (
-            <p className="text-muted-foreground">Tidak ditemukan pemakaian media ini.</p>
+            <p className="text-muted-foreground">
+              Tidak ditemukan pemakaian media ini.
+            </p>
           )}
         </div>
         <AlertDialogFooter>
@@ -386,7 +448,9 @@ function DeleteDialog({
                 onDone: (res) => {
                   if (!res.ok) return;
                   if (res.data && !res.data.storageRemoved) {
-                    toast.warning("Data terhapus, tetapi berkas di penyimpanan gagal dihapus.");
+                    toast.warning(
+                      "Data terhapus, tetapi berkas di penyimpanan gagal dihapus.",
+                    );
                   }
                   onDeleted();
                 },

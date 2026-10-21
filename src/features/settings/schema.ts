@@ -19,7 +19,11 @@ const KIND_SCHEMAS = {
   text: z.string().trim().max(2000),
   url: emptyOr(z.url({ protocol: /^https?$/ })),
   email: emptyOr(z.email()),
-  phone: emptyOr(z.string().regex(/^[1-9]\d{7,14}$/, "Hanya angka, format internasional (62…)")),
+  phone: emptyOr(
+    z
+      .string()
+      .regex(/^[1-9]\d{7,14}$/, "Hanya angka, format internasional (62…)"),
+  ),
   date: emptyOr(z.iso.date()),
   time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Format HH:mm"),
   int: z.number().int(),
@@ -159,9 +163,24 @@ export const SETTINGS_DEFAULTS: Settings = {
     bannerText:
       "Kami memakai cookie wajib agar situs berjalan, dan cookie opsional hanya jika Anda setuju.",
     categories: [
-      { key: "necessary", label: "Wajib", description: "Diperlukan agar situs berfungsi.", required: true },
-      { key: "analytics", label: "Analitik", description: "Statistik penggunaan agregat.", required: false },
-      { key: "marketing", label: "Pemasaran", description: "Pengukuran iklan.", required: false },
+      {
+        key: "necessary",
+        label: "Wajib",
+        description: "Diperlukan agar situs berfungsi.",
+        required: true,
+      },
+      {
+        key: "analytics",
+        label: "Analitik",
+        description: "Statistik penggunaan agregat.",
+        required: false,
+      },
+      {
+        key: "marketing",
+        label: "Pemasaran",
+        description: "Pengukuran iklan.",
+        required: false,
+      },
     ],
   },
 };
@@ -171,14 +190,18 @@ export function parseSettingValue<K extends SettingKey>(
   key: K,
   raw: unknown,
 ): { value: Settings[K]; ok: boolean } {
-  const res = (settingSchemas[key] as unknown as z.ZodType<Settings[K]>).safeParse(raw);
+  const res = (
+    settingSchemas[key] as unknown as z.ZodType<Settings[K]>
+  ).safeParse(raw);
   return res.success
     ? { value: res.data, ok: true }
     : { value: SETTINGS_DEFAULTS[key], ok: false };
 }
 
 /** Merge raw rows (key → value) over defaults, validating each key. Unknown keys are ignored. */
-export function mergeSettings(rows: Iterable<{ key: string; value: unknown }>): {
+export function mergeSettings(
+  rows: Iterable<{ key: string; value: unknown }>,
+): {
   settings: Settings;
   invalidKeys: SettingKey[];
 } {

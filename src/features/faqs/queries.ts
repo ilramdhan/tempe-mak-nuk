@@ -16,7 +16,11 @@ export type PublicFaq = {
   category: { slug: string; name: string; sort: number } | null;
 };
 
-export type FaqGroup = { slug: string | null; name: string; items: PublicFaq[] };
+export type FaqGroup = {
+  slug: string | null;
+  name: string;
+  items: PublicFaq[];
+};
 
 /** All visible FAQs, ordered by category sort then FAQ sort. */
 export async function getFaqs(): Promise<PublicFaq[]> {
@@ -35,12 +39,17 @@ export async function getFaqs(): Promise<PublicFaq[]> {
         catSort: categories.sort,
       })
       .from(faqs)
-      .leftJoin(categories, and(eq(categories.id, faqs.categoryId), eq(categories.kind, "faq")))
+      .leftJoin(
+        categories,
+        and(eq(categories.id, faqs.categoryId), eq(categories.kind, "faq")),
+      )
       .where(eq(faqs.visible, true))
       .orderBy(asc(categories.sort), asc(faqs.sort));
     return rows.map(({ catSlug, catName, catSort, ...f }) => ({
       ...f,
-      category: catSlug ? { slug: catSlug, name: catName!, sort: catSort! } : null,
+      category: catSlug
+        ? { slug: catSlug, name: catName!, sort: catSort! }
+        : null,
     }));
   });
 }
@@ -58,8 +67,11 @@ export async function queryFaqs(q: FaqQuery = {}): Promise<PublicFaq[]> {
   let list: PublicFaq[];
   if (q.ids?.length) {
     const byId = new Map(all.map((f) => [f.id, f]));
-    list = q.ids.map((id) => byId.get(id)).filter((f): f is PublicFaq => Boolean(f));
-  } else if (q.category) list = all.filter((f) => f.category?.slug === q.category);
+    list = q.ids
+      .map((id) => byId.get(id))
+      .filter((f): f is PublicFaq => Boolean(f));
+  } else if (q.category)
+    list = all.filter((f) => f.category?.slug === q.category);
   else if (q.source === "home") list = all.filter((f) => f.showOnHome);
   else list = all;
   return q.limit ? list.slice(0, q.limit) : list;
@@ -71,7 +83,11 @@ export function groupFaqs(list: readonly PublicFaq[]): FaqGroup[] {
     const key = f.category?.slug ?? "_";
     let g = groups.get(key);
     if (!g) {
-      g = { slug: f.category?.slug ?? null, name: f.category?.name ?? "Lainnya", items: [] };
+      g = {
+        slug: f.category?.slug ?? null,
+        name: f.category?.name ?? "Lainnya",
+        items: [],
+      };
       groups.set(key, g);
     }
     g.items.push(f);
@@ -81,6 +97,8 @@ export function groupFaqs(list: readonly PublicFaq[]): FaqGroup[] {
 
 /** For FAQPage JSON-LD: strip light markdown to plain text. */
 export function faqAnswerPlainText(answer: string): string {
-  return answer.replace(/\*\*(.+?)\*\*/g, "$1").replace(/\[(.+?)\]\((.+?)\)/g, "$1").trim();
+  return answer
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/\[(.+?)\]\((.+?)\)/g, "$1")
+    .trim();
 }
-

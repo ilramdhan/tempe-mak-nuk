@@ -295,7 +295,9 @@ function TestimonialDialog({
                 invalid={!!errors.mediaId}
                 onChange={(id) => setMediaId(id)}
               />
-              {errors.mediaId ? <FieldError>{errors.mediaId}</FieldError> : null}
+              {errors.mediaId ? (
+                <FieldError>{errors.mediaId}</FieldError>
+              ) : null}
             </Field>
             <Field orientation="horizontal">
               <Switch

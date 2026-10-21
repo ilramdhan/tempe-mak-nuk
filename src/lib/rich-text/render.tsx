@@ -38,7 +38,8 @@ export function sanitizeHref(raw: unknown): string | null {
   const compact = href.replace(/[\u0000- \u007F]/g, "").toLowerCase();
   if (/^(\/(?!\/)|#|\?)/.test(compact)) return href;
   if (/^(https?:|mailto:|tel:)/.test(compact)) return href;
-  if (!/^[a-z][a-z0-9+.-]*:/.test(compact) && !compact.startsWith("//")) return href; // relative "foo/bar"
+  if (!/^[a-z][a-z0-9+.-]*:/.test(compact) && !compact.startsWith("//"))
+    return href; // relative "foo/bar"
   return null;
 }
 
@@ -51,7 +52,10 @@ export function sanitizeImageSrc(raw: unknown): string | null {
   return null;
 }
 
-export function isExternalHref(href: string, internalHosts: readonly string[] = []): boolean {
+export function isExternalHref(
+  href: string,
+  internalHosts: readonly string[] = [],
+): boolean {
   if (!/^https?:\/\//i.test(href)) return false;
   try {
     const host = new URL(href).hostname.replace(/^www\./, "");
@@ -72,23 +76,30 @@ export function slugifyHeading(text: string): string {
 }
 
 /** Plain text of a node tree (TOC, reading time, excerpts, JSON-LD). */
-export function richTextToPlainText(node: TiptapDoc | TiptapNode | null | undefined): string {
+export function richTextToPlainText(
+  node: TiptapDoc | TiptapNode | null | undefined,
+): string {
   const out: string[] = [];
   const walk = (n: TiptapNode, depth: number) => {
     if (depth > MAX_DEPTH || !n || typeof n !== "object") return;
     if (n.type === "text" && typeof n.text === "string") out.push(n.text);
     else if (n.type === "hardBreak") out.push("\n");
     if (Array.isArray(n.content)) n.content.forEach((c) => walk(c, depth + 1));
-    if (["paragraph", "heading", "listItem", "blockquote"].includes(n.type)) out.push("\n");
+    if (["paragraph", "heading", "listItem", "blockquote"].includes(n.type))
+      out.push("\n");
   };
   if (node) walk(node as TiptapNode, 0);
-  return out.join("").replace(/\n{2,}/g, "\n").trim();
+  return out
+    .join("")
+    .replace(/\n{2,}/g, "\n")
+    .trim();
 }
 
 export type RichTextHeading = { id: string; text: string; level: 2 | 3 | 4 };
 
 function clampLevel(raw: unknown, offset: number): 2 | 3 | 4 {
-  const n = typeof raw === "number" && Number.isFinite(raw) ? Math.trunc(raw) : 2;
+  const n =
+    typeof raw === "number" && Number.isFinite(raw) ? Math.trunc(raw) : 2;
   return Math.min(4, Math.max(2, n + offset)) as 2 | 3 | 4;
 }
 
@@ -103,7 +114,11 @@ export function extractHeadings(
     if (n?.type !== "heading") continue;
     const text = richTextToPlainText(n);
     if (!text) continue;
-    out.push({ id: uniqueId(slugifyHeading(text), seen), text, level: clampLevel(n.attrs?.level, options.headingOffset ?? 0) });
+    out.push({
+      id: uniqueId(slugifyHeading(text), seen),
+      text,
+      level: clampLevel(n.attrs?.level, options.headingOffset ?? 0),
+    });
   }
   return out;
 }
@@ -123,10 +138,17 @@ type Ctx = {
   seenIds: Map<string, number>;
 };
 
-function renderMarks(text: ReactNode, marks: TiptapMark[] | undefined, ctx: Ctx, key: string): ReactNode {
+function renderMarks(
+  text: ReactNode,
+  marks: TiptapMark[] | undefined,
+  ctx: Ctx,
+  key: string,
+): ReactNode {
   if (!Array.isArray(marks) || marks.length === 0) return text;
   // Apply link outermost so styling marks nest inside the anchor.
-  const ordered = [...marks].sort((a, b) => (a.type === "link" ? 1 : 0) - (b.type === "link" ? 1 : 0));
+  const ordered = [...marks].sort(
+    (a, b) => (a.type === "link" ? 1 : 0) - (b.type === "link" ? 1 : 0),
+  );
   let out = text;
   ordered.forEach((m, i) => {
     const k = `${key}-m${i}`;
@@ -167,9 +189,16 @@ function renderMarks(text: ReactNode, marks: TiptapMark[] | undefined, ctx: Ctx,
   return out;
 }
 
-function renderChildren(node: TiptapNode, ctx: Ctx, depth: number, key: string): ReactNode[] {
+function renderChildren(
+  node: TiptapNode,
+  ctx: Ctx,
+  depth: number,
+  key: string,
+): ReactNode[] {
   if (!Array.isArray(node.content)) return [];
-  return node.content.map((c, i) => renderNode(c, ctx, depth + 1, `${key}.${i}`));
+  return node.content.map((c, i) =>
+    renderNode(c, ctx, depth + 1, `${key}.${i}`),
+  );
 }
 
 function renderImage(node: TiptapNode, ctx: Ctx, key: string): ReactNode {
@@ -179,12 +208,24 @@ function renderImage(node: TiptapNode, ctx: Ctx, key: string): ReactNode {
   const src = sanitizeImageSrc(m?.url ?? attrs.src);
   if (!src) return null;
   const alt = (typeof attrs.alt === "string" && attrs.alt) || m?.alt || "";
-  const caption = typeof attrs.title === "string" && attrs.title ? attrs.title : null;
-  const width = m?.width ?? (typeof attrs.width === "number" ? attrs.width : undefined);
-  const height = m?.height ?? (typeof attrs.height === "number" ? attrs.height : undefined);
+  const caption =
+    typeof attrs.title === "string" && attrs.title ? attrs.title : null;
+  const width =
+    m?.width ?? (typeof attrs.width === "number" ? attrs.width : undefined);
+  const height =
+    m?.height ?? (typeof attrs.height === "number" ? attrs.height : undefined);
   // Plain <img>: CMS images come from Supabase Storage, already resized/WebP at upload (P5.x).
   // eslint-disable-next-line @next/next/no-img-element
-  const img = <img src={src} alt={alt} width={width ?? undefined} height={height ?? undefined} loading="lazy" decoding="async" />;
+  const img = (
+    <img
+      src={src}
+      alt={alt}
+      width={width ?? undefined}
+      height={height ?? undefined}
+      loading="lazy"
+      decoding="async"
+    />
+  );
   return (
     <figure key={key}>
       {img}
@@ -193,12 +234,21 @@ function renderImage(node: TiptapNode, ctx: Ctx, key: string): ReactNode {
   );
 }
 
-function renderNode(node: TiptapNode, ctx: Ctx, depth: number, key: string): ReactNode {
+function renderNode(
+  node: TiptapNode,
+  ctx: Ctx,
+  depth: number,
+  key: string,
+): ReactNode {
   if (!node || typeof node !== "object" || depth > MAX_DEPTH) return null;
   switch (node.type) {
     case "text": {
       if (typeof node.text !== "string" || node.text === "") return null;
-      return <Fragment key={key}>{renderMarks(node.text, node.marks, ctx, key)}</Fragment>;
+      return (
+        <Fragment key={key}>
+          {renderMarks(node.text, node.marks, ctx, key)}
+        </Fragment>
+      );
     }
     case "paragraph": {
       const children = renderChildren(node, ctx, depth, key);
@@ -208,7 +258,10 @@ function renderNode(node: TiptapNode, ctx: Ctx, depth: number, key: string): Rea
       const level = clampLevel(node.attrs?.level, ctx.headingOffset);
       const Tag = `h${level}` as const;
       const text = richTextToPlainText(node);
-      const id = ctx.headingIds && text ? uniqueId(slugifyHeading(text), ctx.seenIds) : undefined;
+      const id =
+        ctx.headingIds && text
+          ? uniqueId(slugifyHeading(text), ctx.seenIds)
+          : undefined;
       return (
         <Tag key={key} id={id}>
           {renderChildren(node, ctx, depth, key)}
@@ -220,7 +273,10 @@ function renderNode(node: TiptapNode, ctx: Ctx, depth: number, key: string): Rea
     case "orderedList": {
       const start = node.attrs?.start;
       return (
-        <ol key={key} start={typeof start === "number" && start !== 1 ? start : undefined}>
+        <ol
+          key={key}
+          start={typeof start === "number" && start !== 1 ? start : undefined}
+        >
           {renderChildren(node, ctx, depth, key)}
         </ol>
       );
@@ -228,7 +284,11 @@ function renderNode(node: TiptapNode, ctx: Ctx, depth: number, key: string): Rea
     case "listItem":
       return <li key={key}>{renderChildren(node, ctx, depth, key)}</li>;
     case "blockquote":
-      return <blockquote key={key}>{renderChildren(node, ctx, depth, key)}</blockquote>;
+      return (
+        <blockquote key={key}>
+          {renderChildren(node, ctx, depth, key)}
+        </blockquote>
+      );
     case "hardBreak":
       return <br key={key} />;
     case "horizontalRule":
@@ -251,13 +311,17 @@ export function renderRichText(
   doc: TiptapDoc | { type?: unknown; content?: unknown } | null | undefined,
   options: RenderRichTextOptions = {},
 ): ReactNode {
-  if (!doc || typeof doc !== "object" || !Array.isArray(doc.content)) return null;
+  if (!doc || typeof doc !== "object" || !Array.isArray(doc.content))
+    return null;
   const media = options.media;
   const lookup =
     media instanceof Map
       ? (id: string) => media.get(id)
       : media
-        ? (id: string) => (Object.hasOwn(media, id) ? (media as Record<string, RichTextMedia>)[id] : undefined)
+        ? (id: string) =>
+            Object.hasOwn(media, id)
+              ? (media as Record<string, RichTextMedia>)[id]
+              : undefined
         : () => undefined;
   const ctx: Ctx = {
     media: lookup,
@@ -266,7 +330,9 @@ export function renderRichText(
     headingIds: options.headingIds ?? true,
     seenIds: new Map(),
   };
-  return (doc.content as TiptapNode[]).map((n, i) => renderNode(n, ctx, 0, `n${i}`));
+  return (doc.content as TiptapNode[]).map((n, i) =>
+    renderNode(n, ctx, 0, `n${i}`),
+  );
 }
 
 /** Collect media ids referenced by image nodes (to batch-load them before rendering). */
@@ -274,7 +340,8 @@ export function collectMediaIds(doc: TiptapDoc | null | undefined): string[] {
   const ids = new Set<string>();
   const walk = (n: TiptapNode, depth: number) => {
     if (!n || depth > MAX_DEPTH) return;
-    if (n.type === "image" && typeof n.attrs?.mediaId === "string") ids.add(n.attrs.mediaId);
+    if (n.type === "image" && typeof n.attrs?.mediaId === "string")
+      ids.add(n.attrs.mediaId);
     n.content?.forEach((c) => walk(c, depth + 1));
   };
   doc?.content?.forEach((n) => walk(n, 0));

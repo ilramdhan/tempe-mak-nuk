@@ -1,7 +1,11 @@
 import { z } from "zod";
 
 import { legalSlug, pageStatus } from "@/db/schema/enums";
-import { dateTimeSchema, requiredText, richTextDocSchema } from "@/features/_shared/schema";
+import {
+  dateTimeSchema,
+  requiredText,
+  richTextDocSchema,
+} from "@/features/_shared/schema";
 
 export const legalSlugSchema = z.enum(legalSlug.enumValues);
 

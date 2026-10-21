@@ -28,7 +28,12 @@ export const productInputSchema = z.object({
   shapeIds: z.array(uuidSchema).max(50).optional(),
   /** Linked sizes with optional per-product price override. */
   sizes: z
-    .array(z.object({ sizeId: uuidSchema, price: nullableIntSchema(0, 100_000_000) }))
+    .array(
+      z.object({
+        sizeId: uuidSchema,
+        price: nullableIntSchema(0, 100_000_000),
+      }),
+    )
     .max(50)
     .optional(),
   /** Gallery media ids in display order. */
@@ -56,7 +61,12 @@ export const productSizeInputSchema = z.object({
 });
 export type ProductSizeInput = z.input<typeof productSizeInputSchema>;
 
-const nutrient = z.coerce.number().min(0).max(100_000).nullish().transform((v) => v ?? null);
+const nutrient = z.coerce
+  .number()
+  .min(0)
+  .max(100_000)
+  .nullish()
+  .transform((v) => v ?? null);
 
 export const nutritionInputSchema = z.object({
   productId: uuidSchema,
@@ -69,6 +79,9 @@ export const nutritionInputSchema = z.object({
   calciumMg: nutrient,
   ironMg: nutrient,
   source: requiredText(300, "Sumber data gizi"),
-  sourceUrl: z.url().nullish().transform((v) => v ?? null),
+  sourceUrl: z
+    .url()
+    .nullish()
+    .transform((v) => v ?? null),
 });
 export type NutritionInput = z.input<typeof nutritionInputSchema>;

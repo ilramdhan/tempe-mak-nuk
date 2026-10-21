@@ -50,7 +50,10 @@ export async function searchMediaLibrary(
     const rows = await listMediaForAdmin({ q, limit: limit + 1, offset });
     return {
       ok: true,
-      data: { items: rows.slice(0, limit).map(toLibraryItem), hasMore: rows.length > limit },
+      data: {
+        items: rows.slice(0, limit).map(toLibraryItem),
+        hasMore: rows.length > limit,
+      },
     };
   } catch (error) {
     console.error("[media] search failed:", error);
@@ -59,7 +62,9 @@ export async function searchMediaLibrary(
 }
 
 /** Editor+: one item by id (MediaPicker preview of the current value). */
-export async function getMediaLibraryItem(id: string): Promise<ActionResult<MediaLibraryItem | null>> {
+export async function getMediaLibraryItem(
+  id: string,
+): Promise<ActionResult<MediaLibraryItem | null>> {
   try {
     await requireRole("editor");
   } catch (e) {
@@ -68,7 +73,11 @@ export async function getMediaLibraryItem(id: string): Promise<ActionResult<Medi
   }
   if (!uuidSchema.safeParse(id).success) return { ok: true, data: null };
   try {
-    const [row] = await getDb().select().from(media).where(eq(media.id, id)).limit(1);
+    const [row] = await getDb()
+      .select()
+      .from(media)
+      .where(eq(media.id, id))
+      .limit(1);
     return { ok: true, data: row ? toLibraryItem(row) : null };
   } catch (error) {
     console.error("[media] get failed:", error);
@@ -77,7 +86,9 @@ export async function getMediaLibraryItem(id: string): Promise<ActionResult<Medi
 }
 
 /** Editor+: where is this media used (warning before delete). */
-export async function getMediaUsageAction(id: string): Promise<ActionResult<MediaUsage[]>> {
+export async function getMediaUsageAction(
+  id: string,
+): Promise<ActionResult<MediaUsage[]>> {
   try {
     await requireRole("editor");
   } catch (e) {
@@ -97,7 +108,9 @@ export async function getMediaUsageAction(id: string): Promise<ActionResult<Medi
  * Owner-only: delete the DB row (FKs set null / product gallery cascades) and the Storage
  * object. JSON references (rich text, sections, SEO) are left dangling and render as missing.
  */
-export async function deleteMediaAndFile(id: string): Promise<ActionResult<{ storageRemoved: boolean }>> {
+export async function deleteMediaAndFile(
+  id: string,
+): Promise<ActionResult<{ storageRemoved: boolean }>> {
   const res = await adminAction({
     role: "owner",
     schema: z.object({ id: uuidSchema }),
@@ -105,12 +118,23 @@ export async function deleteMediaAndFile(id: string): Promise<ActionResult<{ sto
     entity: "media",
     action: "delete",
     run: async ({ id }, { tx }) => {
-      const [row] = await tx.delete(media).where(eq(media.id, id)).returning({ storagePath: media.storagePath });
+      const [row] = await tx
+        .delete(media)
+        .where(eq(media.id, id))
+        .returning({ storagePath: media.storagePath });
       if (!row) return fail("Media tidak ditemukan.");
       return {
         result: row,
         entityId: id,
-        tags: [tags.media, tags.mediaItem(id), tags.products, tags.posts, tags.recipes, tags.testimonials, tags.pages],
+        tags: [
+          tags.media,
+          tags.mediaItem(id),
+          tags.products,
+          tags.posts,
+          tags.recipes,
+          tags.testimonials,
+          tags.pages,
+        ],
       };
     },
   });
@@ -119,7 +143,9 @@ export async function deleteMediaAndFile(id: string): Promise<ActionResult<{ sto
   return { ok: true, data: { storageRemoved } };
 }
 
-function toLibraryItem(r: Awaited<ReturnType<typeof listMediaForAdmin>>[number]): MediaLibraryItem {
+function toLibraryItem(
+  r: Awaited<ReturnType<typeof listMediaForAdmin>>[number],
+): MediaLibraryItem {
   return {
     id: r.id,
     url: r.url,

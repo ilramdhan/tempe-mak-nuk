@@ -21,12 +21,15 @@ export function compact<T>(value: T): T {
 function isEmpty(v: unknown): boolean {
   if (v === undefined || v === null || v === "") return true;
   if (Array.isArray(v)) return v.length === 0;
-  if (typeof v === "object" && !(v instanceof Date)) return Object.keys(v as object).length === 0;
+  if (typeof v === "object" && !(v instanceof Date))
+    return Object.keys(v as object).length === 0;
   return false;
 }
 
 /** Minutes → ISO 8601 duration ("PT90M" → "PT1H30M"). Null for empty/invalid. */
-export function isoDuration(minutes: number | null | undefined): string | undefined {
+export function isoDuration(
+  minutes: number | null | undefined,
+): string | undefined {
   if (!minutes || !Number.isFinite(minutes) || minutes <= 0) return undefined;
   const total = Math.round(minutes);
   const h = Math.floor(total / 60);
@@ -34,9 +37,18 @@ export function isoDuration(minutes: number | null | undefined): string | undefi
   return `PT${h ? `${h}H` : ""}${m ? `${m}M` : ""}`;
 }
 
-const iso = (d?: Date | string | null) => (d ? (d instanceof Date ? d.toISOString() : d) : undefined);
+const iso = (d?: Date | string | null) =>
+  d ? (d instanceof Date ? d.toISOString() : d) : undefined;
 
-const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] as const;
+const DAY_NAMES = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+] as const;
 
 export type BusinessInfo = {
   name: string;
@@ -45,7 +57,13 @@ export type BusinessInfo = {
   description?: string;
   telephone?: string;
   email?: string;
-  address?: { street?: string; locality?: string; region?: string; postalCode?: string; country?: string };
+  address?: {
+    street?: string;
+    locality?: string;
+    region?: string;
+    postalCode?: string;
+    country?: string;
+  };
   geo?: { lat: number; lng: number } | null;
   mapUrl?: string;
   hours?: { day: number; open: string; close: string }[];
@@ -70,16 +88,17 @@ function businessFields(b: BusinessInfo, base: string): JsonLdNode {
     foundingDate: b.foundedYear ? String(b.foundedYear) : undefined,
     telephone: b.telephone,
     email: b.email,
-    address: a && (a.street || a.locality || a.region)
-      ? {
-          "@type": "PostalAddress",
-          streetAddress: a.street,
-          addressLocality: a.locality,
-          addressRegion: a.region,
-          postalCode: a.postalCode,
-          addressCountry: a.country,
-        }
-      : undefined,
+    address:
+      a && (a.street || a.locality || a.region)
+        ? {
+            "@type": "PostalAddress",
+            streetAddress: a.street,
+            addressLocality: a.locality,
+            addressRegion: a.region,
+            postalCode: a.postalCode,
+            addressCountry: a.country,
+          }
+        : undefined,
     sameAs: (b.sameAs ?? []).filter(Boolean),
   };
 }
@@ -90,7 +109,9 @@ export function organizationJsonLd(b: BusinessInfo, base: string): JsonLdNode {
         "@type": "EducationalOccupationalCredential",
         credentialCategory: "Sertifikat Halal",
         identifier: b.halal.number,
-        recognizedBy: b.halal.issuer ? { "@type": "Organization", name: b.halal.issuer } : undefined,
+        recognizedBy: b.halal.issuer
+          ? { "@type": "Organization", name: b.halal.issuer }
+          : undefined,
       }
     : undefined;
   return compact({
@@ -103,12 +124,17 @@ export function organizationJsonLd(b: BusinessInfo, base: string): JsonLdNode {
 }
 
 /** LocalBusiness subtype for a food producer; geo, hours and map included when present. */
-export function foodEstablishmentJsonLd(b: BusinessInfo, base: string): JsonLdNode {
+export function foodEstablishmentJsonLd(
+  b: BusinessInfo,
+  base: string,
+): JsonLdNode {
   return compact({
     "@context": CTX,
     "@type": "FoodEstablishment",
     ...businessFields(b, base),
-    geo: b.geo ? { "@type": "GeoCoordinates", latitude: b.geo.lat, longitude: b.geo.lng } : undefined,
+    geo: b.geo
+      ? { "@type": "GeoCoordinates", latitude: b.geo.lat, longitude: b.geo.lng }
+      : undefined,
     hasMap: b.mapUrl,
     openingHoursSpecification: (b.hours ?? []).map((d) => ({
       "@type": "OpeningHoursSpecification",
@@ -119,7 +145,11 @@ export function foodEstablishmentJsonLd(b: BusinessInfo, base: string): JsonLdNo
   });
 }
 
-export function webSiteJsonLd(b: Pick<BusinessInfo, "name" | "description">, base: string, lang = "id-ID"): JsonLdNode {
+export function webSiteJsonLd(
+  b: Pick<BusinessInfo, "name" | "description">,
+  base: string,
+  lang = "id-ID",
+): JsonLdNode {
   return compact({
     "@context": CTX,
     "@type": "WebSite",
@@ -135,7 +165,10 @@ export function webSiteJsonLd(b: Pick<BusinessInfo, "name" | "description">, bas
 export type Crumb = { label: string; href?: string };
 
 /** Crumbs without `href` (current page) are emitted without `item`. */
-export function breadcrumbListJsonLd(crumbs: Crumb[], base: string): JsonLdNode | null {
+export function breadcrumbListJsonLd(
+  crumbs: Crumb[],
+  base: string,
+): JsonLdNode | null {
   if (!crumbs.length) return null;
   return {
     "@context": CTX,
@@ -246,7 +279,8 @@ export type RecipeJsonLdInput = {
 
 export function recipeJsonLd(r: RecipeJsonLdInput, base: string): JsonLdNode {
   const url = absoluteUrl(r.path, base);
-  const total = r.totalMinutes ?? ((r.prepMinutes ?? 0) + (r.cookMinutes ?? 0) || null);
+  const total =
+    r.totalMinutes ?? ((r.prepMinutes ?? 0) + (r.cookMinutes ?? 0) || null);
   return compact({
     "@context": CTX,
     "@type": "Recipe",
@@ -279,12 +313,16 @@ export function recipeJsonLd(r: RecipeJsonLdInput, base: string): JsonLdNode {
 export type FaqItem = { question: string; answer: string };
 
 /** `answer` must be plain text. Null when there are no items. */
-export function faqPageJsonLd(items: FaqItem[], opts?: { path?: string; base?: string; lang?: string }): JsonLdNode | null {
+export function faqPageJsonLd(
+  items: FaqItem[],
+  opts?: { path?: string; base?: string; lang?: string },
+): JsonLdNode | null {
   if (!items.length) return null;
   return compact({
     "@context": CTX,
     "@type": "FAQPage",
-    url: opts?.path && opts.base ? absoluteUrl(opts.path, opts.base) : undefined,
+    url:
+      opts?.path && opts.base ? absoluteUrl(opts.path, opts.base) : undefined,
     inLanguage: opts?.lang,
     mainEntity: items.map((f) => ({
       "@type": "Question",
@@ -302,7 +340,10 @@ export type HowToJsonLdInput = {
   steps: { name?: string | null; text?: string | null }[];
 };
 
-export function howToJsonLd(h: HowToJsonLdInput, base: string): JsonLdNode | null {
+export function howToJsonLd(
+  h: HowToJsonLdInput,
+  base: string,
+): JsonLdNode | null {
   if (!h.steps.length) return null;
   return compact({
     "@context": CTX,
@@ -320,10 +361,17 @@ export function howToJsonLd(h: HowToJsonLdInput, base: string): JsonLdNode | nul
   });
 }
 
-export type WebPageType = "WebPage" | "AboutPage" | "ContactPage" | "CollectionPage";
+export type WebPageType =
+  "WebPage" | "AboutPage" | "ContactPage" | "CollectionPage";
 
 export function webPageJsonLd(
-  p: { type?: WebPageType; name: string; path: string; description?: string | null; lang?: string },
+  p: {
+    type?: WebPageType;
+    name: string;
+    path: string;
+    description?: string | null;
+    lang?: string;
+  },
   base: string,
 ): JsonLdNode {
   const url = absoluteUrl(p.path, base);

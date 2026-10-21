@@ -17,17 +17,32 @@ const MB = 1024 * 1024;
 
 describe("validateUploadFile", () => {
   it("accepts allowed image types", () => {
-    for (const type of ["image/jpeg", "image/png", "image/webp", "image/avif"]) {
+    for (const type of [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/avif",
+    ]) {
       expect(validateUploadFile({ type, size: 1000 })).toBeNull();
     }
   });
   it("rejects svg, unknown, empty and too large", () => {
-    expect(validateUploadFile({ type: "image/svg+xml", size: 10 })).toMatch(/SVG/);
-    expect(validateUploadFile({ type: "image/png", size: 10, name: "x.svg" })).toMatch(/SVG/);
-    expect(validateUploadFile({ type: "image/gif", size: 10 })).toMatch(/Format/);
+    expect(validateUploadFile({ type: "image/svg+xml", size: 10 })).toMatch(
+      /SVG/,
+    );
+    expect(
+      validateUploadFile({ type: "image/png", size: 10, name: "x.svg" }),
+    ).toMatch(/SVG/);
+    expect(validateUploadFile({ type: "image/gif", size: 10 })).toMatch(
+      /Format/,
+    );
     expect(validateUploadFile({ type: "", size: 10 })).toMatch(/Format/);
-    expect(validateUploadFile({ type: "image/png", size: 0 })).toMatch(/kosong/);
-    expect(validateUploadFile({ type: "image/png", size: 6 * MB })).toMatch(/melebihi/);
+    expect(validateUploadFile({ type: "image/png", size: 0 })).toMatch(
+      /kosong/,
+    );
+    expect(validateUploadFile({ type: "image/png", size: 6 * MB })).toMatch(
+      /melebihi/,
+    );
   });
 });
 
@@ -55,7 +70,11 @@ describe("naming", () => {
     const path = buildStoragePath(id, new Date(Date.UTC(2026, 0, 5)));
     expect(path).toBe(`uploads/2026/01/${id}.webp`);
     expect(
-      mediaInputSchema.safeParse({ storagePath: path, url: "https://x.supabase.co/a.webp", alt: "Tempe" }).success,
+      mediaInputSchema.safeParse({
+        storagePath: path,
+        url: "https://x.supabase.co/a.webp",
+        alt: "Tempe",
+      }).success,
     ).toBe(true);
     expect(() => buildStoragePath("../etc/passwd")).toThrow();
   });
@@ -69,8 +88,20 @@ describe("naming", () => {
   });
 });
 
-async function synth(width: number, height: number, format: "png" | "jpeg" | "webp", orientation?: number) {
-  let img = sharp({ create: { width, height, channels: 3, background: { r: 200, g: 150, b: 80 } } });
+async function synth(
+  width: number,
+  height: number,
+  format: "png" | "jpeg" | "webp",
+  orientation?: number,
+) {
+  let img = sharp({
+    create: {
+      width,
+      height,
+      channels: 3,
+      background: { r: 200, g: 150, b: 80 },
+    },
+  });
   if (orientation) img = img.withMetadata({ orientation });
   return img.toFormat(format).toBuffer();
 }
@@ -97,19 +128,35 @@ describe("processImage (sharp)", () => {
   });
 
   it("accepts png and webp", async () => {
-    expect((await processImage(await synth(64, 64, "png"))).sourceMime).toBe("image/png");
-    expect((await processImage(await synth(64, 64, "webp"))).sourceMime).toBe("image/webp");
+    expect((await processImage(await synth(64, 64, "png"))).sourceMime).toBe(
+      "image/png",
+    );
+    expect((await processImage(await synth(64, 64, "webp"))).sourceMime).toBe(
+      "image/webp",
+    );
   });
 
   it("rejects non-images, SVG and too-small images by content", async () => {
-    await expect(processImage(Buffer.from("not an image at all"))).rejects.toBeInstanceOf(ImageProcessingError);
-    const svg = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><script/></svg>');
-    await expect(processImage(svg)).rejects.toThrow(/Format tidak didukung|bukan gambar/);
-    await expect(processImage(await synth(8, 8, "png"))).rejects.toThrow(/kecil/);
+    await expect(
+      processImage(Buffer.from("not an image at all")),
+    ).rejects.toBeInstanceOf(ImageProcessingError);
+    const svg = Buffer.from(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><script/></svg>',
+    );
+    await expect(processImage(svg)).rejects.toThrow(
+      /Format tidak didukung|bukan gambar/,
+    );
+    await expect(processImage(await synth(8, 8, "png"))).rejects.toThrow(
+      /kecil/,
+    );
   });
 
   it("rejects GIF even with an image extension", async () => {
-    const gif = await sharp({ create: { width: 32, height: 32, channels: 3, background: "#fff" } }).gif().toBuffer();
+    const gif = await sharp({
+      create: { width: 32, height: 32, channels: 3, background: "#fff" },
+    })
+      .gif()
+      .toBuffer();
     await expect(processImage(gif)).rejects.toThrow(/Format tidak didukung/);
   });
 });

@@ -6,7 +6,13 @@ import { Container } from "@/components/site/primitives";
 import { BlockRenderer } from "@/features/pages/blocks/block-renderer";
 import { getPage, getPageMeta } from "@/features/pages/queries";
 import { getSettings } from "@/features/settings/queries";
-import { businessFromSettings, JsonLd, organizationJsonLd, siteBaseUrl, webPageJsonLd } from "@/lib/seo";
+import {
+  businessFromSettings,
+  JsonLd,
+  organizationJsonLd,
+  siteBaseUrl,
+  webPageJsonLd,
+} from "@/lib/seo";
 import { pageMetadata } from "@/lib/seo/server";
 
 const SLUG = "tentang";
@@ -30,7 +36,10 @@ export default async function Page() {
   const title = page.seo.title ?? page.title;
   const description = page.seo.description;
   const jsonLd = [
-    webPageJsonLd({ type: "AboutPage", name: title, path: "/tentang", description }, base),
+    webPageJsonLd(
+      { type: "AboutPage", name: title, path: "/tentang", description },
+      base,
+    ),
     organizationJsonLd(businessFromSettings(settings), base),
   ];
 

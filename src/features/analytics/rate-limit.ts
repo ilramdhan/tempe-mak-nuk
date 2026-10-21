@@ -23,7 +23,8 @@ export function createRateLimiter({
       if (hits.size >= maxKeys) {
         // Drop expired entries; if still full, drop the oldest insertion.
         for (const [k, v] of hits) if (v.resetAt <= now) hits.delete(k);
-        if (hits.size >= maxKeys) hits.delete(hits.keys().next().value as string);
+        if (hits.size >= maxKeys)
+          hits.delete(hits.keys().next().value as string);
       }
       hits.set(key, { count: 1, resetAt: now + windowMs });
       return true;

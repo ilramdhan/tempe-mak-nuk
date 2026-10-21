@@ -4,7 +4,15 @@ import { and, desc, eq, inArray, ne } from "drizzle-orm";
 import { cacheTag } from "next/cache";
 
 import type { Database } from "@/db/client";
-import { categories, media, products, recipes, type RecipeDifficulty, type RecipeIngredient, type RecipeStep } from "@/db/schema";
+import {
+  categories,
+  media,
+  products,
+  recipes,
+  type RecipeDifficulty,
+  type RecipeIngredient,
+  type RecipeStep,
+} from "@/db/schema";
 import type { RichTextDoc, SeoMeta } from "@/db/schema/seo";
 import { cachedRead } from "@/features/_shared/db";
 import { isLiveSql } from "@/features/_shared/live";
@@ -72,10 +80,21 @@ function toSummary(r: Row): RecipeSummary {
     servings: r.servings,
     difficulty: r.difficulty,
     publishedAt: r.publishedAt,
-    category: r.categoryId ? { id: r.categoryId, slug: r.categorySlug!, name: r.categoryName! } : null,
-    product: r.productSlug ? { slug: r.productSlug, name: r.productName! } : null,
+    category: r.categoryId
+      ? { id: r.categoryId, slug: r.categorySlug!, name: r.categoryName! }
+      : null,
+    product: r.productSlug
+      ? { slug: r.productSlug, name: r.productName! }
+      : null,
     cover: r.coverId
-      ? { id: r.coverId, url: r.coverUrl!, alt: r.coverAlt!, width: r.coverWidth, height: r.coverHeight, blurDataUrl: r.coverBlur }
+      ? {
+          id: r.coverId,
+          url: r.coverUrl!,
+          alt: r.coverAlt!,
+          width: r.coverWidth,
+          height: r.coverHeight,
+          blurDataUrl: r.coverBlur,
+        }
       : null,
   };
 }
@@ -91,7 +110,11 @@ function base(db: Database) {
 
 /** Live recipes, newest first. Filters: category slug, product slug. */
 export async function getRecipes(
-  opts: { category?: string | null; product?: string | null; limit?: number } = {},
+  opts: {
+    category?: string | null;
+    product?: string | null;
+    limit?: number;
+  } = {},
 ): Promise<RecipeSummary[]> {
   "use cache";
   cacheTag(tags.recipes);
@@ -102,31 +125,53 @@ export async function getRecipes(
       opts.category ? eq(categories.slug, opts.category) : undefined,
       opts.product ? eq(products.slug, opts.product) : undefined,
     );
-    return (await base(db).where(where).orderBy(desc(recipes.publishedAt)).limit(limit)).map(toSummary);
+    return (
+      await base(db)
+        .where(where)
+        .orderBy(desc(recipes.publishedAt))
+        .limit(limit)
+    ).map(toSummary);
   });
 }
 
-export async function getRecipesBySlugs(slugs: readonly string[]): Promise<RecipeSummary[]> {
+export async function getRecipesBySlugs(
+  slugs: readonly string[],
+): Promise<RecipeSummary[]> {
   if (!slugs.length) return [];
   const list = await getRecipesBySlugsCached([...slugs]);
   const bySlug = new Map(list.map((r) => [r.slug, r]));
-  return slugs.map((s) => bySlug.get(s)).filter((r): r is RecipeSummary => Boolean(r));
+  return slugs
+    .map((s) => bySlug.get(s))
+    .filter((r): r is RecipeSummary => Boolean(r));
 }
 
-async function getRecipesBySlugsCached(slugs: string[]): Promise<RecipeSummary[]> {
+async function getRecipesBySlugsCached(
+  slugs: string[],
+): Promise<RecipeSummary[]> {
   "use cache";
   cacheTag(tags.recipes, ...slugs.slice(0, 50).map(tags.recipe));
   return cachedRead("recipes-by-slug", "hours", [], async (db) =>
-    (await base(db).where(and(live, inArray(recipes.slug, slugs)))).map(toSummary),
+    (await base(db).where(and(live, inArray(recipes.slug, slugs)))).map(
+      toSummary,
+    ),
   );
 }
 
-export async function getRecipeBySlug(slug: string): Promise<RecipeDetail | null> {
+export async function getRecipeBySlug(
+  slug: string,
+): Promise<RecipeDetail | null> {
   "use cache";
   cacheTag(tags.recipes, tags.recipe(slug));
   return cachedRead("recipe", "hours", null, async (db) => {
     const [row] = await db
-      .select({ ...cols, content: recipes.content, ingredients: recipes.ingredients, steps: recipes.steps, seo: recipes.seo, updatedAt: recipes.updatedAt })
+      .select({
+        ...cols,
+        content: recipes.content,
+        ingredients: recipes.ingredients,
+        steps: recipes.steps,
+        seo: recipes.seo,
+        updatedAt: recipes.updatedAt,
+      })
       .from(recipes)
       .leftJoin(categories, eq(categories.id, recipes.categoryId))
       .leftJoin(products, eq(products.id, recipes.productId))
@@ -145,7 +190,10 @@ export async function getRecipeBySlug(slug: string): Promise<RecipeDetail | null
   });
 }
 
-export async function getRelatedRecipes(slug: string, limit = 3): Promise<RecipeSummary[]> {
+export async function getRelatedRecipes(
+  slug: string,
+  limit = 3,
+): Promise<RecipeSummary[]> {
   "use cache";
   cacheTag(tags.recipes);
   return cachedRead("related-recipes", "hours", [], async (db) => {
@@ -154,16 +202,29 @@ export async function getRelatedRecipes(slug: string, limit = 3): Promise<Recipe
       .from(recipes)
       .where(eq(recipes.slug, slug))
       .limit(1);
-    const list = (await base(db).where(and(live, ne(recipes.slug, slug))).orderBy(desc(recipes.publishedAt)).limit(30)).map(toSummary);
-    const same = cur?.categoryId ? list.filter((r) => r.category?.id === cur.categoryId) : [];
+    const list = (
+      await base(db)
+        .where(and(live, ne(recipes.slug, slug)))
+        .orderBy(desc(recipes.publishedAt))
+        .limit(30)
+    ).map(toSummary);
+    const same = cur?.categoryId
+      ? list.filter((r) => r.category?.id === cur.categoryId)
+      : [];
     return [...same, ...list.filter((r) => !same.includes(r))].slice(0, limit);
   });
 }
 
-export async function getRecipeSlugs(): Promise<{ slug: string; updatedAt: Date }[]> {
+export async function getRecipeSlugs(): Promise<
+  { slug: string; updatedAt: Date }[]
+> {
   "use cache";
   cacheTag(tags.recipes);
   return cachedRead("recipe-slugs", "hours", [], (db) =>
-    db.select({ slug: recipes.slug, updatedAt: recipes.updatedAt }).from(recipes).where(live).orderBy(desc(recipes.publishedAt)),
+    db
+      .select({ slug: recipes.slug, updatedAt: recipes.updatedAt })
+      .from(recipes)
+      .where(live)
+      .orderBy(desc(recipes.publishedAt)),
   );
 }

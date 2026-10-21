@@ -29,7 +29,11 @@ export type UploadedMedia = {
  * `revalidateTag(tag, "max")` (updateTag is Server-Action-only). Caller has done requireRole.
  * Throws ImageProcessingError (user-facing message) or generic errors.
  */
-export async function storeUpload(buffer: Buffer, alt: string, user: SessionUser): Promise<UploadedMedia> {
+export async function storeUpload(
+  buffer: Buffer,
+  alt: string,
+  user: SessionUser,
+): Promise<UploadedMedia> {
   const img = await processImage(buffer);
   const id = crypto.randomUUID();
   const storagePath = buildStoragePath(id);
@@ -62,7 +66,13 @@ export async function storeUpload(buffer: Buffer, alt: string, user: SessionUser
     action: "create",
     entity: "media",
     entityId: row.id,
-    diff: { storagePath, alt, width: img.width, height: img.height, sizeBytes: img.sizeBytes },
+    diff: {
+      storagePath,
+      alt,
+      width: img.width,
+      height: img.height,
+      sizeBytes: img.sizeBytes,
+    },
   });
   revalidateTag(tags.media, "max");
 

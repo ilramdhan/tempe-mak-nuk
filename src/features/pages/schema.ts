@@ -1,7 +1,12 @@
 import { z } from "zod";
 
 import { pageStatus } from "@/db/schema/enums";
-import { hrefSchema, requiredText, seoSchema, uuidSchema } from "@/features/_shared/schema";
+import {
+  hrefSchema,
+  requiredText,
+  seoSchema,
+  uuidSchema,
+} from "@/features/_shared/schema";
 
 export {
   blockSchema,
@@ -25,7 +30,10 @@ export const pageSlugSchema = z
   .trim()
   .min(1)
   .max(120)
-  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/, "Slug tidak valid");
+  .regex(
+    /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/,
+    "Slug tidak valid",
+  );
 
 export const pageInputSchema = z.object({
   slug: pageSlugSchema,
@@ -40,7 +48,10 @@ export const sectionReorderSchema = z.object({
   ids: z.array(uuidSchema).min(1).max(200),
 });
 
-export const sectionVisibilitySchema = z.object({ id: uuidSchema, visible: z.boolean() });
+export const sectionVisibilitySchema = z.object({
+  id: uuidSchema,
+  visible: z.boolean(),
+});
 
 export const redirectInputSchema = z
   .object({
@@ -49,9 +60,15 @@ export const redirectInputSchema = z
       .trim()
       .min(2)
       .max(300)
-      .regex(/^\/(?!\/)[^\s?#]*$/, "Harus path internal diawali / (tanpa query)"),
+      .regex(
+        /^\/(?!\/)[^\s?#]*$/,
+        "Harus path internal diawali / (tanpa query)",
+      ),
     to: hrefSchema,
     permanent: z.boolean().default(true),
   })
-  .refine((v) => v.from !== v.to, { path: ["to"], message: "Tujuan tidak boleh sama" });
+  .refine((v) => v.from !== v.to, {
+    path: ["to"],
+    message: "Tujuan tidak boleh sama",
+  });
 export type RedirectInput = z.input<typeof redirectInputSchema>;

@@ -33,8 +33,19 @@ const HOLIDAY_LIST: [string, string][] = [
 
 /** Booked counts relative to today: [offsetDays, booked, status?, capacity?] to show all states. */
 const BOOKINGS: [number, number][] = [
-  [4, 3], [5, 6], [6, 7], [7, 8], [8, 2], [9, 5], [10, 8],
-  [12, 1], [13, 7], [14, 4], [16, 6], [18, 0], [19, 2],
+  [4, 3],
+  [5, 6],
+  [6, 7],
+  [7, 8],
+  [8, 2],
+  [9, 5],
+  [10, 8],
+  [12, 1],
+  [13, 7],
+  [14, 4],
+  [16, 6],
+  [18, 0],
+  [19, 2],
 ];
 
 export async function seedSlots(tx: Tx) {

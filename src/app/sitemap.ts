@@ -27,7 +27,11 @@ const STATIC_ROUTES = [
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const settings = await getSettings();
-  const base = (process.env.NEXT_PUBLIC_SITE_URL || settings["site.url"] || "http://localhost:3000").replace(/\/+$/, "");
+  const base = (
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    settings["site.url"] ||
+    "http://localhost:3000"
+  ).replace(/\/+$/, "");
   const abs = (p: string) => (p === "/" ? base : `${base}${p}`);
 
   const [products, posts, recipes, postCats] = await Promise.all([
@@ -42,9 +46,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: p === "/" || p === "/jurnal" ? "weekly" : "monthly",
     priority: p === "/" ? 1 : 0.7,
   }));
-  for (const x of products) entries.push({ url: abs(`/produk/${x.slug}`), lastModified: x.updatedAt, priority: 0.9 });
-  for (const x of posts) entries.push({ url: abs(`/jurnal/${x.slug}`), lastModified: x.updatedAt, priority: 0.6 });
-  for (const x of recipes) entries.push({ url: abs(`/resep/${x.slug}`), lastModified: x.updatedAt, priority: 0.6 });
-  for (const c of postCats) entries.push({ url: abs(`/jurnal/kategori/${c.slug}`), priority: 0.4 });
+  for (const x of products)
+    entries.push({
+      url: abs(`/produk/${x.slug}`),
+      lastModified: x.updatedAt,
+      priority: 0.9,
+    });
+  for (const x of posts)
+    entries.push({
+      url: abs(`/jurnal/${x.slug}`),
+      lastModified: x.updatedAt,
+      priority: 0.6,
+    });
+  for (const x of recipes)
+    entries.push({
+      url: abs(`/resep/${x.slug}`),
+      lastModified: x.updatedAt,
+      priority: 0.6,
+    });
+  for (const c of postCats)
+    entries.push({ url: abs(`/jurnal/kategori/${c.slug}`), priority: 0.4 });
   return entries;
 }

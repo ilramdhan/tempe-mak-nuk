@@ -19,26 +19,45 @@ import postgres from "postgres";
 const useDirect = process.argv.includes("--direct");
 const statusOnly = process.argv.includes("--status");
 const url = useDirect ? process.env.DIRECT_URL : process.env.DATABASE_URL;
-if (!url) throw new Error(`${useDirect ? "DIRECT_URL" : "DATABASE_URL"} is not set`);
+if (!url)
+  throw new Error(`${useDirect ? "DIRECT_URL" : "DATABASE_URL"} is not set`);
 
 const host = new URL(url).host;
 console.log(`Migrasi ke ${host} ...`);
 
-const sql = postgres(url, { prepare: false, max: 1, connect_timeout: 15, onnotice: () => {} });
+const sql = postgres(url, {
+  prepare: false,
+  max: 1,
+  connect_timeout: 15,
+  onnotice: () => {},
+});
 try {
   if (statusOnly) {
-    const journal = JSON.parse(readFileSync("drizzle/meta/_journal.json", "utf8")) as { entries: { tag: string; when: number }[] };
-    const rows = await sql<{ created_at: string }[]>`select created_at from drizzle.__drizzle_migrations`.catch(() => []);
+    const journal = JSON.parse(
+      readFileSync("drizzle/meta/_journal.json", "utf8"),
+    ) as { entries: { tag: string; when: number }[] };
+    const rows = await sql<
+      { created_at: string }[]
+    >`select created_at from drizzle.__drizzle_migrations`.catch(() => []);
     const done = new Set(rows.map((r) => Number(r.created_at)));
-    for (const m of journal.entries) console.log(`${done.has(m.when) ? "✓" : "·"} ${m.tag}`);
+    for (const m of journal.entries)
+      console.log(`${done.has(m.when) ? "✓" : "·"} ${m.tag}`);
     process.exit(0);
   }
   const db = drizzle(sql);
-  const before = await sql`select count(*)::int as n from drizzle.__drizzle_migrations`.catch(() => [{ n: 0 }]);
+  const before =
+    await sql`select count(*)::int as n from drizzle.__drizzle_migrations`.catch(
+      () => [{ n: 0 }],
+    );
   await migrate(db, { migrationsFolder: "drizzle" });
-  const after = await sql`select count(*)::int as n from drizzle.__drizzle_migrations`;
+  const after =
+    await sql`select count(*)::int as n from drizzle.__drizzle_migrations`;
   const applied = after[0].n - before[0].n;
-  console.log(applied > 0 ? `Selesai: ${applied} migrasi baru diterapkan (total ${after[0].n}).` : `Tidak ada migrasi baru (total ${after[0].n}).`);
+  console.log(
+    applied > 0
+      ? `Selesai: ${applied} migrasi baru diterapkan (total ${after[0].n}).`
+      : `Tidak ada migrasi baru (total ${after[0].n}).`,
+  );
 } catch (e) {
   console.error("Migrasi gagal:", e instanceof Error ? e.message : e);
   process.exitCode = 1;
