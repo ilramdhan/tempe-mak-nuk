@@ -37,6 +37,7 @@ import {
   type OrderFormValues,
 } from "../schema";
 import { OrderMessagePreview, OrderSummaryList } from "./order-summary";
+import { isStickyBarHidden } from "./sticky-bar";
 import { StepCustomer } from "./step-customer";
 import { StepDate } from "./step-date";
 import { StepProduct } from "./step-product";
@@ -57,6 +58,8 @@ export type OrderBuilderProps = {
 };
 
 const MINUTE = 60_000;
+/** Below Tailwind `md` (48rem) the action bar is fixed to the viewport bottom. */
+const MOBILE_QUERY = "(max-width: 47.999rem)";
 
 export function OrderBuilder({
   catalog,
@@ -168,6 +171,31 @@ export function OrderBuilder({
     headingRef.current?.focus();
   }, [step]);
 
+  // Mobile: the fixed "Lanjut" bar only appears once the builder is on screen, so it
+  // never covers the hero. Desktop renders the bar inline (always shown).
+  const formRef = useRef<HTMLFormElement>(null);
+  const [builderInView, setBuilderInView] = useState(false);
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    const form = formRef.current;
+    if (!form) return;
+    const mq = window.matchMedia(MOBILE_QUERY);
+    const syncMq = () => setMobile(mq.matches);
+    syncMq();
+    mq.addEventListener("change", syncMq);
+    // Builder counts as "in view" once its top clears the bottom fifth of the viewport.
+    const io = new IntersectionObserver(
+      ([entry]) => setBuilderInView(Boolean(entry?.isIntersecting)),
+      { rootMargin: "0px 0px -20% 0px" },
+    );
+    io.observe(form);
+    return () => {
+      io.disconnect();
+      mq.removeEventListener("change", syncMq);
+    };
+  }, []);
+  const barHidden = isStickyBarHidden({ mobile, builderInView });
+
   const current = ORDER_STEPS[step]!;
   const isLast = step === ORDER_STEPS.length - 1;
 
@@ -210,13 +238,15 @@ export function OrderBuilder({
     <FormProvider {...form}>
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
         <form
+          ref={formRef}
           noValidate
           aria-labelledby="order-step-heading"
           onSubmit={(e) => {
             e.preventDefault();
             if (!isLast) void next();
           }}
-          className="flex flex-col gap-6 lg:col-span-8"
+          // Mobile: reserve the fixed bar's height so the last field is never under it.
+          className="flex flex-col gap-6 max-md:pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:col-span-8"
         >
           <ol
             className="flex flex-wrap gap-2 text-sm"
@@ -297,8 +327,19 @@ export function OrderBuilder({
             ) : null}
           </div>
 
-          {/* Sticky on mobile (page reserves pb-24), inline on desktop. */}
-          <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-gutter py-3 backdrop-blur md:static md:z-auto md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none">
+          {/* Fixed on mobile once the builder is in view (hidden = invisible + inert, so not
+              focusable), inline on desktop. */}
+          <div
+            inert={barHidden}
+            data-hidden={barHidden || !mobile ? "" : undefined}
+            className={cn(
+              "fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-gutter pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur",
+              "transition-[translate,opacity,visibility] duration-200 motion-reduce:transition-none",
+              // Before hydration (`mobile` unknown) and while hidden: off-screen + invisible on mobile.
+              "max-md:data-hidden:invisible max-md:data-hidden:translate-y-full max-md:data-hidden:opacity-0",
+              "md:static md:z-auto md:border-0 md:bg-transparent md:p-0 md:backdrop-blur-none",
+            )}
+          >
             <div className="mx-auto flex w-full max-w-content items-center justify-between gap-3 md:max-w-none md:justify-start">
               {step > 0 ? (
                 <Button type="button" variant="secondary" onClick={back}>

@@ -250,6 +250,8 @@
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
     scroll-padding-top: 5rem;
+    /* Focused/anchored content clears the fixed bottom UI (floating WA, order bar). */
+    scroll-padding-bottom: 5.5rem;
   }
 
   body {
