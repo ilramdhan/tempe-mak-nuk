@@ -55,6 +55,7 @@ export async function setFaqVisibility(id: string, visible: boolean): Promise<Ac
 
 export async function deleteFaq(id: string): Promise<ActionResult> {
   return adminAction({
+    role: "owner",
     schema: z.object({ id: uuidSchema }),
     input: { id },
     entity: "faqs",

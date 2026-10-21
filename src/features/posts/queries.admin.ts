@@ -4,9 +4,11 @@ import { asc, desc, eq } from "drizzle-orm";
 
 import { getDb } from "@/db/client";
 import { posts, postTags, type ContentStatus } from "@/db/schema";
+import { requireRole } from "@/lib/auth/require-role";
 
 /** Admin list incl. drafts/scheduled (no content column). */
 export async function listPostsForAdmin(opts: { status?: ContentStatus } = {}) {
+  await requireRole("editor", { onFail: "redirect" });
   return getDb()
     .select({
       id: posts.id,
@@ -23,6 +25,7 @@ export async function listPostsForAdmin(opts: { status?: ContentStatus } = {}) {
 }
 
 export async function getPostForAdmin(id: string) {
+  await requireRole("editor", { onFail: "redirect" });
   const db = getDb();
   const [post] = await db.select().from(posts).where(eq(posts.id, id)).limit(1);
   if (!post) return null;
@@ -31,5 +34,6 @@ export async function getPostForAdmin(id: string) {
 }
 
 export async function countDraftPosts(): Promise<number> {
+  await requireRole("editor", { onFail: "redirect" });
   return getDb().$count(posts, eq(posts.status, "draft"));
 }

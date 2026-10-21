@@ -4,8 +4,10 @@ import { desc, ilike, or } from "drizzle-orm";
 
 import { getDb } from "@/db/client";
 import { media } from "@/db/schema";
+import { requireRole } from "@/lib/auth/require-role";
 
 export async function listMediaForAdmin(opts: { q?: string; limit?: number; offset?: number } = {}) {
+  await requireRole("editor", { onFail: "redirect" });
   const q = opts.q?.trim();
   return getDb()
     .select()

@@ -3,6 +3,7 @@
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
+import { getDb } from "@/db/client";
 import { profiles } from "@/db/schema";
 import { fail, type ActionResult } from "@/features/_shared/action";
 import { adminAction } from "@/features/_shared/admin-action";
@@ -43,7 +44,10 @@ export async function setUserRole(input: z.input<typeof roleSchema>): Promise<Ac
 
 const inviteSchema = z.object({ email: z.email("Email tidak valid").max(200).transform((v) => v.toLowerCase()) });
 
-/** Owner-only: invite by email via Supabase Auth admin (service role, server-only). New users start as editor. */
+/**
+ * Owner-only: invite by email via Supabase Auth admin (service role, server-only). The invited user
+ * gets an explicit `editor` profile here — the auth trigger grants no access to new users (0003).
+ */
 export async function inviteUser(input: z.input<typeof inviteSchema>): Promise<ActionResult> {
   let actor;
   try {
@@ -56,6 +60,9 @@ export async function inviteUser(input: z.input<typeof inviteSchema>): Promise<A
   try {
     const { data, error } = await createAdminClient().auth.admin.inviteUserByEmail(parsed.data.email);
     if (error) return fail(error.message.includes("already") ? "Email sudah terdaftar." : "Gagal mengirim undangan.");
+    if (data.user?.id) {
+      await getDb().insert(profiles).values({ id: data.user.id, role: "editor", displayName: parsed.data.email.split("@")[0] }).onConflictDoNothing();
+    }
     await writeAudit({ actorId: actor.id, action: "create", entity: "profiles", entityId: data.user?.id ?? null, diff: { invited: parsed.data.email } });
     return { ok: true, data: undefined };
   } catch (e) {

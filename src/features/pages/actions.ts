@@ -154,6 +154,7 @@ export async function reorderSections(pageId: string, ids: string[]): Promise<Ac
 // ── Redirects ────────────────────────────────────────────────────────────
 export async function upsertRedirect(input: RedirectInput): Promise<ActionResult> {
   return adminAction({
+    role: "owner",
     schema: redirectInputSchema,
     input,
     entity: "redirects",
@@ -167,6 +168,7 @@ export async function upsertRedirect(input: RedirectInput): Promise<ActionResult
 
 export async function deleteRedirect(id: string): Promise<ActionResult> {
   return adminAction({
+    role: "owner",
     schema: idSchema,
     input: { id },
     entity: "redirects",

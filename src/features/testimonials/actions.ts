@@ -57,6 +57,7 @@ export async function setTestimonialFlags(id: string, flags: { visible?: boolean
 
 export async function deleteTestimonial(id: string): Promise<ActionResult> {
   return adminAction({
+    role: "owner",
     schema: z.object({ id: uuidSchema }),
     input: { id },
     entity: "testimonials",

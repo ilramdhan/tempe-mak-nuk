@@ -5,6 +5,7 @@ import { asc, eq } from "drizzle-orm";
 import { getDb } from "@/db/client";
 import { profiles } from "@/db/schema";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { requireRole } from "@/lib/auth/require-role";
 
 export type AdminUserRow = {
   id: string;
@@ -16,6 +17,7 @@ export type AdminUserRow = {
 
 /** Owner-only caller must gate. Emails come from auth.users via the service-role client. */
 export async function listUsersForAdmin(): Promise<AdminUserRow[]> {
+  await requireRole("owner", { onFail: "redirect" });
   const rows = await getDb().select().from(profiles).orderBy(asc(profiles.createdAt));
   const emails = new Map<string, string>();
   try {

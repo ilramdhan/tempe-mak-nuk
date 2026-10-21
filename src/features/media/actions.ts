@@ -46,6 +46,7 @@ export async function updateMediaAlt(id: string, input: { alt: string }): Promis
 /** Deletes the DB row (FKs set null / cascade). Storage object removal happens in P5.x route. */
 export async function deleteMedia(id: string): Promise<ActionResult<{ storagePath: string }>> {
   return adminAction({
+    role: "owner",
     schema: z.object({ id: uuidSchema }),
     input: { id },
     entity: "media",

@@ -8,8 +8,9 @@ import { userRole } from "./enums";
 const isOwner = sql`(select public.has_role('owner'))`;
 
 /**
- * One row per Supabase auth user (created by the `on_auth_user_created` trigger,
- * first user ever → owner, everyone after → editor).
+ * One row per ADMIN user. The `on_auth_user_created` trigger only bootstraps the first auth user
+ * as owner (drizzle/0003); later auth users get no row = no admin access until `inviteUser`
+ * (owner-only) creates an editor profile.
  */
 export const profiles = pgTable(
   "profiles",

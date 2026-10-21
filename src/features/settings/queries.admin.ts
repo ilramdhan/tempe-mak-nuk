@@ -5,6 +5,7 @@ import { settings as settingsTable } from "@/db/schema";
 import type { SettingKey } from "@/db/schema/settings";
 
 import { mergeSettings, type Settings } from "./schema";
+import { requireRole } from "@/lib/auth/require-role";
 
 /** Admin: every row (incl. private) + metadata + list of invalid keys. Uncached. */
 export async function getSettingsForAdmin(): Promise<{
@@ -12,6 +13,7 @@ export async function getSettingsForAdmin(): Promise<{
   invalidKeys: SettingKey[];
   rows: { key: string; group: string; updatedAt: Date; updatedBy: string | null }[];
 }> {
+  await requireRole("editor", { onFail: "redirect" });
   const rows = await getDb().select().from(settingsTable);
   const { settings, invalidKeys } = mergeSettings(rows);
   return {

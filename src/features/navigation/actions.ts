@@ -52,6 +52,7 @@ export async function updateNavItem(id: string, input: NavItemInput): Promise<Ac
 
 export async function deleteNavItem(id: string): Promise<ActionResult> {
   return adminAction({
+    role: "owner",
     schema: idSchema,
     input: { id },
     entity: "nav_items",
@@ -106,6 +107,7 @@ export async function updateAnnouncement(id: string, input: AnnouncementInput): 
 
 export async function deleteAnnouncement(id: string): Promise<ActionResult> {
   return adminAction({
+    role: "owner",
     schema: idSchema,
     input: { id },
     entity: "announcements",

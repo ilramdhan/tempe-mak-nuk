@@ -4,9 +4,11 @@ import { count, desc, gte, sql } from "drizzle-orm";
 
 import { getDb } from "@/db/client";
 import { waClicks } from "@/db/schema";
+import { requireRole } from "@/lib/auth/require-role";
 
 /** Dashboard: WA clicks over the last `days` days — totals per kind, per source, per day (WIB). */
 export async function getWaClickStats(days = 30) {
+  await requireRole("editor", { onFail: "redirect" });
   const db = getDb();
   const since = sql`now() - make_interval(days => ${Math.min(Math.max(days, 1), 365)})`;
   const day = sql<string>`to_char(${waClicks.createdAt} at time zone 'Asia/Jakarta', 'YYYY-MM-DD')`;

@@ -69,11 +69,13 @@ describe.skipIf(!url)("RLS policies", () => {
 
   beforeAll(async () => {
     sql = postgres(url!, { max: 1, prepare: false, onnotice: () => {} });
-    // auth.users insert fires on_auth_user_created → profiles row. Roles are then forced so the
-    // suite does not depend on whether the DB already had an owner.
+    // auth.users insert fires on_auth_user_created (bootstrap owner only). Profiles are then
+    // upserted so the suite does not depend on whether the DB already had an owner.
     await sql`insert into auth.users (id, email) values
       (${ownerId}, ${`owner-${tag}@test.local`}),
       (${editorId}, ${`editor-${tag}@test.local`})`;
+    await sql`insert into public.profiles (id, role) values
+      (${ownerId}, 'owner'), (${editorId}, 'editor') on conflict (id) do nothing`;
     await sql`update public.profiles set role = 'owner' where id = ${ownerId}`;
     await sql`update public.profiles set role = 'editor' where id = ${editorId}`;
 
@@ -336,7 +338,7 @@ describe.skipIf(!url)("RLS policies", () => {
   });
 
   describe("auth trigger", () => {
-    it("creates an editor profile for a new auth user once an owner exists", async () => {
+    it("creates NO profile (no admin access) for a new auth user once an owner exists", async () => {
       const id = randomUUID();
       const rows = await sql
         .begin(async (tx) => {
@@ -346,7 +348,7 @@ describe.skipIf(!url)("RLS policies", () => {
           throw Object.assign(new Rollback(), { rows: r });
         })
         .catch((err: Rollback & { rows: unknown }) => err.rows);
-      expect(rows).toEqual([{ role: "editor", display_name: `new-${tag}` }]);
+      expect(rows).toEqual([]);
     });
   });
 });

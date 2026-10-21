@@ -166,6 +166,7 @@ export async function updateProductShape(id: string, input: ProductShapeInput): 
 
 export async function deleteProductShape(id: string): Promise<ActionResult> {
   return adminAction({
+    role: "owner",
     schema: idSchema,
     input: { id },
     entity: "product_shapes",
@@ -221,6 +222,7 @@ export async function updateProductSize(id: string, input: ProductSizeInput): Pr
 
 export async function deleteProductSize(id: string): Promise<ActionResult> {
   return adminAction({
+    role: "owner",
     schema: idSchema,
     input: { id },
     entity: "product_sizes",

@@ -29,6 +29,8 @@ npm-debug.log*
 # env files (.env.example is committed)
 .env
 .env*.local
+.env.*
+!.env.example
 
 # vercel
 .vercel
