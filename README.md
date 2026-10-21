@@ -11,7 +11,7 @@ Situs web bisnis tempe keluarga Mak Nuk: katalog produk, jurnal & resep, kalende
 - Katalog produk dan jurnal & resep
 - Kalender slot Pre-Order (PO) dengan pengumuman minggu berjalan
 - Pemesanan lewat WhatsApp
-- Panel admin `/admin` dengan peran, media library, dan audit log
+- Panel admin `/admin` dengan peran Pemilik/Editor, hak akses dinamis (`/admin/akses`), kategori & tag, media library, dan audit log
 - SEO (sitemap, OG, data terstruktur), persetujuan cookie, halaman legal
 
 Konten bisnis ada di [docs/business.md](docs/business.md).
@@ -62,7 +62,7 @@ Gunakan `make db-migrate`, bukan `pnpm db:migrate`: yang kedua memakai `DIRECT_U
 
 Pengguna pertama yang dibuat di Supabase Auth otomatis menjadi `owner` (trigger `on_auth_user_created`, lihat `src/db/schema/profiles.ts`).
 
-Setelah itu **matikan public sign-up** di Supabase Auth dan tambah pengguna lewat Admin → Pengguna (undang).
+Setelah itu **matikan public sign-up** di Supabase Auth dan tambah pengguna lewat Admin → Pengguna (undang). Pengguna yang diundang menjadi `editor`; hak akses Editor diatur Pemilik di Admin → Hak Akses. Konten terjadwal diterbitkan oleh cron (`vercel.json`, butuh `CRON_SECRET`; Vercel Hobby hanya cron harian, lihat [docs/deploy.md](docs/deploy.md)).
 
 ## Perintah
 
@@ -112,7 +112,7 @@ docs/             Dokumentasi
 - `cacheComponents` aktif: ikuti pola cache/`use cache` Next 16. Baca panduan di `node_modules/next/dist/docs/` sebelum mengubah perilaku cache; API-nya berbeda dari versi lama.
 - `DATABASE_URL` harus lewat pooler transaksi port 6543 (`prepare: false`). Migrasi lewat `make db-migrate` (pooler 6543).
 - Drizzle terhubung sebagai role database sehingga **melewati RLS**. Setiap server action wajib memeriksa peran sendiri (`requireRole("editor" | "owner")`). Tombol yang disembunyikan di UI (`RoleGate`) bukan pengamanan.
-- Redirect dari database di-cache sekitar 60 detik; perubahan tidak langsung berlaku.
+- Redirect dari database di-cache sekitar 60 detik per instance; perubahan redirect tidak langsung berlaku. Perubahan konten lain langsung (cache tag).
 - Setiap perubahan konten memakai cache tag (`src/lib/cache-tags.ts`) agar halaman publik segar.
 - Foto wajib punya teks alt (divalidasi di media library).
 
