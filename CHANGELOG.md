@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/ilramdhan/tempe-mak-nuk/compare/v0.1.1...v0.1.2) (2026-10-21)
+
+
+### Perbaikan
+
+* **db:** prerender through Supabase session pooler during next build ([#17](https://github.com/ilramdhan/tempe-mak-nuk/issues/17)) ([58911df](https://github.com/ilramdhan/tempe-mak-nuk/commit/58911df97cd0afa7bcd2eacbd0996c2896707c5e))
+
 ## [0.1.1](https://github.com/ilramdhan/tempe-mak-nuk/compare/v0.1.0...v0.1.1) (2026-10-21)
 
 
