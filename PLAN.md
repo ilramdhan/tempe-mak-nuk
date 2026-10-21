@@ -104,6 +104,38 @@ Acceptance umum Fase 4: hanya memakai primitives P2.3 & block P3.3; responsif 32
 
 ---
 
+## Fase 8 — Perbaikan gap audit, QA, performa
+
+| ID | Task | Model | Dep | Ownership |
+|---|---|---|---|---|
+| P8.0 | CI hijau: prettier --write . terisolasi + .git-blame-ignore-revs; job Test+Build jalan di GitHub | S | — | `.prettierignore`, `package.json`, `.github/workflows/ci.yml`, seluruh repo |
+| P8.1 | /produk, /faq, /kontak baca getPage+BlockRenderer/SEO dari DB; halaman CMS baru (catch-all aman atau blokir) | O | P8.0 | `src/app/(site)/{produk,faq,kontak}`, `features/pages` |
+| P8.2 | Route dinamis [slug] 404 sejak request pertama (bukan soft-404 streaming) | O | P8.0 | route `[slug]` + `/jurnal/kategori/[slug]` |
+| P8.3 | SEO kecil: judul ganda, 'Tips Tempe Tempe', sitemap noindex, JSON-LD image, /favicon.ico, description legal | S | P8.0 | `src/lib/seo/*`, `sitemap.ts` |
+| P8.4 | Cache: updateMediaAlt expire tag pemakai; konten terjadwal via cron+CRON_SECRET | S | P8.0 | `features/media/actions.ts`, `vercel.json`, `src/app/api/cron/*` |
+| P8.5 | /admin/kategori: kelola kategori FAQ/jurnal/resep + tag | S | P8.0 | `src/app/(admin)/admin/kategori/**`, nav admin |
+| P8.6 | Dasbor: kartu peringatan konten kosong | S | P8.0 | `admin/(dashboard)` |
+| P8.7 | Konten publik kurang (FAQ+resep terkait produk, galeri bentuk, probiotik, timeline, announcement slot, consent 12 bln + Tolak, TOC legal) | S | P8.1 | route publik terkait |
+| P8.8 | Docs akurat: admin-guide, README setup, security.md | S | P8.1–P8.6, P8.14 | `README.md`, `docs/*.md` |
+| P8.9 | Admin kecil: tab SEO & situs untuk editor (seo./cta.); hapus action redirect duplikat | S | P8.0 | `features/settings`, `features/pages/actions.ts` |
+| P8.10 | E2E: anonim /admin→/login; admin CRUD (skip tanpa E2E_ADMIN_*); 404 slug | S | P8.2 | `tests/e2e/*` |
+| P8.11 | Performa: animasi idle, SlotCalendar prefetch/dynamic, browserslist, analyzer, hapus motion bila tak dipakai | O | P8.0 | `src/components/motion/*`, link CTA |
+| P8.12 | QA: dark --card≠--surface; bar sticky /custom-order 375px; WA mengambang tidak menutupi konten (keputusan: rekomendasi orkestrator) | O | P8.0 | `globals.css`, `features/orders/components/*`, `floating-whatsapp.tsx` |
+| P8.13 | P0.6: catat skills §13 | S | — | `STATE.md` |
+| P8.14 | RBAC dinamis: matriks izin per peran (+override per pengguna) dikelola owner via web; hapus artikel/resep default owner-only; adminAction cek izin | O | P8.9 | `src/lib/auth/*`, `features/permissions/**`, `admin/pengguna/**`, migrasi baru |
+
+## Fase 9 — Repo GitHub production-grade
+
+| ID | Task | Model | Dep | Ownership |
+|---|---|---|---|---|
+| P9.1 | Community health files + LICENSE proprietary (All rights reserved), repo tetap publik | S | P8.0 | root files |
+| P9.2 | .github: CODEOWNERS, issue forms, PR template, labeler | S | — | `.github/**` (kecuali workflows) |
+| P9.3 | Workflows: ci (+e2e), codeql, dependency-review, pr-title, labeler; dependabot grup | O | P8.0, P9.2 | `.github/workflows/*`, `.github/dependabot.yml` |
+| P9.4 | release-please (0.1.0) + deskripsi/topics repo | S | P9.3 | config release-please |
+| P9.5 | Dockerfile standalone + docker.yml GHCR publik (multi-arch, SBOM, Trivy, cosign) | O | P9.3, P9.4 | `Dockerfile`, `.dockerignore`, `docker.yml`, `next.config.ts` |
+| P9.6 | Setting repo: ruleset main, secret scanning, Dependabot, PVR, squash-only; PR Dependabot #1 | S | P9.1–P9.5 | setting GitHub |
+| P9.7 | Audit akhir Fase 9 | O | P9.6 | `docs/audit/phase-9.md` |
+
 ## Graf Paralel (ringkas)
 
 ```

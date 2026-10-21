@@ -79,6 +79,28 @@
 | P7.3 | Security review (RLS, actions, headers, upload) | O | P5.* | done | opus | `docs/security.md` (19 temuan + checklist pemilik). FIX: trigger auth → user baru TANPA profil/akses kecuali owner pertama (`drizzle/0003_signup_no_access.sql`, **perlu `db:migrate`**), `inviteUser` buat profil editor; `role:"owner"` di deleteFaq/Testimonial/NavItem/Announcement/Media/ProductShape/ProductSize + upsertRedirect/deleteRedirect lama; guard DAL `requireRole` di semua `queries.admin.ts` (legal/users = owner); `.gitignore` `.env.*`. Open: CSP unsafe-inline, rate limit login (Supabase), Origin kosong di upload. Files: drizzle/0003*, drizzle/meta/*, src/features/*/actions.ts (6), src/features/*/queries.admin.ts (14), src/features/users/actions.ts, src/db/schema/profiles.ts, tests/rls/rls.test.ts, src/features/_shared/__tests__/owner-only-actions.test.ts, .gitignore, docs/security.md |
 | P7.4 | README + panduan admin untuk pemilik (Bahasa Indonesia, non-teknis) | S | semua | done | sonnet | README.md + docs/admin-guide.md; verifikasi tab/peran dari kode |
 | P7.5 | Deploy produksi Vercel, domain, Search Console, Google Business Profile checklist | S | P7.2, P7.3 | done | sonnet | docs/deploy.md selesai ditulis (8 bagian); menunggu review orkestrator, deploy butuh akun user |
+| P8.0 | CI hijau: prettier --write . terisolasi + .git-blame-ignore-revs; job Test+Build jalan di GitHub | S | — | doing | sonnet | `.prettierignore`, `package.json`, `.github/workflows/ci.yml`, seluruh repo |
+| P8.1 | /produk, /faq, /kontak baca getPage+BlockRenderer/SEO dari DB; halaman CMS baru (catch-all aman atau blokir) | O | P8.0 | todo |  | `src/app/(site)/{produk,faq,kontak}`, `features/pages` |
+| P8.2 | Route dinamis [slug] 404 sejak request pertama (bukan soft-404 streaming) | O | P8.0 | todo |  | route `[slug]` + `/jurnal/kategori/[slug]` |
+| P8.3 | SEO kecil: judul ganda, 'Tips Tempe Tempe', sitemap noindex, JSON-LD image, /favicon.ico, description legal | S | P8.0 | todo |  | `src/lib/seo/*`, `sitemap.ts` |
+| P8.4 | Cache: updateMediaAlt expire tag pemakai; konten terjadwal via cron+CRON_SECRET | S | P8.0 | todo |  | `features/media/actions.ts`, `vercel.json`, `src/app/api/cron/*` |
+| P8.5 | /admin/kategori: kelola kategori FAQ/jurnal/resep + tag | S | P8.0 | todo |  | `src/app/(admin)/admin/kategori/**`, nav admin |
+| P8.6 | Dasbor: kartu peringatan konten kosong | S | P8.0 | todo |  | `admin/(dashboard)` |
+| P8.7 | Konten publik kurang (FAQ+resep terkait produk, galeri bentuk, probiotik, timeline, announcement slot, consent 12 bln + Tolak, TOC legal) | S | P8.1 | todo |  | route publik terkait |
+| P8.8 | Docs akurat: admin-guide, README setup, security.md | S | P8.1–P8.6, P8.14 | todo |  | `README.md`, `docs/*.md` |
+| P8.9 | Admin kecil: tab SEO & situs untuk editor (seo./cta.); hapus action redirect duplikat | S | P8.0 | todo |  | `features/settings`, `features/pages/actions.ts` |
+| P8.10 | E2E: anonim /admin→/login; admin CRUD (skip tanpa E2E_ADMIN_*); 404 slug | S | P8.2 | todo |  | `tests/e2e/*` |
+| P8.11 | Performa: animasi idle, SlotCalendar prefetch/dynamic, browserslist, analyzer, hapus motion bila tak dipakai | O | P8.0 | todo |  | `src/components/motion/*`, link CTA |
+| P8.12 | QA: dark --card≠--surface; bar sticky /custom-order 375px; WA mengambang tidak menutupi konten (keputusan: rekomendasi orkestrator) | O | P8.0 | todo |  | `globals.css`, `features/orders/components/*`, `floating-whatsapp.tsx` |
+| P8.13 | P0.6: catat skills §13 | S | — | todo |  | `STATE.md` |
+| P8.14 | RBAC dinamis: matriks izin per peran (+override per pengguna) dikelola owner via web; hapus artikel/resep default owner-only; adminAction cek izin | O | P8.9 | todo |  | `src/lib/auth/*`, `features/permissions/**`, `admin/pengguna/**`, migrasi baru |
+| P9.1 | Community health files + LICENSE proprietary (All rights reserved), repo tetap publik | S | P8.0 | todo |  | root files |
+| P9.2 | .github: CODEOWNERS, issue forms, PR template, labeler | S | — | todo |  | `.github/**` (kecuali workflows) |
+| P9.3 | Workflows: ci (+e2e), codeql, dependency-review, pr-title, labeler; dependabot grup | O | P8.0, P9.2 | todo |  | `.github/workflows/*`, `.github/dependabot.yml` |
+| P9.4 | release-please (0.1.0) + deskripsi/topics repo | S | P9.3 | todo |  | config release-please |
+| P9.5 | Dockerfile standalone + docker.yml GHCR publik (multi-arch, SBOM, Trivy, cosign) | O | P9.3, P9.4 | todo |  | `Dockerfile`, `.dockerignore`, `docker.yml`, `next.config.ts` |
+| P9.6 | Setting repo: ruleset main, secret scanning, Dependabot, PVR, squash-only; PR Dependabot #1 | S | P9.1–P9.5 | todo |  | setting GitHub |
+| P9.7 | Audit akhir Fase 9 | O | P9.6 | todo |  | `docs/audit/phase-9.md` |
 
 ## Blocker
 
@@ -98,3 +120,4 @@
 | 2026-10-21 | sesi 5 | Dep: @playwright/test 1.64.1 + @axe-core/playwright 4.14.0 (chromium). Done: P7.1 (e2e 41 ✓), P7.3 (docs/security.md; migrasi 0003 kemudian diterapkan ke DB remote ✓), P7.4. Lint mengabaikan playwright-report/test-results. HANDOVER.md diperbarui | P7.2 (+fix a11y KNOWN), P7.5 |
 | 2026-10-21 | sesi 6 | Cek awal ✓ (typecheck, 331 test, migrasi 0000–0003 ✓ di remote). Done: P7.2 (opus; docs/qa.md, a11y KNOWN kosong, e2e strict 41 ✓) + P7.5 (sonnet; docs/deploy.md). Fase 7 selesai. HANDOVER.md diperbarui | Deploy nyata / sisa QA / performa / gap fitur (opsional) |
 | 2026-10-21 | sesi 6 (lanjutan) | Audit kelengkapan 3 sub-agent (sonnet+opus) → `docs/audit/phase-{0-3,4-6,5-7}.md` (0 ❌ fungsional, banyak ⚠️). Push ke GitHub `ilramdhan/tempe-mak-nuk` (scan secret bersih). CI GitHub gagal di Format check (168 file). Fase 8 (gap audit/QA/performa) + Fase 9 (repo production-grade) direncanakan di HANDOVER.md | P8.0 → Fase 8 → Fase 9 |
+| 2026-10-21 | sesi 7 | Cek awal ✓. Keputusan user: repo publik, lisensi proprietary, hapus artikel/resep owner-only + RBAC dinamis via web (P8.14 baru), desain sticky bar/WA ikut rekomendasi. Fase 8/9 ditambahkan; P8.0 diluncurkan | P8.0 → Fase 8 → Fase 9 |
