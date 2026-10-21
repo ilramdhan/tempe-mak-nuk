@@ -58,3 +58,12 @@ Tambahkan atau sesuaikan tes untuk logika baru.
 - Daftarkan izin di `src/features/permissions/registry.ts`.
 - Drizzle melewati RLS, jadi pemeriksaan peran di server wajib; menyembunyikan tombol di UI bukan pengamanan.
 - Perubahan konten harus me-revalidate cache tag terkait (`src/lib/cache-tags.ts`).
+
+## Rilis
+
+Rilis diotomatisasi dengan [release-please](https://github.com/googleapis/release-please) dari Conventional Commits di `main`.
+
+1. Setiap push ke `main` memperbarui PR rilis (`chore: release X.Y.Z`) berisi bump versi dan `CHANGELOG.md`.
+2. Merge PR rilis: tag `vX.Y.Z`, GitHub Release, dan CHANGELOG dibuat otomatis.
+3. PR rilis dibuka oleh bot dengan `GITHUB_TOKEN`, sehingga CI tidak berjalan otomatis. Tutup lalu buka kembali PR-nya untuk memicu CI, atau set secret opsional `RELEASE_PLEASE_TOKEN` (PAT) agar CI berjalan.
+4. Rilis pertama dipaksa `0.1.0` lewat `release-as` di `release-please-config.json` (manifest `0.0.0`). Setelah `v0.1.0` terbit, hapus `release-as` dan ubah manifest bila perlu agar rilis berikutnya mengikuti commit.

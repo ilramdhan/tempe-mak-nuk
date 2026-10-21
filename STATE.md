@@ -97,7 +97,7 @@
 | P9.1 | Community health files + LICENSE proprietary (All rights reserved), repo tetap publik | S | P8.0 | done | sonnet | LICENSE, README, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, ACCESSIBILITY, SUPPORT, .editorconfig, .gitattributes |
 | P9.2 | .github: CODEOWNERS, issue forms, PR template, labeler | S | — | done | sonnet | `.github/**` (kecuali workflows) |
 | P9.3 | Workflows: ci (+e2e), codeql, dependency-review, pr-title, labeler; dependabot grup | O | P8.0, P9.2 | done | opus | `.github/workflows/{ci,codeql,dependency-review,pr-title,labeler,labels-sync,stale}.yml`, `.github/dependabot.yml` — SHA-pinned via gh api, actionlint clean; e2e lokal (pg16 + dummy Supabase) 47 pass/2 skip (admin); screenshots di-skip di CI; docker ecosystem menunggu Dockerfile P9.5 |
-| P9.4 | release-please (0.1.0) + deskripsi/topics repo | S | P9.3 | todo |  | config release-please |
+| P9.4 | release-please (0.1.0) + deskripsi/topics repo | S | P9.3 | done | sonnet | config release-please |
 | P9.5 | Dockerfile standalone + docker.yml GHCR publik (multi-arch, SBOM, Trivy, cosign) | O | P9.3, P9.4 | todo |  | `Dockerfile`, `.dockerignore`, `docker.yml`, `next.config.ts` |
 | P9.6 | Setting repo: ruleset main, secret scanning, Dependabot, PVR, squash-only; PR Dependabot #1 | S | P9.1–P9.5 | todo |  | setting GitHub |
 | P9.7 | Audit akhir Fase 9 | O | P9.6 | todo |  | `docs/audit/phase-9.md` |
