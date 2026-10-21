@@ -6,7 +6,7 @@
 
 ## Ringkasan
 
-- **Fase aktif:** — (Fase 0–7 done; P0.6 opsional, P1.4 menunggu Vercel; deploy nyata menunggu akun user)
+- **Fase aktif:** 8 (perbaikan gap audit) lalu 9 (repo GitHub) — rincian task di HANDOVER.md §9; laporan audit di `docs/audit/`
 - **Terakhir diperbarui:** 2026-10-21
 - **Branch / commit terakhir:** main / lihat `git log`
 - **Preview URL:** —
@@ -97,3 +97,4 @@
 | 2026-10-21 | sesi 4 | Done: P4.5, P5.7–P5.10 (+ MediaPicker dipasang di semua form admin), P6.1–P6.4. Bucket Storage `media` dibuat (skrip `scripts/dev/ensure-media-bucket.mts`). Dep: sharp 0.35.5. Fix orkestrator: page builder pakai RichTextEditor; ikon PNG manifest; OG fallback stabil `/og-default.png` (route file OG ber-hash). LCP mobile <2 s (docs/performance.md). Agent putus ECONNREFUSED 3× → dilanjutkan via SendMessage | Fase 7 (P7.1–P7.5) |
 | 2026-10-21 | sesi 5 | Dep: @playwright/test 1.64.1 + @axe-core/playwright 4.14.0 (chromium). Done: P7.1 (e2e 41 ✓), P7.3 (docs/security.md; migrasi 0003 kemudian diterapkan ke DB remote ✓), P7.4. Lint mengabaikan playwright-report/test-results. HANDOVER.md diperbarui | P7.2 (+fix a11y KNOWN), P7.5 |
 | 2026-10-21 | sesi 6 | Cek awal ✓ (typecheck, 331 test, migrasi 0000–0003 ✓ di remote). Done: P7.2 (opus; docs/qa.md, a11y KNOWN kosong, e2e strict 41 ✓) + P7.5 (sonnet; docs/deploy.md). Fase 7 selesai. HANDOVER.md diperbarui | Deploy nyata / sisa QA / performa / gap fitur (opsional) |
+| 2026-10-21 | sesi 6 (lanjutan) | Audit kelengkapan 3 sub-agent (sonnet+opus) → `docs/audit/phase-{0-3,4-6,5-7}.md` (0 ❌ fungsional, banyak ⚠️). Push ke GitHub `ilramdhan/tempe-mak-nuk` (scan secret bersih). CI GitHub gagal di Format check (168 file). Fase 8 (gap audit/QA/performa) + Fase 9 (repo production-grade) direncanakan di HANDOVER.md | P8.0 → Fase 8 → Fase 9 |
