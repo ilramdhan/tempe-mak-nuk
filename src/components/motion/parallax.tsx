@@ -7,7 +7,8 @@ import {
   type ReactNode,
 } from "react";
 
-import { EASE, MEDIA, gsap, useGSAP } from "./gsap";
+import { EASE, MEDIA } from "./tokens";
+import { useMotionEffect } from "./use-motion-effect";
 
 export type ParallaxProps = HTMLAttributes<HTMLElement> & {
   as?: ElementType;
@@ -33,10 +34,9 @@ export function Parallax({
 }: ParallaxProps) {
   const ref = useRef<HTMLElement>(null);
 
-  useGSAP(
-    () => {
-      const el = ref.current;
-      if (!el) return;
+  useMotionEffect(
+    ref,
+    ({ gsap }, el) => {
       const mm = gsap.matchMedia();
       mm.add(MEDIA.motion, () => {
         gsap.fromTo(
@@ -55,7 +55,7 @@ export function Parallax({
         );
       });
     },
-    { scope: ref, dependencies: [speed] },
+    [speed],
   );
 
   return (

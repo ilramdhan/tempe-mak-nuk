@@ -4,7 +4,8 @@ import { useMemo, useRef, type HTMLAttributes } from "react";
 
 import { cn } from "@/lib/utils";
 
-import { DURATION, EASE, ENTER_START, MEDIA, gsap, useGSAP } from "./gsap";
+import { DURATION, EASE, ENTER_START, MEDIA } from "./tokens";
+import { useMotionEffect } from "./use-motion-effect";
 
 export type CounterProps = Omit<HTMLAttributes<HTMLSpanElement>, "children"> & {
   /** Final value — rendered as-is in SSR markup (SEO / no-JS / reduced motion). */
@@ -49,10 +50,9 @@ export function Counter({
   );
   const finalText = `${prefix}${fmt.format(value)}${suffix}`;
 
-  useGSAP(
-    () => {
-      const el = ref.current;
-      if (!el) return;
+  useMotionEffect(
+    ref,
+    ({ gsap }, el) => {
       const mm = gsap.matchMedia();
       mm.add(MEDIA.motion, () => {
         // Intermediate values use the precision of the final value (or the
@@ -92,10 +92,7 @@ export function Counter({
         };
       });
     },
-    {
-      scope: ref,
-      dependencies: [value, from, duration, fmt, prefix, suffix, start],
-    },
+    [value, from, duration, fmt, prefix, suffix, start],
   );
 
   return (

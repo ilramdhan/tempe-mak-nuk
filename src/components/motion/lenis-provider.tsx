@@ -13,6 +13,7 @@ import {
   type ReactNode,
 } from "react";
 
+import { loadGsap } from "./use-motion-effect";
 import { useReducedMotion } from "./use-reduced-motion";
 
 const LenisContext = createContext<Lenis | null>(null);
@@ -41,7 +42,7 @@ export function LenisProvider({ children, options }: LenisProviderProps) {
     let alive = true;
     let cleanup: (() => void) | undefined;
 
-    void Promise.all([import("lenis"), import("./gsap")]).then(
+    void Promise.all([import("lenis"), loadGsap()]).then(
       ([{ default: LenisCtor }, { gsap, ScrollTrigger }]) => {
         if (!alive) return;
         const instance = new LenisCtor({

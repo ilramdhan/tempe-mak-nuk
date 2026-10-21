@@ -25,7 +25,8 @@ import { formatDateLong, toDateKey } from "@/lib/dates";
 
 import { checkUseDate } from "../date-rules";
 import type { OrderFormValues } from "../schema";
-import { SlotCalendar, SlotLegend } from "./slot-calendar";
+import { SlotCalendar } from "./slot-calendar-lazy";
+import { SlotLegend } from "./slot-legend";
 
 export function StepDate({
   days,

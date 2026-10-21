@@ -2,10 +2,8 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  SlotCalendar,
-  SlotLegend,
-} from "@/features/orders/components/slot-calendar";
+import { SlotCalendar } from "@/features/orders/components/slot-calendar-lazy";
+import { SlotLegend } from "@/features/orders/components/slot-legend";
 import { getSettings } from "@/features/settings/queries";
 import { getAvailability } from "@/features/slots/queries";
 

@@ -4,7 +4,8 @@ import { useRef, type HTMLAttributes, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-import { MEDIA, gsap, useGSAP } from "./gsap";
+import { MEDIA } from "./tokens";
+import { useMotionEffect } from "./use-motion-effect";
 
 export type MagneticProps = HTMLAttributes<HTMLSpanElement> & {
   /** Fraction of pointer offset followed. Default 0.25 (subtle). */
@@ -27,10 +28,10 @@ export function Magnetic({
 }: MagneticProps) {
   const ref = useRef<HTMLSpanElement>(null);
 
-  useGSAP(
-    () => {
-      const el = ref.current;
-      if (!el) return;
+  // Hover-only: wire up when the main thread is idle (P8.11).
+  useMotionEffect(
+    ref,
+    ({ gsap }, el) => {
       const mm = gsap.matchMedia();
       mm.add(`${MEDIA.motion} and ${MEDIA.finePointer}`, () => {
         const xTo = gsap.quickTo(el, "x", {
@@ -60,7 +61,8 @@ export function Magnetic({
         };
       });
     },
-    { scope: ref, dependencies: [strength, max] },
+    [strength, max],
+    { when: "idle" },
   );
 
   return (

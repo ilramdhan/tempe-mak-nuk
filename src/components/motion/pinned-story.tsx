@@ -10,7 +10,8 @@ import {
 
 import { cn } from "@/lib/utils";
 
-import { MEDIA, ScrollTrigger, gsap, useGSAP } from "./gsap";
+import { MEDIA } from "./tokens";
+import { useMotionEffect } from "./use-motion-effect";
 
 export type PinnedStoryProps = Omit<HTMLAttributes<HTMLElement>, "children"> & {
   /** One node per step (copy). Order = story order. */
@@ -52,11 +53,14 @@ export function PinnedStory({
     onChangeRef.current = onStepChange;
   });
 
-  useGSAP(
-    () => {
+  // Below the fold: ScrollTriggers are created only when the story nears the viewport
+  // (P8.11). Until then step 0 is active, which matches the SSR markup (no shift).
+  useMotionEffect(
+    ref,
+    ({ gsap, ScrollTrigger }, el) => {
       const mm = gsap.matchMedia();
       mm.add(`${MEDIA.motion} and ${MEDIA.desktop}`, () => {
-        const items = gsap.utils.toArray<HTMLElement>("[data-story-step]");
+        const items = gsap.utils.toArray<HTMLElement>("[data-story-step]", el);
         items.forEach((item, i) => {
           ScrollTrigger.create({
             trigger: item,
@@ -71,7 +75,7 @@ export function PinnedStory({
         });
       });
     },
-    { scope: ref, dependencies: [steps.length] },
+    [steps.length],
   );
 
   return (

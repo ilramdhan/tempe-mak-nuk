@@ -15,9 +15,8 @@ import {
   MEDIA,
   READY_ATTR,
   STAGGER,
-  gsap,
-  useGSAP,
-} from "./gsap";
+} from "./tokens";
+import { useMotionEffect } from "./use-motion-effect";
 
 export type RevealProps = HTMLAttributes<HTMLElement> & {
   /** Element/tag to render. Default `div`. */
@@ -56,10 +55,10 @@ export function Reveal({
   const group = stagger !== undefined && stagger !== false;
   const each = typeof stagger === "number" ? stagger : STAGGER.item;
 
-  useGSAP(
-    () => {
-      const el = ref.current;
-      if (!el) return;
+  // Deferred until near viewport + idle (P8.11); CSS pre-state holds until then.
+  useMotionEffect(
+    ref,
+    ({ gsap }, el) => {
       const mm = gsap.matchMedia();
 
       mm.add(MEDIA.motion, () => {
@@ -85,7 +84,7 @@ export function Reveal({
         el.setAttribute(READY_ATTR, "");
       });
     },
-    { scope: ref, dependencies: [delay, y, duration, group, each, start] },
+    [delay, y, duration, group, each, start],
   );
 
   return (

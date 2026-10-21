@@ -44,6 +44,16 @@
     transform: translate3d(0, 0.12em, 0);
     animation: motion-failsafe 0.6s ease-out 2.5s forwards;
   }
+
+  /*
+   * Hydrated, init deferred until near viewport / idle (P8.11, use-motion-effect.ts):
+   * keep the pre-state, drop the failsafe so off-screen content isn't revealed and then
+   * re-hidden by GSAP. A failed GSAP load sets [data-motion-ready] instead.
+   */
+  [data-motion-pending]:not([data-motion-ready]),
+  [data-reveal="group"][data-motion-pending]:not([data-motion-ready]) > * {
+    animation: none;
+  }
 }
 
 /* ---------------- Marquee ---------------- */

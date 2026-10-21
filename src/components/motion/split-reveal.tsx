@@ -14,10 +14,8 @@ import {
   MEDIA,
   READY_ATTR,
   STAGGER,
-  SplitText,
-  gsap,
-  useGSAP,
-} from "./gsap";
+} from "./tokens";
+import { useMotionEffect } from "./use-motion-effect";
 
 export type SplitRevealProps = HTMLAttributes<HTMLElement> & {
   /** Tag to render. Default `h2` (`h1` is typical with `trigger="load"`). */
@@ -53,10 +51,11 @@ export function SplitReveal({
 }: SplitRevealProps) {
   const ref = useRef<HTMLElement>(null);
 
-  useGSAP(
-    () => {
-      const el = ref.current;
-      if (!el) return;
+  // SplitText (font metrics + DOM split) runs only near viewport + idle (P8.11), not
+  // during hydration. `load` (hero) uses a short idle timeout so it still plays at once.
+  useMotionEffect(
+    ref,
+    ({ gsap, SplitText }, el) => {
       const mm = gsap.matchMedia();
 
       mm.add(MEDIA.motion, () => {
@@ -90,7 +89,8 @@ export function SplitReveal({
         el.setAttribute(READY_ATTR, "");
       });
     },
-    { scope: ref, dependencies: [trigger, delay, duration, stagger, start] },
+    [trigger, delay, duration, stagger, start],
+    { idleTimeout: trigger === "load" ? 150 : undefined },
   );
 
   return (
