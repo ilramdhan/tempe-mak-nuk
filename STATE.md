@@ -22,7 +22,7 @@
 | Slot/hari | 8 | P0.1 |
 | Tampilkan harga | ya, "mulai dari" | P0.1 |
 | Domain | tempemaknuk.com (dummy) | P0.1 |
-| Skills aktif | — | P0.6 |
+| Skills aktif | Terpasang/bawaan: `find-docs` (Context7), `code-review`, `security-review`, `simplify`, `frontend` (Next16/shadcn). Tidak terpasang (diikuti sebagai prinsip, tidak diinstal): `frontend-design`, `theme-factory`, `brand-guidelines`, `canvas-design`, `webapp-testing` (diganti Playwright di repo), superpowers (brainstorming/writing-plans/subagent-driven-development/verification/TDD — diterapkan lewat protokol PLAN.md), `react-best-practices`, `web-design-guidelines`, `postgres-best-practices`, `content-research-writer` | P0.6/P8.13 (2026-10-21) |
 
 ## Task
 
@@ -33,7 +33,7 @@
 | P0.3 | Logo SVG (wordmark, stacked, monogram, favicon) light/dark | O | P0.2 | done | opus | `public/brand/*.svg`, `src/components/brand/logo.tsx`; teks di-outline jadi path, currentColor, cek render 16–400px |
 | P0.4 | Photo brief + prompt AI image per shot | S | P0.2 | done | sonnet | 26 shot (S01–S26), prompt AI Inggris, panduan foto HP: docs/photo-brief.md |
 | P0.5 | Riset keyword & peta keyword → halaman | S | — | done | sonnet | peta keyword per route, 8 pilar, 6 resep, linking, JSON-LD, off-page: docs/seo.md |
-| P0.6 | Install/aktifkan skills §13, catat yang gagal | S | — | todo | | |
+| P0.6 | Install/aktifkan skills §13, catat yang gagal | S | — | done | orchestrator | |
 | P1.1 | Scaffold Next.js 16 + TS strict + Tailwind v4 + pnpm + ESLint/Prettier + struktur folder §11 | O | — | done | opus | Next 16.4.2 (Turbopack, cacheComponents+partialPrefetching on), React 19.3.0, Tailwind 4.3.3 via @tailwindcss/turbopack, TS 5.9.3, ESLint 9, Vitest 5, Drizzle 0.45/kit 0.31; typecheck/lint/build/test hijau |
 | P1.2 | `lib/env.ts` (Zod), Supabase clients (`@supabase/ssr`), security headers | O | P1.1 | done | opus | `src/lib/env.ts` lazy getServerEnv/getClientEnv + SKIP_ENV_VALIDATION; supabase server/client/admin + `src/proxy.ts` (getClaims refresh, hook `guardAdminRoute` di `src/lib/supabase/proxy.ts`); CSP/HSTS/headers + remotePatterns di next.config (Supabase host dibaca saat build) |
 | P1.3 | Drizzle setup: client pooler (`prepare:false`), drizzle.config, script migrate/seed | O | P1.1 | done | opus | `drizzle.config.ts` (DIRECT_URL→fallback DATABASE_URL), `src/db/client.ts` lazy `getDb()/getSql()` prepare:false, schema barrel kosong, `src/db/seed.ts` → `runSeed` no-op; migrate belum dijalankan (butuh Supabase) |
@@ -92,10 +92,10 @@
 | P8.10 | E2E: anonim /admin→/login; admin CRUD (skip tanpa E2E_ADMIN_*); 404 slug | S | P8.2 | done | sonnet | `tests/e2e/*` |
 | P8.11 | Performa: animasi idle, SlotCalendar prefetch/dynamic, browserslist, analyzer, hapus motion bila tak dipakai | O | P8.0 | done | opus | `src/components/motion/*` (schedule/use-motion-effect/tokens), `orders/components/slot-calendar-lazy`+`slot-legend`, `browserslist`; `/` TBT 133→0 ms, JS 322→288 kB; dep `motion` tak dipakai (lihat docs/performance.md) |
 | P8.12 | QA: dark --card≠--surface; bar sticky /custom-order 375px; WA mengambang tidak menutupi konten (keputusan: rekomendasi orkestrator) | O | P8.0 | done | opus | `globals.css` (--card/--input dark, scroll-padding-bottom), `features/orders/components/{order-builder,sticky-bar}.ts(x)`, `components/site/layout/floating-whatsapp(-visibility).ts(x)` + tests, `docs/qa.md` V7–V9 |
-| P8.13 | P0.6: catat skills §13 | S | — | todo |  | `STATE.md` |
+| P8.13 | P0.6: catat skills §13 | S | — | done | orchestrator | `STATE.md` |
 | P8.14 | RBAC dinamis: matriks izin per peran (+override per pengguna) dikelola owner via web; hapus artikel/resep default owner-only; adminAction cek izin | O | P8.9 | done | opus | `features/permissions/**` (registry/resolve/schema/actions/queries), `lib/auth/permissions.ts`, `_shared/admin-action.ts`, `db/schema/permissions.ts`, migrasi `0004_rbac_permissions` (sudah diterapkan remote ✓), `/admin/akses`, link di `/admin/pengguna`, nav, `RoleGate permission`/`useCan`, tombol hapus jurnal/resep; test unit + RLS; docs/security.md §3a |
 | P9.1 | Community health files + LICENSE proprietary (All rights reserved), repo tetap publik | S | P8.0 | todo |  | root files |
-| P9.2 | .github: CODEOWNERS, issue forms, PR template, labeler | S | — | todo |  | `.github/**` (kecuali workflows) |
+| P9.2 | .github: CODEOWNERS, issue forms, PR template, labeler | S | — | doing | sonnet | `.github/**` (kecuali workflows) |
 | P9.3 | Workflows: ci (+e2e), codeql, dependency-review, pr-title, labeler; dependabot grup | O | P8.0, P9.2 | todo |  | `.github/workflows/*`, `.github/dependabot.yml` |
 | P9.4 | release-please (0.1.0) + deskripsi/topics repo | S | P9.3 | todo |  | config release-please |
 | P9.5 | Dockerfile standalone + docker.yml GHCR publik (multi-arch, SBOM, Trivy, cosign) | O | P9.3, P9.4 | todo |  | `Dockerfile`, `.dockerignore`, `docker.yml`, `next.config.ts` |
