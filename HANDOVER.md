@@ -136,7 +136,7 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen 
   - Headless Chrome 375px lewat CDP `Emulation.setDeviceMetricsOverride`.
 
 ## 7. Lingkungan lokal
-- **DB = Supabase remote** (project `mzzktbvkdpwxufaipbla`, ap-northeast-1).
+- **DB = Supabase remote** (project `<ref di .env>`, ap-northeast-1).
   - Sudah dimigrasi dan di-seed: 50 settings, 2 produk, 11 halaman, 27 FAQ, 8 artikel, 6 resep, 4 legal, slot.
   - Bucket `media` sudah ada.
   - Latensi ±700 ms per koneksi.
