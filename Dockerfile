@@ -20,7 +20,7 @@
 # keep both FROM lines on the same tag.
 
 # ── base: node + pnpm (version pinned by package.json "packageManager") ──────────────
-FROM node:22.23.2-alpine3.23 AS base
+FROM node:26.12.0-alpine3.23 AS base
 ENV PNPM_HOME=/pnpm \
     COREPACK_ENABLE_DOWNLOAD_PROMPT=0 \
     NEXT_TELEMETRY_DISABLED=1
@@ -56,7 +56,7 @@ RUN --mount=type=secret,id=database_url,env=DATABASE_URL,required=true \
     SKIP_ENV_VALIDATION=1 pnpm build
 
 # ── runner: standalone server only, non-root ──────────────────────────────────────────
-FROM node:22.23.2-alpine3.23 AS runner
+FROM node:26.12.0-alpine3.23 AS runner
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     HOSTNAME=0.0.0.0 \
