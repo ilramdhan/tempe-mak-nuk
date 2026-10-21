@@ -1,4 +1,4 @@
-# HANDOVER — Tempe Mak Nuk (sesi 5 → sesi 6)
+# HANDOVER — Tempe Mak Nuk (sesi 6 → sesi 7)
 
 > Paste blok di bawah ini apa adanya ke sesi Claude Code baru, di root project
 > `/Users/ilhamramadhan/WebstormProjects/tempe-mak-nuk`.
@@ -6,7 +6,7 @@
 ---
 
 ````markdown
-Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen tempe handmade sejak 2001, Klaten). **Fase 0–6 selesai**, plus P7.1 (Playwright), P7.3 (security), dan P7.4 (README + panduan admin). Semua sudah diverifikasi dan di-commit. Tinggal **P7.2 (review visual + fix a11y)** dan **P7.5 (checklist deploy)**. Jangan analisa ulang dari nol. Baca file berikut, lalu lanjut ke §9.
+Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen tempe handmade sejak 2001, Klaten). **Fase 0–7 selesai** (P7.1 Playwright, P7.2 review visual + a11y, P7.3 security, P7.4 README + panduan admin, P7.5 checklist deploy). Semua sudah diverifikasi dan di-commit. Yang tersisa: deploy nyata (butuh akun user), opsional performa/gap fitur, dan sisa temuan QA. Jangan analisa ulang dari nol. Baca file berikut, lalu lanjut ke §9.
 
 ## 1. Baca dulu (urut, jangan skip)
 1. `STATE.md`: ledger status per task (sumber kebenaran progres) dan log sesi.
@@ -33,22 +33,19 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen 
 - Jangan percaya klaim sub-agent mentah-mentah; uji sendiri hasil yang penting. Contoh sesi 4: fallback OG `/opengraph-image` ternyata 404 karena file route OG mendapat hash, dan metadata halaman menimpa file OG per route. Keduanya baru ketahuan lewat `curl` ke `next start`.
 - Laporan ke user dalam Bahasa Indonesia, ringkas.
 
-## 3. Status (per 2026-10-21, HEAD = commit "docs: session 5 handover")
-- **Done:** P0.1–P0.5, P1.1–P1.3, P1.5, P2.*, P3.*, P4.*, P5.*, P6.*, **P7.1, P7.3, P7.4**.
+## 3. Status (per 2026-10-21, HEAD = commit "docs: session 6 handover")
+- **Done:** P0.1–P0.5, P1.1–P1.3, P1.5, P2.*, P3.*, P4.*, P5.*, P6.*, **P7.*** (semua).
 - **Review:** P1.4 (CI siap; link Vercel menunggu akun user).
-- **Todo:** P0.6 (opsional), **P7.2, P7.5**.
-- **Hasil sesi 5:**
-  - **P7.1:** `pnpm test:e2e` (butuh `pnpm build` dulu; config auto `pnpm start -p 3100`, atau set `E2E_BASE_URL`). 42 test: 41 pass, admin skip tanpa `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`. Screenshot 66 PNG (11 route × 375/768/1440 × light/dark) di `test-results/screenshots/` (gitignored, dibuat ulang tiap run `screenshots.spec.ts`).
-  - **P7.3:** `docs/security.md`. Fix: migrasi `drizzle/0003_signup_no_access.sql` (user baru tanpa akses; hanya user pertama jadi owner; `inviteUser` membuat profil editor), owner-only server-side untuk 7 aksi hapus + `upsertRedirect`/`deleteRedirect` lama, `requireRole` di semua `queries.admin.ts`, `.env.*` di-ignore. Migrasi 0003 **sudah diterapkan** di DB remote (diverifikasi: fungsi trigger versi baru, 4 migrasi tercatat). Terbuka: CSP `'unsafe-inline'` (diterima), rate limit login → CAPTCHA/attack protection Supabase.
-  - **P7.4:** `README.md` (developer) + `docs/admin-guide.md` (pemilik, non-teknis).
-- **Rencana sisa (maks 3 paralel):**
-  1. **P7.2 (O, opus): visual consistency review** → `docs/qa.md` + perbaikan. Jalankan `pnpm build && pnpm exec playwright test tests/e2e/screenshots.spec.ts` dulu untuk membuat screenshot. **Sertakan perbaikan a11y** yang di-allowlist di `KNOWN` (`tests/e2e/a11y.spec.ts`), lalu hapus entri dari `KNOWN` dan pastikan `E2E_AXE_STRICT=1 pnpm test:e2e` hijau:
-     - `/custom-order` critical `button-name`: radio produk `#order-product-*` tanpa nama aksesibel.
-     - `/produk` serious `label-content-name-mismatch`: `a[aria-label]` kartu produk tidak memuat teks yang terlihat.
-     - `/` serious `color-contrast` (9 node): langkah tidak aktif di section proses ter-pin.
-     - `/produk`, `/jurnal`, `/kontak`, `/kebijakan-privasi` serious `color-contrast`: CTA header "Cek slot via WhatsApp".
-  2. **P7.5 (S, sonnet):** `docs/deploy.md`: checklist Vercel (env, termasuk `NEXT_PUBLIC_SITE_URL`), domain, Supabase Auth (Site URL/redirect URL, SMTP, sign-up off, CAPTCHA), `pnpm db:migrate` + `ensure-media-bucket` di project baru, Search Console + sitemap, Google Business Profile. Butuh akun user; siapkan dokumen saja.
-  3. Opsional (orkestrator/sonnet): `/produk/<slug-tak-ada>` mengembalikan HTTP 200 (notFound() dalam Suspense streaming; halaman noindex). `/custom-order` sempat macet 60 s dengan "use cache took too long" setelah beban paralel di satu instance `next start` (DB remote); di instance baru normal ±3 s. Perlu diselidiki.
+- **Todo:** P0.6 (opsional).
+- **Hasil sesi 6:**
+  - **P7.2:** `docs/qa.md`. Fix a11y: radio `OptionCard` (`step-product.tsx`) pakai `aria-labelledby`/`aria-describedby`; link gambar kartu `/produk` `aria-hidden` + `tabIndex={-1}` (H2 = link utama); langkah proses tidak aktif diredupkan via `text-muted-foreground`, bukan opacity; tombol WhatsApp mengambang hanya slide (fade membuat label gagal kontras saat axe memindai — pelakunya ini, bukan CTA header). Fix visual: eyebrow hero `rule tone="accent"` konsisten, CTA WA /kontak & /faq jadi primary, angka "Empat pegangan" sejajar, ikon audience + badge "Contoh testimoni" terlihat di dark, sapaan "Anda" (brand). **`KNOWN` kosong; `E2E_AXE_STRICT=1 pnpm test:e2e` hijau** (41 ✓, 1 skip admin).
+  - **P7.5:** `docs/deploy.md` (8 bagian checklist; link dari README). Region Vercel, nilai DNS, dan nama menu dashboard = saran, cocokkan saat deploy.
+- **Temuan QA terbuka (docs/qa.md):**
+  - Dark mode: `--card` = `--surface` (kartu tidak terpisah dari latar). Perbaikan sebenarnya di `src/styles/globals.css` (token); sementara di-fix lokal di ikon/badge.
+  - 375 px: bar sticky "Lanjut" di `/custom-order` menutup gambar hero (perlu keputusan desain).
+  - Tombol WhatsApp mengambang menutupi sebagian konten di mobile.
+  - Foto & testimoni placeholder masih tampil (menunggu data asli).
+- **Opsional lain:** `/produk/<slug-tak-ada>` mengembalikan HTTP 200 (notFound() dalam Suspense streaming; halaman noindex). `/custom-order` sempat macet 60 s ("use cache took too long") setelah beban paralel di satu instance `next start` (DB remote); di instance baru normal ±3 s. Perlu diselidiki.
 - **Sisa rekomendasi performa (opsional, dari P6.4):**
   - TBT beranda ±135 ms. Jalankan animasi below-the-fold (SplitText, ScrollTrigger, PinnedStory) saat idle.
   - Chunk react-day-picker ±22 kB ter-prefetch dari link `/custom-order` dan `/cara-pesan`. Pakai `prefetch={false}` atau dynamic import `SlotCalendar`.
@@ -165,12 +162,12 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen 
 - Data asli (WA, alamat, nomor halal, foto) diisi lewat Admin → Pengaturan / Media.
 
 ## 9. Mulai sekarang
-1. Cek awal:
-   - `git log --oneline | head` dan `git status`; yang untracked seharusnya kosong (`.env.local.docker.bak` kini di-ignore).
-   - `pnpm typecheck && pnpm test`.
-   - `make db-status` (semua migrasi harus ✓).
-2. Tambah baris log sesi 6 di `STATE.md`, lalu ubah status task yang diluncurkan ke `doing`.
-3. Luncurkan P7.2 (opus) dan P7.5 (sonnet) paralel (ownership tidak bertumpuk: P7.2 = `docs/qa.md` + file UI yang diperbaiki + `KNOWN` di `tests/e2e/a11y.spec.ts`; P7.5 = `docs/deploy.md`).
-4. Setiap task: verifikasi sendiri (`make verify`), review, set `done`, commit per task. Di akhir sesi, perbarui `HANDOVER.md` dan `STATE.md`.
-5. Sesudah Fase 7: sisa rekomendasi performa dan gap fitur kecil (§3) bila user mau.
+1. Cek awal: `git log --oneline | head`, `git status` (harus bersih), `pnpm typecheck && pnpm test`, `make db-status` (0000–0003 ✓).
+2. Tambah baris log sesi 7 di `STATE.md`.
+3. Tanya user prioritas (semua opsional, maks 3 agent paralel, ownership tidak bertumpuk):
+   - **Deploy nyata** mengikuti `docs/deploy.md` (butuh akun Vercel/GitHub/domain dari user).
+   - **Sisa QA:** token dark `--card` di `globals.css` (sonnet; cek ulang screenshot dark), bar sticky `/custom-order` & tombol WA mengambang di mobile (opus, keputusan desain).
+   - **Performa (P6.4):** idle-load animasi below-the-fold, `prefetch={false}`/dynamic `SlotCalendar`, `browserslist` modern (sonnet).
+   - **Gap fitur:** `/admin/kategori`, sitemap kecualikan `seo.noindex`, route publik halaman CMS, `/produk/<slug>` 404 status (sonnet).
+4. Setiap task: verifikasi sendiri (`make verify` + `make e2e-strict`), review, set `done`, commit per task. Di akhir sesi, perbarui `HANDOVER.md` dan `STATE.md`.
 ````
