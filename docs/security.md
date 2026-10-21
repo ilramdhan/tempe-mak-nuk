@@ -2,13 +2,22 @@
 
 Tanggal: 2026-10-21 · Reviewer: agent P7.3 (Opus) · Basis: `main` @ `acf8532` + perubahan sesi 5 (belum di-commit)
 
+## 0. Status terkini (diperbarui P8.8)
+
+- Migrasi **0003** (`signup_no_access`: user baru tanpa profil = tanpa akses) dan **0004** (`rbac_permissions`, P8.14) sudah **diterapkan ke database remote**. Gunakan `make db-status` untuk memeriksa.
+- Temuan #1 sudah tertutup di database. Sisa tindakan ada di sisi dashboard (matikan sign-up, tinjau akun yang ada).
+- Aksi hapus artikel/resep kini khusus pemilik secara bawaan (bagian 3a). Cron publikasi terjadwal `/api/cron/publish` ditambahkan di P8.4 (#19 mencakup auth-nya).
+- GitHub (diverifikasi read-only lewat `gh api`): secret scanning dan push protection **aktif**, Dependabot security updates aktif, dan ruleset `main` **aktif** (PR wajib dengan squash, 1 persetujuan + code owner, status check `Verify` dan `Build + E2E` wajib, tanpa force-push/hapus branch, code scanning CodeQL). Validity checks dan non-provider patterns belum aktif.
+- Belum aktif/tidak terverifikasi dari repo: konfigurasi Supabase Auth (sign-up, CAPTCHA/Attack Protection, MFA, SMTP) dan env Vercel. Itu tetap checklist pemilik di bawah.
+- Review temuan (bagian 2) dilakukan pada `main` @ `acf8532` (P7.3). Fitur sesudahnya (`/admin/akses`, `/admin/kategori`, `/api/cron/publish`) dibahas di bagian 3a dan baris ruang lingkup, belum di-review ulang secara penuh — lihat audit P9.7.
+
 ## 1. Ruang lingkup
 
 - Seluruh Server Action (`"use server"`): `src/features/*/actions.ts`, `src/features/media/library-actions.ts`, `src/lib/auth/actions.ts`.
-- Route handler: `POST /api/upload`, `GET /api/cron/keepalive`, `GET /auth/callback`.
+- Route handler: `POST /api/upload`, `GET /api/cron/keepalive`, `GET /api/cron/publish`, `GET /auth/callback`.
 - Query admin (`src/features/*/queries.admin.ts`) dan guard halaman admin (`src/app/(admin)/**`).
 - `src/proxy.ts` + `src/lib/supabase/proxy.ts` (redirect DB, guard `/admin`).
-- RLS & trigger di `drizzle/0000–0003*.sql`, skema `src/db/schema/profiles.ts`.
+- RLS & trigger di `drizzle/0000–0004*.sql`, skema `src/db/schema/profiles.ts`.
 - Header keamanan / CSP (`next.config.ts`).
 - Penanganan secret & env (`src/lib/env.ts`, `server-only`, `NEXT_PUBLIC_*`, `.gitignore`, riwayat git).
 - XSS: render rich text Tiptap, JSON-LD, semua `dangerouslySetInnerHTML`.
@@ -30,7 +39,7 @@ Severity: **Kritis / Tinggi / Sedang / Rendah / Info**. Status: **fixed** (diper
 
 | # | Severity | Lokasi | Masalah | Status | Rekomendasi / Perbaikan |
 |---|---|---|---|---|---|
-| 1 | **Kritis** | `drizzle/0002_auth_profile_trigger.sql:16-20`, `src/db/schema/profiles.ts` | Trigger `on_auth_user_created` memberi role **editor** ke setiap user auth baru (setelah owner pertama). Sign-up publik Supabase masih aktif, dan endpoint `/auth/v1/signup` bisa dipanggil langsung dengan anon key publik. Akibatnya siapa pun bisa mendaftar dan langsung punya akses admin editor. | fixed* | Migrasi baru `drizzle/0003_signup_no_access.sql`: trigger hanya membuat profil **owner** untuk user pertama. User lain **tidak dibuat profil**, sehingga `requireRole` menolak dengan status "no-access". `inviteUser` sekarang membuat profil `editor` secara eksplisit. Test RLS diperbarui. **Jalankan `pnpm db:migrate`**, lalu periksa akun yang sempat mendaftar (checklist). Tetap **matikan sign-up** di Supabase. |
+| 1 | **Kritis** | `drizzle/0002_auth_profile_trigger.sql:16-20`, `src/db/schema/profiles.ts` | Trigger `on_auth_user_created` memberi role **editor** ke setiap user auth baru (setelah owner pertama). Sign-up publik Supabase masih aktif, dan endpoint `/auth/v1/signup` bisa dipanggil langsung dengan anon key publik. Akibatnya siapa pun bisa mendaftar dan langsung punya akses admin editor. | fixed (migrasi 0003 diterapkan ke remote) | Migrasi baru `drizzle/0003_signup_no_access.sql`: trigger hanya membuat profil **owner** untuk user pertama. User lain **tidak dibuat profil**, sehingga `requireRole` menolak dengan status "no-access". `inviteUser` sekarang membuat profil `editor` secara eksplisit. Test RLS diperbarui. Sudah diterapkan (`make db-migrate`; jangan pakai `pnpm db:migrate`, port 5432 sering diblokir). Lalu periksa akun yang sempat mendaftar (checklist). Tetap **matikan sign-up** di Supabase. |
 | 2 | **Tinggi** | `src/features/faqs/actions.ts:56` `deleteFaq`; `testimonials/actions.ts:58` `deleteTestimonial`; `navigation/actions.ts:53,108` `deleteNavItem`/`deleteAnnouncement`; `media/actions.ts:47` `deleteMedia`; `products/actions.ts:167,223` `deleteProductShape`/`deleteProductSize` | UI memakai `RoleGate role="owner"`, tetapi action server memakai default `editor`. Editor bisa memanggil action langsung (ID action ada di bundle klien) dan menghapus data. | fixed | Ditambah `role: "owner"`. Test: `src/features/_shared/__tests__/owner-only-actions.test.ts`. |
 | 3 | **Tinggi** | `src/features/pages/actions.ts:155,169` `upsertRedirect`/`deleteRedirect` | Action redirect versi lama bisa dipakai editor dan **tanpa** blokir `/admin`/`/api` maupun cek loop. Redirect bisa mengarah ke URL eksternal (dipakai di proxy untuk semua path publik), jadi editor bisa membuat open redirect / phishing dari domain resmi. | fixed | Ditambah `role: "owner"` (sama dengan `features/redirects`). Tidak dipakai UI. Saran: hapus kedua action ini saat refactor. |
 | 4 | **Sedang** | `src/features/*/queries.admin.ts` (27 fungsi), `src/app/(admin)/admin/layout.tsx:30` | Halaman admin hanya di-guard di **layout**. Menurut docs Next (`authentication.md` → "Layouts and auth checks"), layout tidak mengontrol render segmen anak, sehingga query admin (termasuk settings `private`, draf, daftar pengguna) bisa tereksekusi tanpa cek peran. Halaman Legal hanya owner di UI, tapi query-nya tidak dicek. | fixed | Pola DAL: setiap fungsi `queries.admin.ts` memanggil `requireRole("editor", { onFail: "redirect" })`. Legal & Pengguna memanggil `requireRole("owner", …)`. `getAuthState` di-`cache` per request, jadi tidak ada query tambahan. |
@@ -67,7 +76,7 @@ Severity: **Kritis / Tinggi / Sedang / Rendah / Info**. Status: **fixed** (diper
 
 ## 4. File yang diubah (P7.3)
 
-- `drizzle/0003_signup_no_access.sql`, `drizzle/meta/_journal.json`, `drizzle/meta/0003_snapshot.json` (dibuat oleh `drizzle-kit generate --custom`, **belum** di-migrate)
+- `drizzle/0003_signup_no_access.sql`, `drizzle/meta/_journal.json`, `drizzle/meta/0003_snapshot.json` (dibuat oleh `drizzle-kit generate --custom`; sudah di-migrate ke remote)
 - `src/db/schema/profiles.ts` (komentar), `src/features/users/actions.ts` (invite membuat profil editor)
 - `src/features/{faqs,testimonials,navigation,media,products,pages}/actions.ts` (`role: "owner"`)
 - `src/features/*/queries.admin.ts` (14 file, guard DAL)
@@ -79,9 +88,9 @@ Severity: **Kritis / Tinggi / Sedang / Rendah / Info**. Status: **fixed** (diper
 
 **Supabase → Authentication**
 - [ ] **Matikan sign-up publik**: *Sign In / Providers → Email → "Allow new users to sign up" = OFF*. Pengguna baru hanya lewat **Admin → Pengguna → Undang**.
-- [ ] Setelah orkestrator menjalankan `pnpm db:migrate` (0003): buka *Authentication → Users* dan **Admin → Pengguna**. Hapus akun yang tidak dikenal (bisa saja terdaftar selama sign-up masih terbuka), atau ubah perannya.
+- [ ] Migrasi 0003 sudah diterapkan (`make db-status`): buka *Authentication → Users* dan **Admin → Pengguna**. Hapus akun yang tidak dikenal (bisa saja terdaftar selama sign-up masih terbuka), atau ubah perannya.
 - [ ] *URL Configuration*: Site URL = domain produksi. *Redirect URLs* hanya `https://<domain>/auth/callback` (+ preview Vercel bila perlu).
-- [ ] *Attack Protection*: aktifkan CAPTCHA (Turnstile) dan cek rate limit email/OTP. Panjang password minimal 12.
+- [ ] *Attack Protection*: **saran, belum dikonfirmasi aktif**. Aktifkan CAPTCHA (Turnstile) dan cek rate limit email/OTP. Panjang password minimal 12.
 - [ ] Aktifkan MFA (TOTP) untuk akun owner bila tersedia.
 - [ ] Ganti SMTP default ke SMTP sendiri (Resend/Brevo free) supaya email undangan & magic link tidak kena limit 2/jam.
 
@@ -92,9 +101,15 @@ Severity: **Kritis / Tinggi / Sedang / Rendah / Info**. Status: **fixed** (diper
 **Vercel → Project → Settings → Environment Variables (Production)**
 - [ ] `NEXT_PUBLIC_SITE_URL` = `https://<domain>` (wajib, lihat temuan #10).
 - [ ] `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (publik, aman).
+- [ ] **`CRON_SECRET` wajib ada di Vercel**: tanpa itu `/api/cron/keepalive` dan `/api/cron/publish` membalas 500 (fail-closed), jadi konten terjadwal tidak terbit tepat waktu dan Supabase gratis bisa ter-pause. Paket Hobby hanya mengizinkan cron harian (lihat `docs/deploy.md`).
 - [ ] `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL` (pooler 6543), `DIRECT_URL`, `CRON_SECRET`, `REVALIDATE_SECRET` sebagai **Sensitive**, tanpa prefix `NEXT_PUBLIC_`.
 - [ ] Jangan set `SKIP_ENV_VALIDATION` di production.
 - [ ] Preview deployment: pakai project/DB Supabase terpisah, atau aktifkan *Vercel Authentication* untuk preview.
+
+**GitHub (sudah aktif, diverifikasi)**
+- [x] Secret scanning dan push protection aktif; Dependabot security updates aktif.
+- [x] Ruleset `main` aktif (PR + code owner, status check wajib, squash only). Lihat PR #6 (release-please), #7 (cron), #10 (P8.7).
+- [ ] Opsional: aktifkan secret scanning *validity checks* dan *non-provider patterns*.
 
 **Operasional**
 - [ ] Bucket Storage `media`: public-read, tulis hanya service role (sudah diatur via `scripts/dev/ensure-media-bucket.mts`). Jangan tambah policy upload untuk `anon`/`authenticated`.
