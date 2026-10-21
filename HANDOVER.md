@@ -1,4 +1,4 @@
-# HANDOVER — Tempe Mak Nuk (sesi 7 → sesi 8)
+# HANDOVER — Tempe Mak Nuk (sesi 8 → sesi 9)
 
 > Paste blok di bawah ini apa adanya ke sesi Claude Code baru, di root project
 > `/Users/ilhamramadhan/WebstormProjects/tempe-mak-nuk`.
@@ -6,7 +6,7 @@
 ---
 
 ````markdown
-Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, tempe handmade sejak 2001, Klaten). Repo GitHub `ilramdhan/tempe-mak-nuk` (publik). **Fase 0–7 done; Fase 8 hampir selesai; Fase 9 separuh.** Jangan analisa ulang dari nol; baca file berikut, lalu lanjut ke §9.
+Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, tempe handmade sejak 2001, Klaten). Repo GitHub `ilramdhan/tempe-mak-nuk` (publik). **Fase 0–8 done; Fase 9 tinggal P9.6 sisa + P9.7; ada 2 masalah terbuka (§3b): Trivy di job Docker rilis & performa skeleton lambat.** Situs sudah live di Vercel Hobby. Jangan analisa ulang dari nol; baca file berikut, lalu lanjut ke §9.
 
 ## 1. Baca dulu (urut)
 1. `STATE.md` — ledger status per task (sumber kebenaran) + log sesi.
@@ -23,18 +23,25 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, tempe han
 - Ubah status ledger dengan skrip kecil (kolom ke-5 = Status, ke-6 = Agent) — jangan sed regex rapuh.
 - Laporan ke user dalam Bahasa Indonesia, ringkas.
 
-## 3. Status (2026-10-21, akhir sesi 7)
-**Fase 8**
-- done & di `main`: P8.0 (prettier + CI Postgres), P8.1 (`/produk`,`/faq`,`/kontak` dari CMS + catch-all `(site)/[slug]` + slug reserved), P8.2 (404 asli via `export const ensureStatic = "navigation"`), P8.3 (judul tunggal, sitemap noindex, favicon.ico, JSON-LD image), P8.5 (`/admin/kategori`), P8.6 (kartu peringatan konten dasbor), P8.9 (editor boleh seo./cta.), P8.10 (e2e auth/404/FAQ CRUD), P8.11 (motion idle/near-viewport, SlotCalendar lazy, browserslist; dep `motion` dihapus), P8.12 (dark `--card`, sticky bar/WA), P8.13/P0.6 (skills), **P8.14 RBAC dinamis** (migrasi `0004_rbac_permissions` — sudah diterapkan ke remote; `/admin/akses`; registry `src/features/permissions/registry.ts`; `adminAction` cek `<entity>.<action>`).
-- **P8.4** — PR **#7** `feat/p8.4-cache-cron` (menunggu CI + merge user).
-- **P8.7** — agent sonnet sedang berjalan saat sesi 7 ditutup; perubahan BELUM di-commit di working tree `main` lokal: consent 12 bln + "Tolak" (`src/features/consent/*`), FAQ/resep terkait `/produk/[slug]` (halaman `ensureStatic` → hanya query `"use cache"`), galeri bentuk `/produk`, slot announcement (`src/features/slots/{week-message.ts,components/slot-announcement.tsx}`, `(site)/layout.tsx`), TOC legal, seed pages (probiotik/timeline/tim). **Sesi 8: cek `git status`; selesaikan/verifikasi (typecheck, test — test consent cookie harus hijau, build, `E2E_AXE_STRICT=1` e2e), `pnpm db:seed` bila seed berubah, lalu PR.**
-- **P8.8** todo (docs akurat: admin-guide [editor bisa Navigasi/Pengumuman/CTA, undang tanpa pilihan peran, tidak ada nonaktifkan akun, versi legal via "Buat versi baru", hapus klaim "±1 menit", **tambah /admin/akses & /admin/kategori**, hapus artikel/resep owner-only], `docs/security.md` status 0003/0004).
+## 3. Status (2026-10-22, akhir sesi 8)
+**Fase 8: semua done & di `main`.** P8.4 (#7), P8.7 (#10), P8.8 (#12) masuk sesi 8. Cron publish diubah harian untuk Vercel Hobby (#13).
 **Fase 9**
-- done: P9.1 (LICENSE proprietary, README badges, CONTRIBUTING, CoC, SECURITY, ACCESSIBILITY, SUPPORT, .editorconfig, .gitattributes), P9.2 (CODEOWNERS, issue forms, PR template, labeler, labels), P9.3 (ci.yml verify + build-e2e Postgres+Playwright+axe strict, dependency-review, pr-title, labeler, labels-sync, stale, Dependabot grouped + docker; action dipin SHA). **`codeql.yml` advanced dihapus di PR #6** karena repo memakai CodeQL *default setup* (SARIF bentrok).
-- **P9.4** — PR **#6** `chore/p9.4-release-please` (CI hijau semua; menunggu merge user). Setelah merge, release-please membuka PR "chore: release 0.1.0" → merge → tag `v0.1.0`. Lalu PR kecil: hapus `release-as` dari `release-please-config.json`. Catatan: PR bot dengan GITHUB_TOKEN tidak memicu CI — opsional secret `RELEASE_PLEASE_TOKEN` (PAT) atau close/reopen PR.
-- **P9.5** todo (opus): Dockerfile multi-stage + `output: "standalone"` (uji `pnpm build` 2× + e2e), `.dockerignore` (exclude `.env*`), `NEXT_PUBLIC_*` sebagai build-arg, `docker.yml` (buildx amd64/arm64, GHCR **publik** `ghcr.io/ilramdhan/tempe-mak-nuk`, metadata-action semver+sha, SBOM+provenance, Trivy, cosign keyless) dipanggil via `workflow_call` dari `release-please.yml` saat `release_created` (event release dari GITHUB_TOKEN tidak memicu workflow lain); docs/deploy.md.
-- **P9.6**: setting repo sudah dilakukan user. Sisa: PR Dependabot — tutup PR lama yang gagal (typescript-eslint tidak mendukung TS 7.0); #3 (npm minor/patch group) & #4 (`@types/node` 26 major — kemungkinan tutup, Node runtime 22) diuji/merge atau tutup; pertimbangkan `ignore` TS 7 / typescript-eslint di dependabot sampai didukung.
-- **P9.7** todo (opus): audit akhir → `docs/audit/phase-9.md`, `gh run list` hijau, release + image ter-sign, perbarui HANDOVER/STATE.
+- done: P9.1–P9.4, **P9.5** (#14: Dockerfile standalone, `docker.yml` GHCR, dipanggil `release-please.yml`). Rilis: v0.1.0, v0.1.1, **v0.1.2** (Latest).
+- **P9.6** sebagian: Dependabot #3 (minor/patch) & #5 (TypeScript 6.0.3) di-merge user; #4 (`@types/node` 26) & #16 (image node 26) ditutup via `@dependabot ignore this major version` (runtime Node 22). Setting repo (ruleset, secret scanning, PVR) sudah oleh user. Secret `RELEASE_PLEASE_TOKEN` (PAT fine-grained, **kedaluwarsa 2026-11-20** — ingatkan user memperpanjang) sudah ada.
+- **P9.7** todo (lihat §3b-1 dulu).
+- **Deploy Vercel (Hobby) BERHASIL** setelah #17 (lihat §3b-3). Env Vercel lengkap.
+
+## 3b. MASALAH TERBUKA (prioritas sesi 9)
+1. **Job Docker rilis gagal di langkah Trivy** (run `39688268281`, rilis v0.1.2, job "Build, scan, push, sign"). Variabel/secret repo sudah diisi user (gate var lolos). Langkah Trivy memakai `format: sarif` + `exit-code: 1` + `severity: CRITICAL,HIGH` + `ignore-unfixed` → log tidak mencetak tabel temuan, jadi penyebab belum terlihat.
+   - Scan lokal image P9.5 (`tempe-mak-nuk:p95`, Trivy 0.70.0, `--severity CRITICAL,HIGH --ignore-unfixed`) = **0 temuan**. Jadi temuan kemungkinan dari image rilis (dep baru setelah #3/#5, atau DB Trivy lebih baru) — ATAU dari **secret scanner** (aktif default di trivy-action; Code scanning repo sudah berisi alert Trivy `jwt-token` di `/app/.next/server/chunks/*.js`). `NEXT_PUBLIC_SUPABASE_ANON_KEY` (JWT publik, memang ter-bake di bundle) kemungkinan terdeteksi sebagai secret.
+   - Langkah: (a) jalankan ulang lokal persis seperti CI: build image dengan build-arg nilai asli lalu `docker run aquasec/trivy:0.70.0 image --severity CRITICAL,HIGH --ignore-unfixed --format table` (vuln **dan** secret); atau ubah langkah CI jadi dua: tabel (exit-code 1) + SARIF (exit-code 0) agar temuan terlihat di log. (b) Bila secret anon key: `scanners: vuln` untuk gate (secret scanning sudah dilakukan GitHub push protection), atau `.trivyignore`/`trivy-secret.yaml` allow rule `jwt-token` untuk path `.next/`. Bila CVE: naikkan dep/base image atau `.trivyignore` dengan alasan + tanggal tinjau.
+   - Setelah hijau: `gh workflow run docker.yml -f tag=v0.1.2 -f version=0.1.2`, cek `cosign verify`, lalu user set paket GHCR **Public** sekali.
+   - Juga ada alert Code scanning `CVE-2026-85091` (medium) — tinjau.
+2. **Performa: halaman/bagian kadang lama hanya skeleton** (landing & admin; dasbor admin sangat lama). Laporan user 2026-10-22, belum diselidiki. Dugaan kuat (terkait temuan #3 di bawah): **pooler transaksi Supabase (6543) macet bila satu koneksi menerima query kedua sebelum yang pertama selesai** (postgres-js pipelining). Runtime memakai `max: 5` (`src/db/client.ts`); setiap `Promise.all` berisi >5 query atau render paralel beberapa `"use cache"`/Suspense (mis. dasbor `features/dashboard/warnings.ts:44` + kartu lain; landing banyak section) membuat query ke-6 dst. di-pipeline ke koneksi sibuk → menggantung sampai timeout/`connect_timeout`, skeleton bertahan. Uji lokal: `max=5` + 6 query paralel lolos, `max=5` + 20 paralel = HANG >20 s; `max=1` + 2 paralel = HANG; `max=10` + 10 = 653 ms.
+   - Opsi perbaikan (uji di preview Vercel, bukan hanya lokal): (a) **batasi query in-flight di aplikasi**: semaphore di sekitar eksekusi query agar per instance tidak pernah lebih dari `max` query bersamaan (opsi postgres-js `max_pipeline: 1` sudah diuji dan **tidak** cukup, tetap HANG); (b) runtime lewat **session pooler 5432** dengan `max` kecil — ukur batas klien session pooler Supabase Free terhadap jumlah instance serverless; (c) driver tanpa pipelining (mis. `pg`). Lalu ukur ulang TTFB/LCP (`docs/performance.md`) dan dasbor admin.
+   - Faktor lain yang juga perlu dicek: cold start fungsi Vercel Hobby (region fungsi vs DB ap-northeast-1 — log build Vercel menunjukkan `iad1` Washington; DB di ap-northeast-1 Tokyo → **set Function Region ke `hnd1`** di Vercel Settings → Functions bila paket mengizinkan, atau `regions` di `vercel.json`; tiap query lintas Pasifik ±150 ms RTT), cache `"use cache"` in-memory per instance (miss di instance baru), dan query admin tanpa cache.
+3. **Fix sesi 8 (#17): build lewat session pooler.** Saat `NEXT_PHASE=phase-production-build`, `src/db/build-url.ts` mengganti `*.pooler.supabase.com:6543` → `:5432` (host sama, IPv4). Penyebab deploy gagal sebelumnya: `"use cache" function took too long during prerendering`. Runtime tetap 6543. Ini membatalkan catatan lama "port 5432 diblokir" — **session pooler 5432 bisa dijangkau**; yang IPv6-only hanya host direct `db.<ref>.supabase.co`.
+4. **Insiden sesi 8:** agent P9.5 tidak sengaja menjalankan `pnpm db:seed` ke DB **remote** (2026-10-21 13:56 UTC) karena `seed.ts` memakai `DIRECT_URL` dari `.env`. Seed upsert menimpa nilai settings/produk/halaman/artikel ke nilai contoh. `audit_log` kosong (belum ada editan admin) → kemungkinan tidak ada data asli hilang. **Pencegahan (todo):** seed menolak jalan ke host non-lokal tanpa `SEED_ALLOW_REMOTE=1`; aturan sub-agent: jangan jalankan seed/migrasi kecuali diminta.
 
 ## 3a. Catatan teknis baru sesi 7
 - `ensureStatic = "navigation"` (Next 16.4) di 4 route `[slug]` + catch-all: unknown slug → 404 asli; halaman itu hanya boleh data `"use cache"` (tanpa cookies/headers/connection/new Date di luar cache), jika tidak build gagal.
@@ -102,8 +109,9 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, tempe han
   - `generateStaticParams` wajib mengembalikan ≥1 hasil (OG `[slug]` memakai fallback `_`).
   - `new Date()` hanya boleh di fungsi `"use cache"` atau setelah `connection()`.
 - **Build & DB:**
-  - `next build` jalan dengan 14 worker. `src/db/client.ts` memakai `max: 1` koneksi saat `NEXT_PHASE=phase-production-build`.
-  - `DATABASE_URL` memakai pooler port 6543. Host direct IPv6-only dan port 5432 diblokir di jaringan ini.
+  - `next build` jalan dengan 14 worker. `src/db/client.ts` memakai `max: 1` koneksi saat `NEXT_PHASE=phase-production-build` **dan** session pooler 5432 (`src/db/build-url.ts`, #17).
+  - Runtime `DATABASE_URL` = pooler transaksi 6543 (`prepare: false`). **Pooler 6543 menggantung bila satu koneksi menerima >1 query bersamaan** (lihat §3b-2). Host direct `db.<ref>.supabase.co` IPv6-only; session pooler `aws-0-<region>.pooler.supabase.com:5432` bisa dijangkau.
+  - **Jangan jalankan `pnpm db:seed` sembarangan**: memakai `DIRECT_URL` dari `.env` = DB remote (insiden sesi 8).
   - Jangan ubah konfigurasi ini tanpa menguji `pnpm build` 2×.
 - Next 16:
   - Middleware ada di `src/proxy.ts`; `"use cache"` tidak berlaku di proxy.
@@ -137,7 +145,7 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, tempe han
   - `pnpm dev`, `pnpm build`, `pnpm test`, `pnpm lint`, `pnpm typecheck`.
   - `pnpm db:migrate`, `pnpm db:seed` (idempoten), `pnpm db:generate`.
   - Validasi seed: `pnpm tsx --tsconfig tsconfig.json scripts/dev/validate-sections.mts`.
-- Status akhir sesi 7: lint ✓, typecheck ✓, ±416 test ✓, build ✓, e2e (CI) hijau; CI GitHub hijau di `main`.
+- Status akhir sesi 8: lint ✓, typecheck ✓, 418 test ✓, build ✓ (lokal ke DB remote 2×), CI `main` hijau; Vercel production live; job Docker rilis merah di Trivy (§3b-1). TypeScript kini 6.0.3 (#5).
 - `pnpm lint` mengabaikan `playwright-report/` dan `test-results/`.
 
 ## 8. Menunggu dari user (jangan memblokir)
@@ -149,14 +157,15 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, tempe han
 - Keputusan desain: bar sticky "Lanjut" `/custom-order` di 375 px & tombol WA mengambang (P8.12).
 - Keputusan Fase 9: lisensi (default usulan: **proprietary / All rights reserved** karena brand komersial; alternatif MIT untuk kode saja), apakah repo tetap publik, image container dipublikasikan ke GHCR publik/privat.
 - Secrets GitHub Actions bila diperlukan (mis. `E2E_ADMIN_*`, Vercel token bila deploy via Actions).
-- Akun/project Vercel dan domain:
-  - Env Vercel: `DATABASE_URL` pooler 6543, `DIRECT_URL`, Supabase keys, `SUPABASE_SERVICE_ROLE_KEY`, secrets, **`NEXT_PUBLIC_SITE_URL`**.
+- Vercel Hobby sudah live, env lengkap (sesi 8). Sisa: domain sendiri (bila ada) + cek Function Region dekat DB (§3b-2). Repo vars/secret Docker sudah diisi. Perpanjang `RELEASE_PLEASE_TOKEN` sebelum 2026-11-20. Set paket GHCR Public setelah push image pertama.
 - Akun editor khusus E2E (`E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`, undang via Admin → Pengguna) supaya `tests/e2e/admin.spec.ts` jalan.
 - Data asli (WA, alamat, nomor halal, foto) diisi lewat Admin → Pengaturan / Media.
 
 ## 9. Mulai sekarang
-1. Cek awal: `git status` (sisa P8.7?), `git fetch && git log --oneline origin/main | head`, `gh pr list`, `gh run list -L 5`, `pnpm typecheck && pnpm test`, `make db-status` (0000–0004 ✓).
-2. Selesaikan P8.7 (lihat §3) → PR. Pastikan PR #6/#7 sudah di-merge user (ingatkan bila belum).
-3. Gelombang: P8.8 (sonnet) ‖ P9.5 (opus) ‖ P9.6 Dependabot (sonnet). Lalu rilis v0.1.0 (merge PR release-please) → pastikan workflow docker jalan → P9.7 (opus).
-4. Akhir sesi: perbarui `HANDOVER.md` + `STATE.md` (log sesi) lewat PR.
+1. Cek awal: `git status`, `git fetch && git log --oneline origin/main | head`, `gh pr list`, `gh run list -L 8`, `pnpm typecheck && pnpm test`.
+2. **§3b-1 Trivy** (sonnet; ownership `.github/workflows/docker.yml`, `.trivyignore`): temukan temuan nyata, perbaiki gate, jalankan ulang `docker.yml` untuk v0.1.2, verifikasi cosign + minta user set GHCR Public.
+3. **§3b-2 Performa skeleton** (opus; ownership `src/db/client.ts`, `src/features/_shared/db.ts`, query dasbor): reproduksi (lokal `next start` + DB remote, dan preview Vercel), ukur, perbaiki pool/pipelining, cek region fungsi Vercel; perbarui `docs/performance.md`.
+4. §3b-4 pencegahan seed remote (sonnet; `src/db/seed/index.ts`).
+5. P9.7 audit akhir (opus) → `docs/audit/phase-9.md`.
+6. Akhir sesi: perbarui `HANDOVER.md` + `STATE.md` lewat PR.
 ````

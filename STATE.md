@@ -6,10 +6,10 @@
 
 ## Ringkasan
 
-- **Fase aktif:** 8 (perbaikan gap audit) lalu 9 (repo GitHub) — rincian task di HANDOVER.md §9; laporan audit di `docs/audit/`
-- **Terakhir diperbarui:** 2026-10-21
+- **Fase aktif:** 9 (sisa P9.6/P9.7) + masalah terbuka HANDOVER.md §3b (Trivy job Docker, performa skeleton). Fase 8 done. Situs live di Vercel Hobby.
+- **Terakhir diperbarui:** 2026-10-22
 - **Branch / commit terakhir:** main / lihat `git log`
-- **Preview URL:** —
+- **Preview URL:** Vercel production (Hobby) — live sejak 2026-10-22
 
 ## Keputusan & Data Terkunci
 
@@ -87,7 +87,7 @@
 | P8.5 | /admin/kategori: kelola kategori FAQ/jurnal/resep + tag | S | P8.0 | done | sonnet | `src/app/(admin)/admin/kategori/**`, features/taxonomy (updateTag, counts, in-use delete guard), nav, registry tags.update |
 | P8.6 | Dasbor: kartu peringatan konten kosong | S | P8.0 | done | sonnet | `features/dashboard/*`, `admin/_dashboard/warnings.tsx`, `admin/page.tsx` |
 | P8.7 | Konten publik kurang (FAQ+resep terkait produk, galeri bentuk, probiotik, timeline, announcement slot, consent 12 bln + Tolak, TOC legal) | S | P8.1 | done | sonnet | produk/[slug]+produk, legal TOC, consent 365d, slot announcement, seed manfaat/tentang |
-| P8.8 | Docs akurat: admin-guide, README setup, security.md | S | P8.1–P8.6, P8.14 | todo |  | `README.md`, `docs/*.md` |
+| P8.8 | Docs akurat: admin-guide, README setup, security.md | S | P8.1–P8.6, P8.14 | done | sonnet | `README.md`, `docs/*.md` |
 | P8.9 | Admin kecil: tab SEO & situs untuk editor (seo./cta.); hapus action redirect duplikat | S | P8.0 | done | sonnet | `features/settings`, `features/pages/actions.ts` |
 | P8.10 | E2E: anonim /admin→/login; admin CRUD (skip tanpa E2E_ADMIN_*); 404 slug | S | P8.2 | done | sonnet | `tests/e2e/*` |
 | P8.11 | Performa: animasi idle, SlotCalendar prefetch/dynamic, browserslist, analyzer, hapus motion bila tak dipakai | O | P8.0 | done | opus | `src/components/motion/*` (schedule/use-motion-effect/tokens), `orders/components/slot-calendar-lazy`+`slot-legend`, `browserslist`; `/` TBT 133→0 ms, JS 322→288 kB; dep `motion` tak dipakai (lihat docs/performance.md) |
@@ -98,14 +98,16 @@
 | P9.2 | .github: CODEOWNERS, issue forms, PR template, labeler | S | — | done | sonnet | `.github/**` (kecuali workflows) |
 | P9.3 | Workflows: ci (+e2e), codeql, dependency-review, pr-title, labeler; dependabot grup | O | P8.0, P9.2 | done | opus | `.github/workflows/{ci,codeql,dependency-review,pr-title,labeler,labels-sync,stale}.yml`, `.github/dependabot.yml` — SHA-pinned via gh api, actionlint clean; e2e lokal (pg16 + dummy Supabase) 47 pass/2 skip (admin); screenshots di-skip di CI; docker ecosystem menunggu Dockerfile P9.5 |
 | P9.4 | release-please (0.1.0) + deskripsi/topics repo | S | P9.3 | done | sonnet | config release-please |
-| P9.5 | Dockerfile standalone + docker.yml GHCR publik (multi-arch, SBOM, Trivy, cosign) | O | P9.3, P9.4 | todo |  | `Dockerfile`, `.dockerignore`, `docker.yml`, `next.config.ts` |
-| P9.6 | Setting repo: ruleset main, secret scanning, Dependabot, PVR, squash-only; PR Dependabot #1 | S | P9.1–P9.5 | todo |  | setting GitHub |
+| P9.5 | Dockerfile standalone + docker.yml GHCR publik (multi-arch, SBOM, Trivy, cosign) | O | P9.3, P9.4 | done | opus | `Dockerfile`, `.dockerignore`, `docker.yml`, `next.config.ts` standalone (#14); job rilis merah di Trivy → HANDOVER §3b-1 |
+| P9.6 | Setting repo: ruleset main, secret scanning, Dependabot, PVR, squash-only; PR Dependabot #1 | S | P9.1–P9.5 | doing | orchestrator | ruleset/secret scanning/PVR oleh user; Dependabot #3,#5 merge, #4,#16 ignore major; sisa: verifikasi akhir |
 | P9.7 | Audit akhir Fase 9 | O | P9.6 | todo |  | `docs/audit/phase-9.md` |
 
 ## Blocker
 
 | Tanggal | Task | Masalah | Butuh dari |
 |---|---|---|---|
+| 2026-10-22 | P9.5/P9.7 | Job Docker rilis v0.1.2 gagal di Trivy (temuan belum terlihat; dugaan secret `jwt-token` anon key di bundle) | sesi 9 (HANDOVER §3b-1) |
+| 2026-10-22 | perf | Halaman/dasbor admin kadang lama skeleton; dugaan pipelining di pooler 6543 + region fungsi iad1 vs DB Tokyo | sesi 9 (HANDOVER §3b-2) |
 
 ## Log Sesi
 
@@ -122,3 +124,4 @@
 | 2026-10-21 | sesi 6 (lanjutan) | Audit kelengkapan 3 sub-agent (sonnet+opus) → `docs/audit/phase-{0-3,4-6,5-7}.md` (0 ❌ fungsional, banyak ⚠️). Push ke GitHub `ilramdhan/tempe-mak-nuk` (scan secret bersih). CI GitHub gagal di Format check (168 file). Fase 8 (gap audit/QA/performa) + Fase 9 (repo production-grade) direncanakan di HANDOVER.md | P8.0 → Fase 8 → Fase 9 |
 | 2026-10-21 | sesi 7 | Cek awal ✓. Keputusan user: repo publik, lisensi proprietary, hapus artikel/resep owner-only + RBAC dinamis via web (P8.14 baru), desain sticky bar/WA ikut rekomendasi. Fase 8/9 ditambahkan; P8.0 diluncurkan | P8.0 → Fase 8 → Fase 9 |
 | 2026-10-21 | sesi 7 (lanjutan) | Done: P8.0–P8.3, P8.5, P8.6, P8.9–P8.14 (RBAC dinamis, migrasi 0004 remote), P0.6, P9.1–P9.3. CI GitHub hijau (verify + build-e2e Postgres/Playwright/axe). PR terbuka: #6 (P9.4 release-please, hapus codeql.yml advanced), #7 (P8.4). P8.7 di working tree (agent berjalan). Mulai sesi ini: semua perubahan lewat branch+PR, merge oleh user. HANDOVER.md → sesi 8 | P8.7 → P8.8, P9.5, P9.6 (Dependabot), P9.7 |
+| 2026-10-22 | sesi 8 | CI `main` diperbaiki (#11: manifest release-please di .prettierignore, PR title Dependabot). Done: P8.8 (#12), cron harian Hobby (#13), P9.5 Docker (#14), fix build Vercel lewat session pooler (#17, akar: pooler 6543 macet saat >1 query per koneksi). Rilis v0.1.1, v0.1.2. Dependabot #3/#5 merge, #4/#16 ignore major. Vercel production live. Insiden: seed tak sengaja ke DB remote oleh agent (audit_log kosong). Terbuka: Trivy job Docker, performa skeleton | HANDOVER §3b → P9.7 |
