@@ -9,6 +9,7 @@ import {
   SkipLink,
   WaLink,
 } from "@/components/site/layout";
+import { SlotAnnouncement } from "@/features/slots/components/slot-announcement";
 import { ConsentManager } from "@/features/consent";
 import {
   getActiveAnnouncement,
@@ -47,7 +48,9 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
           text={announcement.text}
           href={announcement.href}
         />
-      ) : null}
+      ) : (
+        <SlotAnnouncement />
+      )}
       <SiteHeader
         links={navigation.header}
         cta={{

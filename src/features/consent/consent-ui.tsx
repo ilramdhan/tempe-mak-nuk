@@ -110,7 +110,7 @@ export function ConsentUi({
                 size="md"
                 onClick={() => decide(rejectOptional(config.categories))}
               >
-                Tolak
+                Tolak opsional
               </Button>
               <Button
                 variant="secondary"
@@ -179,7 +179,7 @@ export function ConsentUi({
               variant="secondary"
               onClick={() => decide(rejectOptional(config.categories))}
             >
-              Tolak
+              Tolak opsional
             </Button>
             <Button variant="secondary" onClick={() => decide(draft)}>
               Simpan pilihan

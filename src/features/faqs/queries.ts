@@ -102,3 +102,14 @@ export function faqAnswerPlainText(answer: string): string {
     .replace(/\[(.+?)\]\((.+?)\)/g, "$1")
     .trim();
 }
+
+/** FAQs shown on a product page: the "produk" + "penyimpanan" categories (faqs have no product link). */
+export async function getProductFaqs(limit = 6): Promise<PublicFaq[]> {
+  const all = await getFaqs();
+  return all
+    .filter(
+      (f) =>
+        f.category?.slug === "produk" || f.category?.slug === "penyimpanan",
+    )
+    .slice(0, limit);
+}
