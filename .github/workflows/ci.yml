@@ -18,6 +18,19 @@ jobs:
     timeout-minutes: 20
     env:
       NEXT_TELEMETRY_DISABLED: "1"
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: tempe
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v7
 
@@ -42,8 +55,19 @@ jobs:
       - name: Test
         run: pnpm test
 
+      - name: Prepare CI database (bootstrap, migrate, seed)
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/ci/bootstrap.sql
+          pnpm tsx scripts/dev/migrate.mts
+          pnpm db:seed
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tempe
+          DIRECT_URL: postgresql://postgres:postgres@localhost:5432/tempe
+
       - name: Build
         run: pnpm build
         env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tempe
+          DIRECT_URL: postgresql://postgres:postgres@localhost:5432/tempe
           SKIP_ENV_VALIDATION: "1"
           NEXT_PUBLIC_SITE_URL: https://tempemaknuk.com
