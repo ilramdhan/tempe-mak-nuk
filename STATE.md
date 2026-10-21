@@ -77,7 +77,7 @@
 | P7.1 | Playwright: smoke semua route, Order Builder → URL WA, admin CRUD, axe a11y, screenshot 375/768/1440 × light/dark | S | P4.*, P5.* | doing | | |
 | P7.2 | Visual consistency review (skill `web-design-guidelines` + `frontend-design`): gap, typo, tombol, ritme | O | P7.1 | todo | | |
 | P7.3 | Security review (RLS, actions, headers, upload) | O | P5.* | doing | | |
-| P7.4 | README + panduan admin untuk pemilik (Bahasa Indonesia, non-teknis) | S | semua | doing | | |
+| P7.4 | README + panduan admin untuk pemilik (Bahasa Indonesia, non-teknis) | S | semua | done | sonnet | README.md + docs/admin-guide.md; verifikasi tab/peran dari kode |
 | P7.5 | Deploy produksi Vercel, domain, Search Console, Google Business Profile checklist | S | P7.2, P7.3 | todo | | |
 
 ## Blocker
