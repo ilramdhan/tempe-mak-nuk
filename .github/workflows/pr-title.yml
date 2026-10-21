@@ -38,6 +38,9 @@ jobs:
             chore
             revert
           requireScope: false
+          # Dependabot titles ("chore(deps): Bump …") start uppercase; skip bot PRs by label.
+          ignoreLabels: |
+            dependencies
           # Subject must not start with an uppercase letter (Conventional Commits style).
           subjectPattern: ^(?![A-Z]).+$
           subjectPatternError: |
