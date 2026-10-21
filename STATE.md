@@ -96,7 +96,7 @@
 | P8.14 | RBAC dinamis: matriks izin per peran (+override per pengguna) dikelola owner via web; hapus artikel/resep default owner-only; adminAction cek izin | O | P8.9 | done | opus | `features/permissions/**` (registry/resolve/schema/actions/queries), `lib/auth/permissions.ts`, `_shared/admin-action.ts`, `db/schema/permissions.ts`, migrasi `0004_rbac_permissions` (sudah diterapkan remote ✓), `/admin/akses`, link di `/admin/pengguna`, nav, `RoleGate permission`/`useCan`, tombol hapus jurnal/resep; test unit + RLS; docs/security.md §3a |
 | P9.1 | Community health files + LICENSE proprietary (All rights reserved), repo tetap publik | S | P8.0 | done | sonnet | LICENSE, README, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, ACCESSIBILITY, SUPPORT, .editorconfig, .gitattributes |
 | P9.2 | .github: CODEOWNERS, issue forms, PR template, labeler | S | — | done | sonnet | `.github/**` (kecuali workflows) |
-| P9.3 | Workflows: ci (+e2e), codeql, dependency-review, pr-title, labeler; dependabot grup | O | P8.0, P9.2 | todo |  | `.github/workflows/*`, `.github/dependabot.yml` |
+| P9.3 | Workflows: ci (+e2e), codeql, dependency-review, pr-title, labeler; dependabot grup | O | P8.0, P9.2 | doing | opus | `.github/workflows/*`, `.github/dependabot.yml` |
 | P9.4 | release-please (0.1.0) + deskripsi/topics repo | S | P9.3 | todo |  | config release-please |
 | P9.5 | Dockerfile standalone + docker.yml GHCR publik (multi-arch, SBOM, Trivy, cosign) | O | P9.3, P9.4 | todo |  | `Dockerfile`, `.dockerignore`, `docker.yml`, `next.config.ts` |
 | P9.6 | Setting repo: ruleset main, secret scanning, Dependabot, PVR, squash-only; PR Dependabot #1 | S | P9.1–P9.5 | todo |  | setting GitHub |
