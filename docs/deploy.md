@@ -120,3 +120,9 @@ NAP (Name, Address, Phone) harus **identik** dengan yang tampil di situs dan di 
 - [ ] **Pemegang akses**: catat siapa yang memegang akun GitHub, Vercel, Supabase, registrar domain, Search Console, Business Profile, dan SMTP. Minimal dua orang tepercaya (pemilik + satu cadangan); aktifkan 2FA di semua akun; simpan kredensial di password manager.
 - [ ] Monitoring: pantau Vercel *Observability/Logs*, Supabase *Reports*, dan Speed Insights; jalankan `pnpm audit` berkala.
 - [ ] Ulangi tes login owner dan tes undangan editor lewat Admin → Pengguna (memastikan SMTP produksi bekerja).
+
+## Cron: publikasi terjadwal
+
+`/api/cron/publish` (setiap 15 menit, `vercel.json`) meng-expire tag cache `posts`/`recipes`/`legal` (+ slug terkait) bila ada konten yang `publishedAt`/`effectiveAt`-nya terlewati dalam 20 menit terakhir (`?window=<menit>` untuk mengubah). Auth: `Authorization: Bearer $CRON_SECRET` (401 bila salah, 500 bila secret tidak diset).
+
+**Vercel Hobby hanya mengizinkan cron harian**; jadwal `*/15 * * * *` akan membuat deploy gagal. Di Hobby ubah menjadi `{ "path": "/api/cron/publish?window=1440", "schedule": "0 0 * * *" }` (konten terjadwal tampil paling lambat setelah cron harian atau saat cache `hours` kedaluwarsa), atau panggil endpoint ini dari scheduler eksternal.

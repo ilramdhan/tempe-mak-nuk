@@ -10,6 +10,9 @@ import { adminAction } from "@/features/_shared/admin-action";
 import { uuidSchema } from "@/features/_shared/schema";
 import { tags } from "@/lib/cache-tags";
 
+import { getMediaUsage } from "./usage";
+import { tagsForMediaUsage } from "./usage-tags";
+
 import { mediaInputSchema, mediaUpdateSchema, type MediaInput } from "./schema";
 
 /**
@@ -53,7 +56,7 @@ export async function updateMediaAlt(
       return {
         result: undefined,
         entityId: id,
-        tags: [tags.media, tags.mediaItem(id)],
+        tags: tagsForMediaUsage(id, await getMediaUsage(id)),
       };
     },
   });
