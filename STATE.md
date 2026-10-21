@@ -94,7 +94,7 @@
 | P8.12 | QA: dark --card≠--surface; bar sticky /custom-order 375px; WA mengambang tidak menutupi konten (keputusan: rekomendasi orkestrator) | O | P8.0 | done | opus | `globals.css` (--card/--input dark, scroll-padding-bottom), `features/orders/components/{order-builder,sticky-bar}.ts(x)`, `components/site/layout/floating-whatsapp(-visibility).ts(x)` + tests, `docs/qa.md` V7–V9 |
 | P8.13 | P0.6: catat skills §13 | S | — | done | orchestrator | `STATE.md` |
 | P8.14 | RBAC dinamis: matriks izin per peran (+override per pengguna) dikelola owner via web; hapus artikel/resep default owner-only; adminAction cek izin | O | P8.9 | done | opus | `features/permissions/**` (registry/resolve/schema/actions/queries), `lib/auth/permissions.ts`, `_shared/admin-action.ts`, `db/schema/permissions.ts`, migrasi `0004_rbac_permissions` (sudah diterapkan remote ✓), `/admin/akses`, link di `/admin/pengguna`, nav, `RoleGate permission`/`useCan`, tombol hapus jurnal/resep; test unit + RLS; docs/security.md §3a |
-| P9.1 | Community health files + LICENSE proprietary (All rights reserved), repo tetap publik | S | P8.0 | todo |  | root files |
+| P9.1 | Community health files + LICENSE proprietary (All rights reserved), repo tetap publik | S | P8.0 | doing | sonnet | root files |
 | P9.2 | .github: CODEOWNERS, issue forms, PR template, labeler | S | — | done | sonnet | `.github/**` (kecuali workflows) |
 | P9.3 | Workflows: ci (+e2e), codeql, dependency-review, pr-title, labeler; dependabot grup | O | P8.0, P9.2 | todo |  | `.github/workflows/*`, `.github/dependabot.yml` |
 | P9.4 | release-please (0.1.0) + deskripsi/topics repo | S | P9.3 | todo |  | config release-please |
