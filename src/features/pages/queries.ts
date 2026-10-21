@@ -90,3 +90,27 @@ export async function getRedirects(): Promise<PublicRedirect[]> {
       .from(redirects),
   );
 }
+
+/** Sitemap rows: published CMS pages with their noindex flag. */
+export async function listPagesForSitemap(): Promise<
+  { slug: string; updatedAt: Date; noindex: boolean }[]
+> {
+  "use cache";
+  cacheTag(tags.pages);
+  return cachedRead("pages-sitemap", "days", [], async (db) =>
+    (
+      await db
+        .select({
+          slug: pages.slug,
+          updatedAt: pages.updatedAt,
+          seo: pages.seo,
+        })
+        .from(pages)
+        .where(eq(pages.status, "published"))
+    ).map((r) => ({
+      slug: r.slug,
+      updatedAt: r.updatedAt,
+      noindex: r.seo?.noindex === true,
+    })),
+  );
+}

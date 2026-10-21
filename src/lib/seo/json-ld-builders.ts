@@ -37,6 +37,19 @@ export function isoDuration(
   return `PT${h ? `${h}H` : ""}${m ? `${m}M` : ""}`;
 }
 
+/** Merge optional `image` (string|string[]) and `images` into unique absolute URLs. */
+function imageList(
+  image: string | string[] | undefined,
+  images: string[] | undefined,
+  base: string,
+): string[] {
+  const all = [
+    ...(image === undefined ? [] : Array.isArray(image) ? image : [image]),
+    ...(images ?? []),
+  ].filter(Boolean);
+  return [...new Set(all.map((i) => absoluteUrl(i, base)))];
+}
+
 const iso = (d?: Date | string | null) =>
   d ? (d instanceof Date ? d.toISOString() : d) : undefined;
 
@@ -187,6 +200,8 @@ export type ProductJsonLdInput = {
   path: string;
   description?: string | null;
   images?: string[];
+  /** Single image or list; merged with `images`. */
+  image?: string | string[];
   brand: string;
   /** Pass only when the price is public (settings pricing.show) and known. */
   price?: number | null;
@@ -203,7 +218,7 @@ export function productJsonLd(p: ProductJsonLdInput, base: string): JsonLdNode {
     name: p.name,
     description: p.description,
     url,
-    image: (p.images ?? []).map((i) => absoluteUrl(i, base)),
+    image: imageList(p.image, p.images, base),
     brand: { "@type": "Brand", name: p.brand },
     offers:
       p.price != null && p.price > 0
@@ -224,6 +239,8 @@ export type ArticleJsonLdInput = {
   path: string;
   description?: string | null;
   images?: string[];
+  /** Single image or list; merged with `images`. */
+  image?: string | string[];
   publishedAt?: Date | string | null;
   modifiedAt?: Date | string | null;
   authorName?: string | null;
@@ -244,7 +261,7 @@ export function articleJsonLd(a: ArticleJsonLdInput, base: string): JsonLdNode {
     url,
     mainEntityOfPage: url,
     inLanguage: a.lang ?? "id-ID",
-    image: (a.images ?? []).map((i) => absoluteUrl(i, base)),
+    image: imageList(a.image, a.images, base),
     datePublished: iso(a.publishedAt),
     dateModified: iso(a.modifiedAt),
     wordCount: a.wordCount || undefined,
@@ -262,6 +279,8 @@ export type RecipeJsonLdInput = {
   path: string;
   description?: string | null;
   images?: string[];
+  /** Single image or list; merged with `images`. */
+  image?: string | string[];
   publishedAt?: Date | string | null;
   modifiedAt?: Date | string | null;
   authorName: string;
@@ -289,7 +308,7 @@ export function recipeJsonLd(r: RecipeJsonLdInput, base: string): JsonLdNode {
     url,
     mainEntityOfPage: url,
     inLanguage: r.lang ?? "id-ID",
-    image: (r.images ?? []).map((i) => absoluteUrl(i, base)),
+    image: imageList(r.image, r.images, base),
     datePublished: iso(r.publishedAt),
     dateModified: iso(r.modifiedAt),
     author: { "@type": "Organization", name: r.authorName },

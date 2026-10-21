@@ -17,10 +17,22 @@ const TITLES: Record<LegalSlug, string> = {
   ordering: "Kebijakan Pemesanan",
 };
 
+const DESCRIPTIONS: Record<LegalSlug, string> = {
+  privacy:
+    "Bagaimana Tempe Mak Nuk mengumpulkan, menggunakan, dan melindungi data pribadi Anda saat memesan dan menghubungi kami.",
+  terms:
+    "Syarat dan ketentuan penggunaan situs serta pemesanan produk Tempe Mak Nuk, termasuk hak dan kewajiban kedua pihak.",
+  cookies:
+    "Penjelasan jenis cookie yang digunakan situs Tempe Mak Nuk, tujuannya, dan cara Anda mengatur preferensi cookie.",
+  ordering:
+    "Ketentuan pemesanan Tempe Mak Nuk: cara pesan, pembayaran, pengiriman, perubahan, dan pembatalan pesanan.",
+};
+
 export async function legalMetadata(slug: LegalSlug): Promise<Metadata> {
   const doc = await getLegalDocument(slug);
   return pageMetadata({
     title: doc?.title ?? TITLES[slug],
+    description: DESCRIPTIONS[slug],
     path: LEGAL_ROUTES[slug],
   });
 }

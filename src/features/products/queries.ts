@@ -316,3 +316,28 @@ export async function getProductSlugs(): Promise<
       .orderBy(asc(products.sort)),
   );
 }
+
+/** Sitemap rows: active products with their noindex flag. */
+export async function listProductsForSitemap(): Promise<
+  { slug: string; updatedAt: Date; noindex: boolean }[]
+> {
+  "use cache";
+  cacheTag(tags.products);
+  return cachedRead("product-sitemap", "days", [], async (db) =>
+    (
+      await db
+        .select({
+          slug: products.slug,
+          updatedAt: products.updatedAt,
+          seo: products.seo,
+        })
+        .from(products)
+        .where(eq(products.isActive, true))
+        .orderBy(asc(products.sort))
+    ).map((r) => ({
+      slug: r.slug,
+      updatedAt: r.updatedAt,
+      noindex: r.seo?.noindex === true,
+    })),
+  );
+}

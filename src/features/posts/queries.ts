@@ -211,3 +211,28 @@ export async function getPostSlugs(): Promise<
       .orderBy(desc(posts.publishedAt)),
   );
 }
+
+/** Sitemap rows: live posts with their noindex flag. */
+export async function listPostsForSitemap(): Promise<
+  { slug: string; updatedAt: Date; noindex: boolean }[]
+> {
+  "use cache";
+  cacheTag(tags.posts);
+  return cachedRead("posts-sitemap", "hours", [], async (db) =>
+    (
+      await db
+        .select({
+          slug: posts.slug,
+          updatedAt: posts.updatedAt,
+          seo: posts.seo,
+        })
+        .from(posts)
+        .where(live)
+        .orderBy(desc(posts.publishedAt))
+    ).map((r) => ({
+      slug: r.slug,
+      updatedAt: r.updatedAt,
+      noindex: r.seo?.noindex === true,
+    })),
+  );
+}

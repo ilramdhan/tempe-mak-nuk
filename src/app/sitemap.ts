@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
 
 import { LEGAL_ROUTES } from "@/features/legal/schema";
-import { getPostSlugs } from "@/features/posts/queries";
-import { getProductSlugs } from "@/features/products/queries";
-import { getRecipeSlugs } from "@/features/recipes/queries";
+import { listLegalForSitemap } from "@/features/legal/queries";
+import { listPostsForSitemap } from "@/features/posts/queries";
+import { listProductsForSitemap } from "@/features/products/queries";
+import { listRecipesForSitemap } from "@/features/recipes/queries";
 import { getSettings } from "@/features/settings/queries";
 import { getCategories } from "@/features/taxonomy/queries";
 
@@ -22,7 +23,6 @@ const STATIC_ROUTES = [
   "/jurnal",
   "/faq",
   "/kontak",
-  ...Object.values(LEGAL_ROUTES),
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -34,18 +34,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ).replace(/\/+$/, "");
   const abs = (p: string) => (p === "/" ? base : `${base}${p}`);
 
-  const [products, posts, recipes, postCats] = await Promise.all([
-    getProductSlugs(),
-    getPostSlugs(),
-    getRecipeSlugs(),
+  const [products0, posts0, recipes0, postCats, legal] = await Promise.all([
+    listProductsForSitemap(),
+    listPostsForSitemap(),
+    listRecipesForSitemap(),
     getCategories("post"),
+    listLegalForSitemap(),
   ]);
+  const indexable = <T extends { noindex: boolean }>(xs: T[]) =>
+    xs.filter((x) => !x.noindex);
+  const products = indexable(products0);
+  const posts = indexable(posts0);
+  const recipes = indexable(recipes0);
 
   const entries: MetadataRoute.Sitemap = STATIC_ROUTES.map((p) => ({
     url: abs(p),
     changeFrequency: p === "/" || p === "/jurnal" ? "weekly" : "monthly",
     priority: p === "/" ? 1 : 0.7,
   }));
+  for (const x of legal)
+    entries.push({
+      url: abs(LEGAL_ROUTES[x.slug]),
+      lastModified: x.updatedAt,
+      changeFrequency: "yearly",
+      priority: 0.3,
+    });
   for (const x of products)
     entries.push({
       url: abs(`/produk/${x.slug}`),

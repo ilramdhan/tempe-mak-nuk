@@ -34,6 +34,35 @@ export type BuildMetadataInput = {
   ogImageFile?: boolean;
 };
 
+const escapeRe = (v: string) => v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * True when the title already carries the brand: contains the full site name as a word run,
+ * or ends with a trailing segment ("… — Mak Nuk") that is a multi-word suffix of the site name.
+ */
+export function titleHasBrand(
+  title: string | null | undefined,
+  siteName: string | null | undefined,
+): boolean {
+  if (!title || !siteName) return false;
+  const edge = "\\p{L}\\p{N}";
+  const full = new RegExp(
+    `(^|[^${edge}])${escapeRe(siteName)}($|[^${edge}])`,
+    "iu",
+  );
+  if (full.test(title)) return true;
+  const words = siteName.trim().split(/\s+/);
+  for (let n = words.length - 1; n >= 2; n--) {
+    const suffix = words.slice(-n).join(" ");
+    const re = new RegExp(
+      `[\\s](?:—|–|\\||-|:)\\s*${escapeRe(suffix)}\\s*$`,
+      "iu",
+    );
+    if (re.test(title)) return true;
+  }
+  return false;
+}
+
 const iso = (d?: Date | string | null) =>
   d ? (d instanceof Date ? d.toISOString() : d) : undefined;
 
@@ -57,9 +86,12 @@ export function buildMetadata(input: BuildMetadataInput): Metadata {
     input.seo?.ogImage ?? (input.ogImageFile ? null : DEFAULT_OG_IMAGE);
   const article = input.type === "article";
 
+  // Title already carries the brand: skip the root template to avoid "X — Brand — Brand".
+  const hasBrand = titleHasBrand(title, input.siteName);
+
   return {
     title: title
-      ? input.titleAbsolute
+      ? input.titleAbsolute || hasBrand
         ? { absolute: title }
         : title
       : undefined,

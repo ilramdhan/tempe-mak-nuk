@@ -228,3 +228,27 @@ export async function getRecipeSlugs(): Promise<
       .orderBy(desc(recipes.publishedAt)),
   );
 }
+
+/** Sitemap rows: live recipes with their noindex flag. */
+export async function listRecipesForSitemap(): Promise<
+  { slug: string; updatedAt: Date; noindex: boolean }[]
+> {
+  "use cache";
+  cacheTag(tags.recipes);
+  return cachedRead("recipes-sitemap", "hours", [], async (db) =>
+    (
+      await db
+        .select({
+          slug: recipes.slug,
+          updatedAt: recipes.updatedAt,
+          seo: recipes.seo,
+        })
+        .from(recipes)
+        .where(live)
+    ).map((r) => ({
+      slug: r.slug,
+      updatedAt: r.updatedAt,
+      noindex: r.seo?.noindex === true,
+    })),
+  );
+}

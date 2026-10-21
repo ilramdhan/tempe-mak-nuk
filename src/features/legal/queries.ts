@@ -49,3 +49,32 @@ export async function getLegalDocument(
     return row ?? null;
   });
 }
+
+/** Sitemap rows: legal slugs that have a currently effective published version. */
+export async function listLegalForSitemap(): Promise<
+  { slug: LegalSlug; updatedAt: Date }[]
+> {
+  "use cache";
+  cacheTag(tags.legal);
+  return cachedRead("legal-sitemap", "days", [], async (db) => {
+    const rows = await db
+      .select({
+        slug: legalDocuments.slug,
+        updatedAt: legalDocuments.updatedAt,
+      })
+      .from(legalDocuments)
+      .where(
+        and(
+          eq(legalDocuments.status, "published"),
+          or(
+            isNull(legalDocuments.effectiveAt),
+            lte(legalDocuments.effectiveAt, sql`now()`),
+          ),
+        ),
+      )
+      .orderBy(desc(legalDocuments.version));
+    const seen = new Map<LegalSlug, Date>();
+    for (const r of rows) if (!seen.has(r.slug)) seen.set(r.slug, r.updatedAt);
+    return [...seen].map(([slug, updatedAt]) => ({ slug, updatedAt }));
+  });
+}

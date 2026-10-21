@@ -260,3 +260,62 @@ describe("json-ld builders", () => {
     expect(JSON.parse(s)).toEqual({ a: "</script>" });
   });
 });
+
+describe("brand-in-title and image params", () => {
+  it("uses absolute title when it already contains the site name", () => {
+    const m = buildMetadata({
+      title: "Cara Pesan — Tempe Mak Nuk",
+      path: "/cara-pesan",
+      siteName: "Tempe Mak Nuk",
+    });
+    expect(m.title).toEqual({ absolute: "Cara Pesan — Tempe Mak Nuk" });
+    const n = buildMetadata({
+      title: "Cara Pesan",
+      path: "/cara-pesan",
+      siteName: "Tempe Mak Nuk",
+    });
+    expect(n.title).toBe("Cara Pesan");
+  });
+
+  it("accepts image string or array on product/article/recipe", () => {
+    const b = "https://x.id";
+    const p = productJsonLd(
+      { name: "P", path: "/p", brand: "B", image: "/a.png" },
+      b,
+    );
+    expect(p.image).toEqual(["https://x.id/a.png"]);
+    const a = articleJsonLd(
+      {
+        headline: "H",
+        path: "/a",
+        publisherName: "B",
+        image: ["/a.png", "/b.png"],
+      },
+      b,
+    );
+    expect(a.image).toEqual(["https://x.id/a.png", "https://x.id/b.png"]);
+    const r = recipeJsonLd(
+      {
+        name: "R",
+        path: "/r",
+        authorName: "B",
+        image: "/a.png",
+        images: ["/a.png"],
+        ingredients: ["x"],
+        steps: [{ text: "y" }],
+      },
+      b,
+    );
+    expect(r.image).toEqual(["https://x.id/a.png"]);
+  });
+});
+
+describe("titleHasBrand", () => {
+  it("detects full brand and multi-word brand suffix", async () => {
+    const { titleHasBrand } = await import("../metadata");
+    expect(titleHasBrand("A — Tempe Mak Nuk", "Tempe Mak Nuk")).toBe(true);
+    expect(titleHasBrand("A — Mak Nuk", "Tempe Mak Nuk")).toBe(true);
+    expect(titleHasBrand("Tempe Klasik", "Tempe Mak Nuk")).toBe(false);
+    expect(titleHasBrand("Cerita Nuk", "Tempe Mak Nuk")).toBe(false);
+  });
+});
