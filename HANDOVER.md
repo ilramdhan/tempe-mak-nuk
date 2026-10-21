@@ -1,4 +1,4 @@
-# HANDOVER — Tempe Mak Nuk (sesi 6 → sesi 7)
+# HANDOVER — Tempe Mak Nuk (sesi 7 → sesi 8)
 
 > Paste blok di bawah ini apa adanya ke sesi Claude Code baru, di root project
 > `/Users/ilhamramadhan/WebstormProjects/tempe-mak-nuk`.
@@ -6,57 +6,49 @@
 ---
 
 ````markdown
-Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen tempe handmade sejak 2001, Klaten). **Fase 0–7 berstatus done** dan sudah di-push ke GitHub `https://github.com/ilramdhan/tempe-mak-nuk` (publik, branch `main`). Sesi 6 menjalankan **audit kelengkapan** (`docs/audit/phase-*.md`) yang menemukan gap nyata. Sesi 7 = **Fase 8 (perbaikan gap audit + QA + performa)** dan **Fase 9 (repo GitHub production-grade)**. Jangan analisa ulang dari nol; baca file berikut, lalu lanjut ke §9.
+Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, tempe handmade sejak 2001, Klaten). Repo GitHub `ilramdhan/tempe-mak-nuk` (publik). **Fase 0–7 done; Fase 8 hampir selesai; Fase 9 separuh.** Jangan analisa ulang dari nol; baca file berikut, lalu lanjut ke §9.
 
-## 1. Baca dulu (urut, jangan skip)
-1. `STATE.md`: ledger status per task (sumber kebenaran progres) dan log sesi.
-2. `PLAN.md`: Fase 7 (P7.1–P7.5) beserta model, dependensi, ownership, dan template "Protokol Sub-agent".
-3. `PROMPT.md`: spesifikasi (IA §4, fitur §5, cookie/legal §5.4, design §6, motion §7, SEO §9, security §12).
-4. **`docs/audit/phase-0-3.md`, `phase-4-6.md`, `phase-5-7.md`** (temuan audit sesi 6, bukti path:line), `docs/qa.md` (P7.2).
-5. `docs/brand.md`, `docs/business.md`, `docs/seo.md`, `docs/performance.md` (baseline Lighthouse P6.4), `docs/security.md` (P7.3: temuan + checklist pemilik), `README.md`, `docs/admin-guide.md`.
-6. `AGENTS.md`: WAJIB baca docs Next.js bawaan di `node_modules/next/dist/docs` sebelum menulis kode Next.
+## 1. Baca dulu (urut)
+1. `STATE.md` — ledger status per task (sumber kebenaran) + log sesi.
+2. `PLAN.md` — tabel Fase 8 & 9 + "Protokol Sub-agent".
+3. `PROMPT.md` (spesifikasi), `docs/audit/phase-*.md`, `docs/qa.md`, `docs/performance.md`, `docs/security.md` (§3a RBAC), `docs/deploy.md`, `CONTRIBUTING.md`.
+4. `AGENTS.md`: WAJIB baca docs Next.js di `node_modules/next/dist/docs` sebelum menulis kode Next.
 
 ## 2. Cara kerja (wajib)
-- Kamu orkestrator. Semua pekerjaan lewat sub-agent (Agent tool, `run_in_background`), paralel bila dependensinya `done` dan ownership tidak bertumpuk.
-- **SUB-AGENT DRIVEN + MODEL DINAMIS (WAJIB, hemat token & konteks):** orkestrator tidak mengerjakan task sendiri; setiap task diluncurkan sebagai sub-agent dengan model sesuai kolom *Model* di tabel §9 — **`sonnet` untuk task ringan (S)**, **`opus` untuk task berat (O)**. Orkestrator cukup memverifikasi, review, dan commit. Jangan baca file besar di konteks orkestrator; minta sub-agent merangkum.
-- **Model hemat:** `model: "sonnet"` untuk semua yang masih sanggup dikerjakan sonnet, yaitu task S (test E2E, docs, README, checklist deploy, CRUD, wiring). `model: "opus"` hanya untuk task berat O: review visual P7.2, security review P7.3, audit lintas file.
-- **Maks 3 agent bersamaan.** Sesi 3 dan 4 berulang kali kena `ECONNREFUSED` atau 429. Bila agent gagal karena API error, kirim `SendMessage` ke agent yang sama: "lanjutkan dari titik terakhir, cek file yang ada di disk dulu". Konteksnya tetap ada dan progresnya ada di disk. Di setiap prompt minta: **tulis file satu per satu ke disk segera, respons akhir pendek, path absolut untuk Write**.
-- Aturan sub-agent:
-  - Hanya menyentuh file ownership-nya dan baris task-nya di `STATE.md`.
-  - Tidak commit.
-  - Tidak `pnpm add`; orkestrator yang memasang paket dan meng-commit dulu.
-  - Tidak `pnpm format` global, dan tidak menjalankan prettier pada file yang sudah ada. Repo ini tidak seluruhnya di-prettier, misalnya `src/app/(site)/page.tsx` dan `src/features/**`.
-- **Dev server / build:** Next 16 menolak dua `next dev` per repo dan dua `next build` bersamaan. Tulis di prompt: "jangan `next build` bila `pgrep -f "next build"` ada (tunggu); uji dengan `next start -p <port bebas 31xx>` dan matikan sesudahnya; jangan matikan server agent lain". Agent tidak punya login admin, jadi admin cukup diverifikasi lewat typecheck/lint/test/build dan unit test.
-- Setelah agent selesai, orkestrator:
-  1. Verifikasi sendiri `pnpm typecheck && pnpm lint && pnpm test && pnpm build`.
-  2. Review file yang disentuh di luar ownership. Untuk Server Action baru, cek role, Zod, dan cakupan id.
-  3. Cek ulang baris ledger. Agent bisa menimpa baris yang sudah diubah orkestrator; di sesi 4, baris P5.7 kembali ke `doing`.
-  4. Set status `done`, lalu commit per task dengan trailer `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
-- Jangan percaya klaim sub-agent mentah-mentah; uji sendiri hasil yang penting. Contoh sesi 4: fallback OG `/opengraph-image` ternyata 404 karena file route OG mendapat hash, dan metadata halaman menimpa file OG per route. Keduanya baru ketahuan lewat `curl` ke `next start`.
+- **Orkestrator + sub-agent, model dinamis:** setiap task diluncurkan sebagai sub-agent (`run_in_background`) — `model: "sonnet"` untuk task S, `model: "opus"` untuk task O. Orkestrator hanya verifikasi, review, commit. Maks **3 agent** paralel, ownership tidak bertumpuk. Bila agent putus (ECONNREFUSED/429): `SendMessage` "lanjutkan dari titik terakhir, cek file di disk dulu".
+- **Aturan sub-agent** (tulis di `/tmp/rules.txt` lalu suruh agent membacanya — file /tmp hilang antar mesin, buat ulang): hanya file ownership + baris task-nya di `STATE.md`; tidak commit; tidak `pnpm add/remove`; jalankan `pnpm exec prettier --write <file yang diubah>` (repo sudah 100% prettier, CI mengecek); verifikasi `pnpm typecheck && pnpm lint && pnpm format:check && pnpm test`; build hanya bila `ps -eo command | grep -E "^node .*next build"` kosong (**jangan `pgrep -f`** — mencocokkan shell loop agent lain → menunggu selamanya); uji di `next start -p 31xx` lalu matikan; tulis file satu per satu, path absolut, respons akhir pendek.
+- **Git — WAJIB lewat branch + PR** (ruleset `main`: PR, squash only, required checks `Verify (typecheck, lint, format, unit)` + `Build + E2E (Playwright)`, CodeQL, code owner review). Alur: `git switch -c <type>/<task>` → commit (Conventional Commits, trailer `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`) → `git push -u` → `gh pr create --body-file` mengikuti `.github/pull_request_template.md` (akhiri body dengan `🤖 Generated with [Claude Code](https://claude.com/claude-code)`) → `gh pr checks <n> --watch` → **minta user merge** (orkestrator tidak boleh `gh pr merge --admin`).
+- **Stage file eksplisit** (`git add <paths>`), JANGAN `git commit -am` saat agent lain sedang bekerja (sesi 7: commit ledger ikut menyapu file agent lain → HEAD tidak bisa build). Untuk commit ledger saja: `git add STATE.md`. Bila working tree berisi kerja agent lain, buat PR dari `git worktree add /tmp/wt <branch>`.
+- Setelah agent selesai: verifikasi sendiri (typecheck/test, build + `curl` ke `next start` untuk hal penting; jangan percaya klaim mentah), review Server Action baru (role/permission registry, Zod, cakupan id), set status `done`, PR.
+- Ubah status ledger dengan skrip kecil (kolom ke-5 = Status, ke-6 = Agent) — jangan sed regex rapuh.
 - Laporan ke user dalam Bahasa Indonesia, ringkas.
 
-## 3. Status (per 2026-10-21, HEAD = commit "docs: session 6 final handover", sudah di-push ke `origin/main`)
-- **Done:** P0.1–P0.5, P1.1–P1.3, P1.5, P2.*, P3.*, P4.*, P5.*, P6.*, P7.* (status ledger). **Tapi audit sesi 6 menemukan gap** → Fase 8.
-- **Review:** P1.4 (CI ada, tapi **CI di GitHub GAGAL** — lihat P8.0; link Vercel menunggu akun user).
-- **Todo:** P0.6 (opsional, skills §13 belum dicatat), Fase 8, Fase 9.
-- **Hasil sesi 6:** P7.2 (`docs/qa.md`, a11y `KNOWN` kosong, `make e2e-strict` hijau 41 ✓), P7.5 (`docs/deploy.md`), audit 3 laporan (`docs/audit/`), push ke GitHub (riwayat discan: tanpa `.env`/JWT/secret; ref Supabase di HANDOVER diredaksi — ref masih ada di commit lama, bukan secret karena publik di `NEXT_PUBLIC_SUPABASE_URL`).
-- **Ringkasan audit:** Fase 0–3: 20 ✅ / 1 ⚠️ (P1.4) / 1 ❌ (P0.6). Fase 4+6: 8 ✅ / 7 ⚠️. Fase 5+7: 7 ✅ / 8 ⚠️. 0 ❌ fungsional; TODO/FIXME = 0. Semua action pakai `adminAction`/`requireRole` + Zod; tag cache konsisten (`src/lib/cache-tags.ts`); klik WA tercatat di `wa_clicks`.
-- **Temuan terverifikasi orkestrator (curl `next start`):** judul ganda `"… — Tempe Mak Nuk — Tempe Mak Nuk"` (mis. `/cara-pesan`), `"Tips Tempe Tempe: …"` di kategori jurnal, `/favicon.ico` 404, `/resep/<slug-tak-ada>` HTTP 200. CI GitHub: `Format check` gagal (168 file belum di-prettier) → test/build tidak jalan. PR Dependabot #1 (12 update npm) terbuka — **jangan merge sebelum CI hijau dan diuji**.
-- **Sisa rekomendasi performa (opsional, dari P6.4):**
-  - TBT beranda ±135 ms. Jalankan animasi below-the-fold (SplitText, ScrollTrigger, PinnedStory) saat idle.
-  - Chunk react-day-picker ±22 kB ter-prefetch dari link `/custom-order` dan `/cara-pesan`. Pakai `prefetch={false}` atau dynamic import `SlotCalendar`.
-  - Atur `browserslist` modern (±14 kB polyfill).
-  - Ukur ulang di Vercel.
-- **Gap fitur kecil (opsional):**
-  - Kelola kategori FAQ/jurnal dari UI belum ada. Action-nya sudah ada di `features/taxonomy`; perlu halaman `/admin/kategori`.
-  - Sitemap belum mengecualikan item `seo.noindex`, karena query slug tidak mengembalikan flag itu.
-  - Halaman CMS di tabel `pages` tanpa route statis tidak punya route publik.
+## 3. Status (2026-10-21, akhir sesi 7)
+**Fase 8**
+- done & di `main`: P8.0 (prettier + CI Postgres), P8.1 (`/produk`,`/faq`,`/kontak` dari CMS + catch-all `(site)/[slug]` + slug reserved), P8.2 (404 asli via `export const ensureStatic = "navigation"`), P8.3 (judul tunggal, sitemap noindex, favicon.ico, JSON-LD image), P8.5 (`/admin/kategori`), P8.6 (kartu peringatan konten dasbor), P8.9 (editor boleh seo./cta.), P8.10 (e2e auth/404/FAQ CRUD), P8.11 (motion idle/near-viewport, SlotCalendar lazy, browserslist; dep `motion` dihapus), P8.12 (dark `--card`, sticky bar/WA), P8.13/P0.6 (skills), **P8.14 RBAC dinamis** (migrasi `0004_rbac_permissions` — sudah diterapkan ke remote; `/admin/akses`; registry `src/features/permissions/registry.ts`; `adminAction` cek `<entity>.<action>`).
+- **P8.4** — PR **#7** `feat/p8.4-cache-cron` (menunggu CI + merge user).
+- **P8.7** — agent sonnet sedang berjalan saat sesi 7 ditutup; perubahan BELUM di-commit di working tree `main` lokal: consent 12 bln + "Tolak" (`src/features/consent/*`), FAQ/resep terkait `/produk/[slug]` (halaman `ensureStatic` → hanya query `"use cache"`), galeri bentuk `/produk`, slot announcement (`src/features/slots/{week-message.ts,components/slot-announcement.tsx}`, `(site)/layout.tsx`), TOC legal, seed pages (probiotik/timeline/tim). **Sesi 8: cek `git status`; selesaikan/verifikasi (typecheck, test — test consent cookie harus hijau, build, `E2E_AXE_STRICT=1` e2e), `pnpm db:seed` bila seed berubah, lalu PR.**
+- **P8.8** todo (docs akurat: admin-guide [editor bisa Navigasi/Pengumuman/CTA, undang tanpa pilihan peran, tidak ada nonaktifkan akun, versi legal via "Buat versi baru", hapus klaim "±1 menit", **tambah /admin/akses & /admin/kategori**, hapus artikel/resep owner-only], `docs/security.md` status 0003/0004).
+**Fase 9**
+- done: P9.1 (LICENSE proprietary, README badges, CONTRIBUTING, CoC, SECURITY, ACCESSIBILITY, SUPPORT, .editorconfig, .gitattributes), P9.2 (CODEOWNERS, issue forms, PR template, labeler, labels), P9.3 (ci.yml verify + build-e2e Postgres+Playwright+axe strict, dependency-review, pr-title, labeler, labels-sync, stale, Dependabot grouped + docker; action dipin SHA). **`codeql.yml` advanced dihapus di PR #6** karena repo memakai CodeQL *default setup* (SARIF bentrok).
+- **P9.4** — PR **#6** `chore/p9.4-release-please` (CI hijau semua; menunggu merge user). Setelah merge, release-please membuka PR "chore: release 0.1.0" → merge → tag `v0.1.0`. Lalu PR kecil: hapus `release-as` dari `release-please-config.json`. Catatan: PR bot dengan GITHUB_TOKEN tidak memicu CI — opsional secret `RELEASE_PLEASE_TOKEN` (PAT) atau close/reopen PR.
+- **P9.5** todo (opus): Dockerfile multi-stage + `output: "standalone"` (uji `pnpm build` 2× + e2e), `.dockerignore` (exclude `.env*`), `NEXT_PUBLIC_*` sebagai build-arg, `docker.yml` (buildx amd64/arm64, GHCR **publik** `ghcr.io/ilramdhan/tempe-mak-nuk`, metadata-action semver+sha, SBOM+provenance, Trivy, cosign keyless) dipanggil via `workflow_call` dari `release-please.yml` saat `release_created` (event release dari GITHUB_TOKEN tidak memicu workflow lain); docs/deploy.md.
+- **P9.6**: setting repo sudah dilakukan user. Sisa: PR Dependabot — tutup PR lama yang gagal (typescript-eslint tidak mendukung TS 7.0); #3 (npm minor/patch group) & #4 (`@types/node` 26 major — kemungkinan tutup, Node runtime 22) diuji/merge atau tutup; pertimbangkan `ignore` TS 7 / typescript-eslint di dependabot sampai didukung.
+- **P9.7** todo (opus): audit akhir → `docs/audit/phase-9.md`, `gh run list` hijau, release + image ter-sign, perbarui HANDOVER/STATE.
+
+## 3a. Catatan teknis baru sesi 7
+- `ensureStatic = "navigation"` (Next 16.4) di 4 route `[slug]` + catch-all: unknown slug → 404 asli; halaman itu hanya boleh data `"use cache"` (tanpa cookies/headers/connection/new Date di luar cache), jika tidak build gagal.
+- CI tanpa Supabase: `scripts/ci/bootstrap.sql` membuat role anon/authenticated/service_role + skema `auth` minimal; migrasi lewat `scripts/dev/migrate.mts`; seed `pnpm db:seed`.
+- RBAC: owner selalu boleh; kunci tak terdaftar → role call-site; role call-site lebih ketat dari default registry = lantai tetap; non-grantable (users/akses/legal) hanya default; else user override → role override → default. UI pakai `useCan()` / `<RoleGate permission=…>` (kosmetik). Action baru WAJIB entri registry (ada test pemindai).
+- Motion: komponen memakai `useMotionEffect` (IO + idle → dynamic import GSAP); barrel `@/components/motion` tidak lagi mengekspor gsap — impor dari `@/components/motion/gsap`.
+- `listCmsPagesForSitemap` (pages catch-all) dipakai sitemap; `src/features/pages/slugs.ts` daftar slug reserved + test pemindai `src/app`.
+- `.env` dan `.env.local` punya `CRON_SECRET` berbeda (Next memakai `.env.local`).
 
 ## 4. Keputusan terkunci
 - **Tagline hero:** "Tiga bahan, tanpa jalan pintas." · Slot/PO: "Tempe yang layak ditunggu." · /tentang: "Dari dapur Mak, tanpa jalan pintas."
 - **Stack terpasang:**
   - Next 16.4.2 (App Router, Turbopack, `cacheComponents: true`, `partialPrefetching: true`), React 19.3, TS 5.9 strict, Tailwind 4.3.3, shadcn (radix-nova).
-  - lucide-react, next-themes, GSAP 3.15 + @gsap/react, Lenis 1.3, Motion 14.
+  - lucide-react, next-themes, GSAP 3.15 + @gsap/react, Lenis 1.3 (paket `motion` dihapus sesi 7).
   - Zod 4, Drizzle 0.45 + postgres-js, @supabase/ssr 0.12, react-hook-form, sonner, cmdk, react-day-picker, Vitest 5, pnpm 12.8.
   - @tanstack/react-table 9.3 (API v9!), @dnd-kit (core 6.3 / sortable 10 / utilities 3.2), Tiptap 3.32, @vercel/analytics 2.0 + speed-insights 2.0.
   - **sharp 0.35.5** (sesi 4).
@@ -67,15 +59,15 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen 
 - Role:
   - **Owner-only:** hapus halaman/produk/media/FAQ/testimoni/navigasi, Legal, Pengguna, Redirect, serta grup settings business/legal/halal/order/consent/private/site.
   - **Editor:** grup contact/social/seo/cta dan CRUD konten.
-  - **Hapus artikel/resep masih boleh oleh editor.** Ini menunggu keputusan user (§8).
-  - Catatan audit: tab "SEO & situs" di UI owner-only padahal server mengizinkan editor untuk `seo.*`/`cta.*` → selaraskan (P8.9).
+  - **Hapus artikel/resep: owner-only (default registry, bisa diberikan owner ke editor lewat `/admin/akses`).** Izin lain juga dinamis (P8.14).
+  - Tab "SEO & situs": editor boleh `seo.*`/`cta.*`, `site.*` owner (P8.9, `src/features/settings/roles.ts`).
 
 ## 5. API yang sudah ada (pakai, jangan duplikasi)
 - **UI:**
   - `@/components/site/primitives` (Container, Section, Heading, Eyebrow, Lead, Prose, Grid, Stack, Divider).
   - `@/components/ui/*` (pakai `field`, bukan `form`).
   - `@/components/brand/*`.
-  - `@/components/motion` (import gsap dari sini; Lenis/GSAP di-load lazy di `lenis-provider.tsx`).
+  - `@/components/motion` (gsap diimpor dari `@/components/motion/gsap`; dimuat lazy lewat `useMotionEffect`/`lenis-provider.tsx`).
   - `cn()` sudah mengenal token custom.
 - **Data (server-only, cached):** `src/features/<domain>/queries.ts` untuk settings, pages (+`<BlockRenderer>`), navigation, products, posts, recipes, taxonomy, faqs, testimonials, slots (`getAvailability`), legal, media (`getMediaByIds`), dan `getRedirects`.
   - Admin: `queries.admin.ts`.
@@ -145,10 +137,12 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen 
   - `pnpm dev`, `pnpm build`, `pnpm test`, `pnpm lint`, `pnpm typecheck`.
   - `pnpm db:migrate`, `pnpm db:seed` (idempoten), `pnpm db:generate`.
   - Validasi seed: `pnpm tsx --tsconfig tsconfig.json scripts/dev/validate-sections.mts`.
-- Status sesi 5 terakhir: lint ✓, typecheck ✓, 331 test ✓ (17 skip), build ✓, e2e 41 ✓ (1 skip).
+- Status akhir sesi 7: lint ✓, typecheck ✓, ±416 test ✓, build ✓, e2e (CI) hijau; CI GitHub hijau di `main`.
 - `pnpm lint` mengabaikan `playwright-report/` dan `test-results/`.
 
 ## 8. Menunggu dari user (jangan memblokir)
+- **Sudah diputuskan sesi 7:** repo publik; LICENSE proprietary (done); hapus artikel/resep owner-only + RBAC dinamis (done, P8.14); desain sticky bar/WA ikut rekomendasi (done, P8.12); ruleset `main` + required checks + secret scanning + Dependabot security updates + PVR sudah disetel user; topics sudah ditambah.
+- **Merge PR dilakukan USER** (auto-mode menolak `gh pr merge --admin`): orkestrator buat branch + PR (template) + pastikan CI hijau, lalu minta user merge.
 - Sign-up publik sudah dimatikan user sejak awal; migrasi 0003 sudah diterapkan. Sisa saran: aktifkan CAPTCHA/attack protection di Supabase Auth.
 - **Uji manual admin setelah login** (belum pernah diuji dengan sesi nyata): semua modul `/admin/*`, terutama upload media, MediaPicker, Pengaturan, Pengguna (undang butuh SMTP Supabase dan redirect URL), Redirect, Legal, dan consent.
 - Keputusan: hapus artikel/resep dijadikan owner-only atau tidak.
@@ -161,38 +155,8 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen 
 - Data asli (WA, alamat, nomor halal, foto) diisi lewat Admin → Pengaturan / Media.
 
 ## 9. Mulai sekarang
-1. Cek awal: `git log --oneline | head`, `git status` (bersih), `git fetch && git status` (sinkron dengan `origin/main`), `pnpm typecheck && pnpm test`, `make db-status` (0000–0003 ✓), `gh run list -L 5`.
-2. Tambahkan Fase 8 & 9 (tabel di bawah) ke `STATE.md` (bagian Task) dan `PLAN.md`, tambah log sesi 7, set task yang diluncurkan ke `doing`.
-3. Jalankan **sub-agent driven** sesuai kolom *Model* (sonnet = ringan, opus = berat), maks 3 paralel, ownership tidak bertumpuk. Urutan: **P8.0 dulu sendirian** (menyentuh banyak file), lalu gelombang lain.
-4. Setiap task: verifikasi sendiri (`make verify` + `make e2e-strict`; untuk Fase 9 juga `gh run watch`), review, set `done`, commit per task, `git push`. Di akhir setiap fase dan sesi: perbarui `HANDOVER.md` dan `STATE.md`.
-
-### Fase 8 — Perbaikan gap audit, QA, performa
-| ID | Task | Model | Dep | Ownership / catatan |
-|---|---|---|---|---|
-| P8.0 | **CI hijau:** keputusan format — opsi A (disarankan): satu commit `chore: prettier --write .` terisolasi (dicek `pnpm build`+e2e, tambahkan hash ke `.git-blame-ignore-revs`); opsi B: `format:check` hanya file berubah. Lalu pastikan job Test + Build jalan di GitHub. Setelah itu aturan "jangan prettier file lama" **dicabut**. | sonnet | — | `.prettierignore`, `package.json`, `.github/workflows/ci.yml`, seluruh repo (opsi A) |
-| P8.1 | Halaman `/produk`, `/faq`, `/kontak` membaca `getPage` + `<BlockRenderer>`/SEO dari DB (bukan hard-code) agar editan admin tampil (§15). Halaman CMS baru: route catch-all `(site)/[slug]` **atau** blokir pembuatan halaman baru di admin — pilih yang aman terhadap route statis. | opus | P8.0 | `src/app/(site)/{produk,faq,kontak}/page.tsx`, route baru, `features/pages` |
-| P8.2 | Route dinamis (`/produk|jurnal|resep/[slug]`, `/jurnal/kategori/[slug]`) mengembalikan **404 sejak request pertama** (sekarang 200 soft-404 karena `notFound()` dalam Suspense streaming). Baca docs Next 16 (cacheComponents, not-found). | opus | P8.0 | route `[slug]` terkait |
-| P8.3 | SEO kecil: judul ganda (template `%s — Tempe Mak Nuk` + judul yang sudah memuat brand), "Tips Tempe Tempe", sitemap saring `seo.noindex` + status, JSON-LD `image` untuk Recipe/Product/BlogPosting, `/favicon.ico`, description legal duplikat. | sonnet | P8.0 | `src/lib/seo/*`, `src/app/sitemap.ts`, metadata route terkait, queries slug |
-| P8.4 | Cache/revalidate: `updateMediaAlt` meng-expire tag pemakai (produk/testimoni/post/resep); konten terjadwal dipublikasikan tepat waktu (cron Vercel → route revalidate ber-`CRON_SECRET`, atau tag TTL pendek). | sonnet | P8.0 | `features/media/actions.ts`, `vercel.json`, `src/app/api/cron/*` |
-| P8.5 | `/admin/kategori`: kelola kategori FAQ/jurnal/resep + tag (action `features/taxonomy` sudah ada; cek role + Zod). | sonnet | P8.0 | `src/app/admin/kategori/**`, nav admin |
-| P8.6 | Dasbor: kartu "peringatan konten kosong" (§5.3). | sonnet | P8.0 | `src/app/admin/(dashboard)` |
-| P8.7 | Konten/fitur publik kurang: FAQ produk + resep terkait di `/produk/[slug]`, galeri bentuk `/produk`, probiotik `/manfaat-tempe`, timeline/tim `/tentang`, announcement bar dari status slot minggu ini; consent 12 bulan + "Tolak" sesuai §5.4; TOC halaman legal. | sonnet | P8.1 | route publik terkait (jangan bentrok dengan P8.1) |
-| P8.8 | Docs akurat: `docs/admin-guide.md` (editor bisa Navigasi/Pengumuman/CTA; undang tanpa pilihan peran; tidak ada nonaktifkan akun; versi legal via "Buat versi baru"; hapus klaim "±1 menit"), README Setup → `make db-migrate`, `docs/security.md` status 0003 & commit. | sonnet | P8.1–P8.6 | `README.md`, `docs/*.md` |
-| P8.9 | Admin kecil: tab "SEO & situs" editor boleh `seo.*`/`cta.*`; hapus action redirect lama duplikat di `features/pages/actions.ts`; (bila user memutuskan) hapus artikel/resep owner-only. | sonnet | P8.0 | `features/settings`, `features/pages/actions.ts` |
-| P8.10 | E2E: anonim `/admin` → `/login`; admin CRUD (skip tanpa `E2E_ADMIN_*`); 404 slug. | sonnet | P8.2 | `tests/e2e/*` |
-| P8.11 | Performa (P6.4 sisa): animasi below-the-fold (SplitText/ScrollTrigger/PinnedStory) saat idle; `prefetch={false}` atau dynamic import `SlotCalendar` (react-day-picker ±22 kB); `browserslist` modern; bundle analyzer + ukur INP; perbarui `docs/performance.md`. Hapus dep `motion` bila tak dipakai (atau pakai untuk View Transitions). | opus | P8.0 | `src/components/motion/*`, link CTA, `package.json` (orkestrator pasang/hapus paket) |
-| P8.12 | QA terbuka (`docs/qa.md`): token dark `--card` ≠ `--surface` di `src/styles/globals.css` (cek ulang screenshot dark semua route); bar sticky `/custom-order` 375 px; tombol WA mengambang menutupi konten mobile. | opus | P8.0 | `globals.css`, `features/orders/components/*`, `floating-whatsapp.tsx` |
-| P8.13 | P0.6: catat skills §13 yang tersedia/terpasang di `STATE.md` (opsional). | sonnet | — | `STATE.md` |
-
-### Fase 9 — Repo GitHub production-grade (scalable, secure)
-Repo: `https://github.com/ilramdhan/tempe-mak-nuk` (publik). `gh` CLI sudah login sebagai `ilramdhan`. Setiap perubahan setting repo (branch protection, release, package) = aksi keluar → konfirmasi user dulu bila belum diizinkan.
-| ID | Task | Model | Dep | Ownership / catatan |
-|---|---|---|---|---|
-| P9.1 | Community health files: `README.md` (badge CI/release/license, ringkas + link docs), `CONTRIBUTING.md` (setup, Conventional Commits, branch, `make verify`, aturan PR), `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), `SECURITY.md` (private vulnerability reporting, scope), `LICENSE` (sesuai keputusan user), `ACCESSIBILITY.md` (target WCAG 2.1 AA, axe strict di CI, cara lapor), `SUPPORT.md`, `.editorconfig`, `.gitattributes`. | sonnet | P8.0 | root files |
-| P9.2 | `.github/`: `CODEOWNERS` (`* @ilramdhan`, path sensitif `drizzle/ src/proxy.ts next.config.ts src/features/**/actions.ts .github/`), `ISSUE_TEMPLATE/` (issue forms YAML: bug, feature, a11y, content; `config.yml` blank off + link security), `pull_request_template.md` (checklist: typecheck/lint/test/build/e2e, a11y, migrasi, screenshot, security), `labeler.yml` + label sync, `FUNDING` tidak perlu. | sonnet | — | `.github/**` (kecuali workflows) |
-| P9.3 | CI/CD workflows (least-privilege `permissions`, pin action ke SHA, `concurrency`, cache pnpm): `ci.yml` (typecheck, lint, format, unit, build, **Playwright e2e + axe strict** dengan artefak report — butuh DB: pakai Postgres service container + migrasi + seed, atau jalankan e2e hanya bila secret DB ada), `codeql.yml` (JS/TS), `dependency-review.yml` (PR), `pr-title.yml` (Conventional Commits semantic PR), `labeler.yml`, `stale.yml` opsional. Dependabot: sudah ada — kelompokkan + jadwal mingguan, tambah `github-actions` & `docker`. | opus | P8.0, P9.2 | `.github/workflows/*`, `.github/dependabot.yml` |
-| P9.4 | Release: **release-please** (`googleapis/release-please-action`, `release-please-config.json` + `.release-please-manifest.json`, release-type `node`, CHANGELOG.md, tag `vX.Y.Z`, mulai dari `0.1.0`). Deskripsi repo + topics via `gh repo edit` (konfirmasi user). | sonnet | P9.3 | config release-please, workflow release |
-| P9.5 | Image build (package): `Dockerfile` multi-stage (node 22-alpine/distroless, pnpm via corepack, `output: "standalone"` di `next.config.ts` — **uji `pnpm build` 2× dan e2e**, user non-root, `HEALTHCHECK`), `.dockerignore` (wajib exclude `.env*`), env runtime (bukan baked; ingat `NEXT_PUBLIC_*` & host gambar CSP dibaca saat build → build-arg). Workflow `docker.yml`: build multi-arch (amd64/arm64) dengan buildx + cache GHA, push ke **GHCR** `ghcr.io/ilramdhan/tempe-mak-nuk` saat release/tag (`docker/metadata-action` tag semver + sha), SBOM + provenance, scan Trivy/Grype, sign cosign keyless (OIDC). Deploy utama tetap Vercel; image untuk self-host. Dokumentasikan di `docs/deploy.md`. | opus | P9.3, P9.4 | `Dockerfile`, `.dockerignore`, `.github/workflows/docker.yml`, `next.config.ts` (output), `docs/deploy.md` |
-| P9.6 | Setting repo via `gh` (konfirmasi user): branch protection/ruleset `main` (wajib PR + CI hijau + CODEOWNERS review, larang force-push), aktifkan secret scanning + push protection, Dependabot alerts/security updates, private vulnerability reporting, auto-delete branch, squash merge only. Tangani PR Dependabot #1 (rebase, CI hijau, uji, merge — atau tutup). | sonnet | P9.1–P9.5 | setting GitHub |
-| P9.7 | Audit akhir Fase 9: verifikasi semua workflow hijau di GitHub (`gh run list`), release pertama terbit, image ter-push & ter-sign, tidak ada secret bocor; perbarui `HANDOVER.md`/`STATE.md`. | opus | P9.6 | `docs/audit/phase-9.md` |
+1. Cek awal: `git status` (sisa P8.7?), `git fetch && git log --oneline origin/main | head`, `gh pr list`, `gh run list -L 5`, `pnpm typecheck && pnpm test`, `make db-status` (0000–0004 ✓).
+2. Selesaikan P8.7 (lihat §3) → PR. Pastikan PR #6/#7 sudah di-merge user (ingatkan bila belum).
+3. Gelombang: P8.8 (sonnet) ‖ P9.5 (opus) ‖ P9.6 Dependabot (sonnet). Lalu rilis v0.1.0 (merge PR release-please) → pastikan workflow docker jalan → P9.7 (opus).
+4. Akhir sesi: perbarui `HANDOVER.md` + `STATE.md` (log sesi) lewat PR.
 ````
