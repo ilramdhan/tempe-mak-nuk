@@ -29,10 +29,7 @@ import {
   EditorFrame,
   Panel,
 } from "../../jurnal/_shared/components/editor-frame";
-import type {
-  MediaOption,
-  Option,
-} from "../../jurnal/_shared/components/types";
+import type { Option } from "../../jurnal/_shared/components/types";
 import { useContentEditor } from "../../jurnal/_shared/components/use-content-editor";
 import { withTitle } from "../../jurnal/_lib/post-draft";
 import {
@@ -46,7 +43,6 @@ import {
 import { IngredientList, StepList } from "./recipe-lists";
 
 export type RecipeEditorOptions = {
-  media: MediaOption[];
   categories: Option[];
   products: Option[];
 };
@@ -205,7 +201,6 @@ export function RecipeEditor({
             <StepList
               value={draft.steps}
               errors={errors}
-              media={options.media}
               onChange={(v) => set("steps", v)}
             />
           </Panel>
@@ -214,7 +209,6 @@ export function RecipeEditor({
             <RichTextEditor
               id={tipsId}
               value={draft.content}
-              media={options.media}
               invalid={!!errors.content}
               ariaDescribedBy={`${tipsId}-desc`}
               placeholder="Tips memilih tempe, variasi, cara menyimpan…"
@@ -232,7 +226,6 @@ export function RecipeEditor({
             <SeoFields
               seo={draft.seo}
               errors={errors}
-              media={options.media}
               fallbackTitle={draft.title}
               onChange={(v) => set("seo", v)}
             />
@@ -254,7 +247,6 @@ export function RecipeEditor({
             <MediaSelect
               label="Gambar sampul"
               value={draft.coverMediaId}
-              media={options.media}
               errors={errors}
               errorKey="coverMediaId"
               onChange={(v) => set("coverMediaId", v)}

@@ -33,6 +33,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { RichTextEditor } from "@/components/admin/editor";
+import { MediaPicker } from "@/components/admin/media-picker";
 import { emptyDoc, type TiptapDoc } from "@/lib/rich-text/schema";
 import { cn } from "@/lib/utils";
 
@@ -405,6 +406,35 @@ export function CtaField({
   );
 }
 
+/** Single media id (nullable) via the media library picker. */
+export function MediaField({
+  path,
+  label,
+  description,
+  className,
+  noneLabel,
+}: BaseProps & { noneLabel?: string }) {
+  const f = useField<string | null>(path);
+  return (
+    <Wrap
+      id={f.id}
+      label={label}
+      description={description}
+      error={f.error}
+      className={className}
+    >
+      <MediaPicker
+        id={f.id}
+        value={f.value || null}
+        noneLabel={noneLabel}
+        invalid={!!f.error}
+        ariaDescribedBy={describedBy(f.id, !!description, f.error)}
+        onChange={(id) => f.set(id)}
+      />
+    </Wrap>
+  );
+}
+
 /** Media reference: choose from the media library (or paste an id) + alt override. */
 export function ImageField({
   path,
@@ -421,63 +451,23 @@ export function ImageField({
   required?: boolean;
 }) {
   const f = useField<{ mediaId: string; alt?: string | null } | null>(path);
-  const { options } = f.ctx;
   const errMediaId = f.ctx.errors[joinPath([...path, "mediaId"])];
-  const selected = f.value?.mediaId
-    ? options.media.find((m) => m.id === f.value!.mediaId)
-    : undefined;
   return (
     <Group legend={label} error={f.error}>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-        <div className="flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-md border border-input bg-muted text-xs text-muted-foreground">
-          {selected ? (
-            // eslint-disable-next-line @next/next/no-img-element -- admin thumbnail from storage
-            <img src={selected.url} alt="" className="size-full object-cover" />
-          ) : (
-            "Tanpa gambar"
-          )}
-        </div>
-        <div className="grid flex-1 gap-4">
+      <div className="grid gap-4">
+        <div className="grid gap-4">
           <Field data-invalid={errMediaId ? true : undefined}>
             <FieldLabel htmlFor={`${f.id}-media`}>Pilih dari Media</FieldLabel>
-            <Select
-              value={f.value?.mediaId || (required ? "" : NONE)}
-              onValueChange={(v) =>
-                v === NONE
-                  ? f.set(null)
-                  : f.set({ ...(f.value ?? {}), mediaId: v })
+            <MediaPicker
+              id={`${f.id}-media`}
+              value={f.value?.mediaId || null}
+              clearable={!required}
+              noneLabel="Tanpa gambar (placeholder)"
+              invalid={!!errMediaId}
+              onChange={(id) =>
+                id ? f.set({ ...(f.value ?? {}), mediaId: id }) : f.set(null)
               }
-            >
-              <SelectTrigger
-                id={`${f.id}-media`}
-                className="w-full"
-                aria-invalid={errMediaId ? true : undefined}
-              >
-                <SelectValue placeholder="Pilih gambar…" />
-              </SelectTrigger>
-              <SelectContent>
-                {required ? null : (
-                  <SelectItem value={NONE}>
-                    Tanpa gambar (placeholder)
-                  </SelectItem>
-                )}
-                {f.value?.mediaId && !selected ? (
-                  <SelectItem value={f.value.mediaId}>
-                    ID {f.value.mediaId.slice(0, 8)}… (tidak ditemukan)
-                  </SelectItem>
-                ) : null}
-                {options.media.map((m) => (
-                  <SelectItem key={m.id} value={m.id}>
-                    {m.alt || m.id.slice(0, 8)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {options.media.length === 0 ? (
-              <FieldDescription>
-                Belum ada media. Unggah lewat menu Media.
-              </FieldDescription>
-            ) : null}
+            />
             {errMediaId ? <FieldError>{errMediaId}</FieldError> : null}
           </Field>
           {f.value && withAlt ? (
@@ -711,7 +701,6 @@ export function RichTextField({
       <RichTextEditor
         id={f.id}
         value={f.value ?? null}
-        media={f.ctx.options.media}
         invalid={!!f.error}
         ariaDescribedBy={describedBy(f.id, !!description, f.error)}
         onChange={(v) => f.set(nullable ? v : (v ?? emptyDoc()))}

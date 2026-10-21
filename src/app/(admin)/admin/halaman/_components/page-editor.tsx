@@ -441,7 +441,6 @@ export function PageEditor({
             <PageMetaForm
               page={state.page}
               errors={shown.page}
-              media={options.media}
               isHome={page.slug === "home"}
               onChange={(path, value) => {
                 setServerErrors(null);

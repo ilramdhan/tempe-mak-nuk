@@ -62,7 +62,6 @@ async function Content({
           initial={product.draft}
           shapes={options.shapes}
           sizes={options.sizes}
-          media={options.media}
         />
         <section
           aria-labelledby="h-gizi"

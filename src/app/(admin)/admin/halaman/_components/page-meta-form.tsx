@@ -1,5 +1,6 @@
 "use client";
 
+import { MediaPicker } from "@/components/admin/media-picker";
 import {
   Field,
   FieldDescription,
@@ -20,9 +21,6 @@ import { Textarea } from "@/components/ui/textarea";
 
 import type { FieldErrors, PageMetaDraft } from "../_lib/editor-state";
 import type { Path } from "../_lib/path";
-import type { BuilderOptions } from "./types";
-
-const NONE = "__none__";
 
 function Counter({ value, max }: { value: string; max: number }) {
   const over = value.length > max;
@@ -37,13 +35,11 @@ function Counter({ value, max }: { value: string; max: number }) {
 export function PageMetaForm({
   page,
   errors,
-  media,
   isHome,
   onChange,
 }: {
   page: PageMetaDraft;
   errors: FieldErrors;
-  media: BuilderOptions["media"];
   isHome: boolean;
   onChange: (path: Path, value: unknown) => void;
 }) {
@@ -136,30 +132,13 @@ export function PageMetaForm({
       </Field>
       <Field data-invalid={inv("seo.ogImageId")}>
         <FieldLabel htmlFor="seo-og">Gambar berbagi (OG)</FieldLabel>
-        <Select
-          value={page.seo.ogImageId ?? NONE}
-          onValueChange={(v) =>
-            onChange(["seo", "ogImageId"], v === NONE ? null : v)
-          }
-        >
-          <SelectTrigger id="seo-og" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={NONE}>Default situs</SelectItem>
-            {page.seo.ogImageId &&
-            !media.some((m) => m.id === page.seo.ogImageId) ? (
-              <SelectItem value={page.seo.ogImageId}>
-                ID {page.seo.ogImageId.slice(0, 8)}… (tidak ditemukan)
-              </SelectItem>
-            ) : null}
-            {media.map((m) => (
-              <SelectItem key={m.id} value={m.id}>
-                {m.alt || m.id.slice(0, 8)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <MediaPicker
+          id="seo-og"
+          value={page.seo.ogImageId ?? null}
+          noneLabel="Default situs"
+          invalid={!!err("seo.ogImageId")}
+          onChange={(v) => onChange(["seo", "ogImageId"], v)}
+        />
         {err("seo.ogImageId") ? (
           <FieldError>{err("seo.ogImageId")}</FieldError>
         ) : null}

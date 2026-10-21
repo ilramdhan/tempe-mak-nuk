@@ -8,11 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-import {
-  OptionSelect,
-  mediaOptions,
-} from "../../jurnal/_shared/components/content-fields";
-import type { MediaOption } from "../../jurnal/_shared/components/types";
+import { MediaSelect } from "../../jurnal/_shared/components/content-fields";
 import { errorsUnder, type FieldErrors } from "../../jurnal/_shared/lib/form";
 import {
   emptyIngredient,
@@ -189,17 +185,14 @@ export function IngredientList({
 export function StepList({
   value,
   errors,
-  media,
   onChange,
 }: {
   value: StepDraft[];
   errors: FieldErrors;
-  media: readonly MediaOption[];
   onChange: (v: StepDraft[]) => void;
 }) {
   const patch = (i: number, p: Partial<StepDraft>) =>
     onChange(value.map((row, n) => (n === i ? { ...row, ...p } : row)));
-  const opts = mediaOptions(media);
   return (
     <div className="flex flex-col gap-3">
       <ol className="flex flex-col gap-3">
@@ -220,17 +213,14 @@ export function StepList({
                     onChange={(e) => patch(i, { text: e.target.value })}
                   />
                   {textErr ? <FieldError>{textErr}</FieldError> : null}
-                  {opts.length ? (
-                    <OptionSelect
-                      label="Foto langkah (opsional)"
-                      value={row.mediaId}
-                      options={opts}
-                      noneLabel="Tanpa foto"
-                      errorKey={`steps.${i}.mediaId`}
-                      errors={errors}
-                      onChange={(v) => patch(i, { mediaId: v })}
-                    />
-                  ) : null}
+                  <MediaSelect
+                    label="Foto langkah (opsional)"
+                    value={row.mediaId}
+                    noneLabel="Tanpa foto"
+                    errorKey={`steps.${i}.mediaId`}
+                    errors={errors}
+                    onChange={(v) => patch(i, { mediaId: v })}
+                  />
                 </div>
                 <RowActions
                   index={i}

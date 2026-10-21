@@ -3,6 +3,7 @@
 import { LoaderCircle, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 
+import { MediaPicker } from "@/components/admin/media-picker";
 import { RoleGate } from "@/components/admin/shell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -179,6 +180,7 @@ function TestimonialDialog({
   const [isPlaceholder, setIsPlaceholder] = useState(
     item?.isPlaceholder ?? true,
   );
+  const [mediaId, setMediaId] = useState<string | null>(item?.mediaId ?? null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   function submit(e: React.FormEvent) {
@@ -189,7 +191,7 @@ function TestimonialDialog({
       city,
       quote,
       rating: rating.trim() === "" ? null : Number(rating),
-      mediaId: item?.mediaId ?? null,
+      mediaId,
       verified,
       visible,
       sort: item?.sort ?? 9999,
@@ -283,6 +285,17 @@ function TestimonialDialog({
                 onChange={(e) => setRating(e.target.value)}
               />
               {errors.rating ? <FieldError>{errors.rating}</FieldError> : null}
+            </Field>
+            <Field data-invalid={bad("mediaId")}>
+              <FieldLabel htmlFor="t-media">Foto (opsional)</FieldLabel>
+              <MediaPicker
+                id="t-media"
+                value={mediaId}
+                noneLabel="Tanpa foto"
+                invalid={!!errors.mediaId}
+                onChange={(id) => setMediaId(id)}
+              />
+              {errors.mediaId ? <FieldError>{errors.mediaId}</FieldError> : null}
             </Field>
             <Field orientation="horizontal">
               <Switch

@@ -35,7 +35,7 @@ import { cn } from "@/lib/utils";
 
 import { docKey, toStoredDoc, unsupportedTypes } from "./doc-utils";
 import { buildExtensions } from "./extensions";
-import { ImageDialog, type EditorMediaOption } from "./image-dialog";
+import { ImageDialog } from "./image-dialog";
 import { LinkDialog } from "./link-dialog";
 
 export type RichTextEditorProps = {
@@ -50,8 +50,6 @@ export type RichTextEditorProps = {
   ariaDescribedBy?: string;
   invalid?: boolean;
   placeholder?: string;
-  /** Media picker options for images (`mediaId` is stored on the node). */
-  media?: readonly EditorMediaOption[];
   className?: string;
   /** Min height of the writing area (Tailwind class). */
   minHeightClassName?: string;
@@ -102,7 +100,6 @@ function EditorInner({
   ariaDescribedBy,
   invalid,
   placeholder,
-  media = [],
   className,
   minHeightClassName = "min-h-64",
 }: RichTextEditorProps) {
@@ -233,7 +230,6 @@ function EditorInner({
       />
       <ImageDialog
         open={imageOpen}
-        media={media}
         onOpenChange={(o) => {
           setImageOpen(o);
           if (!o) editor?.commands.focus();

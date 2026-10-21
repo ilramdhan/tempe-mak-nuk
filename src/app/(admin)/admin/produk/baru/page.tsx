@@ -40,14 +40,13 @@ export default function NewProductPage() {
 
 async function Content() {
   await connection();
-  const { shapes, sizes, media } = await loadOptions();
+  const { shapes, sizes } = await loadOptions();
   return (
     <ProductForm
       productId={null}
       initial={emptyDraft()}
       shapes={shapes}
       sizes={sizes}
-      media={media}
     />
   );
 }

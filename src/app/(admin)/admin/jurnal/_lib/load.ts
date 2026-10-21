@@ -6,19 +6,17 @@ import type { TiptapDoc } from "@/lib/rich-text/schema";
 import type { PostEditorOptions } from "../_components/post-editor";
 import {
   loadCategoryOptions,
-  loadMediaOptions,
   loadTagOptions,
 } from "../_shared/lib/load";
 import { visibilityOf } from "../_shared/lib/publish";
 import { postDraftFromRecord, type PostDraft } from "./post-draft";
 
 export async function loadPostOptions(): Promise<PostEditorOptions> {
-  const [media, categories, tags] = await Promise.all([
-    loadMediaOptions(),
+  const [categories, tags] = await Promise.all([
     loadCategoryOptions("post"),
     loadTagOptions(),
   ]);
-  return { media, categories, tags };
+  return { categories, tags };
 }
 
 export async function loadPostDraft(

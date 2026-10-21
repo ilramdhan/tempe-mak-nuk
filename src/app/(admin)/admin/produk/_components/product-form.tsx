@@ -1,11 +1,15 @@
 "use client";
 
-import { LoaderCircle, Trash2 } from "lucide-react";
+import { LoaderCircle, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { RichTextEditor } from "@/components/admin/editor";
+import {
+  MediaPicker,
+  MediaPickerDialog,
+} from "@/components/admin/media-picker";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -25,6 +29,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { getMediaLibraryItem } from "@/features/media/library-actions";
 import { createProduct, updateProduct } from "@/features/products/actions";
 
 import { useUnsavedGuard } from "../../halaman/_components/use-unsaved-guard";
@@ -38,23 +43,19 @@ import {
   type FieldErrors,
   type ProductDraft,
 } from "../_lib/form-state";
-import type { MediaOption, ShapeRow, SizeRow } from "../_lib/load";
+import type { ShapeRow, SizeRow } from "../_lib/load";
 import { SortableList } from "./sortable-list";
-
-const NONE = "__none__";
 
 export function ProductForm({
   productId,
   initial,
   shapes,
   sizes,
-  media,
 }: {
   productId: string | null;
   initial: ProductDraft;
   shapes: ShapeRow[];
   sizes: SizeRow[];
-  media: MediaOption[];
 }) {
   const router = useRouter();
   const [draft, setDraft] = useState(initial);
@@ -63,6 +64,33 @@ export function ProductForm({
   const [slugTouched, setSlugTouched] = useState(productId !== null);
   const [showErrors, setShowErrors] = useState(false);
   const [saving, startSaving] = useTransition();
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [mediaMap, setMediaMap] = useState<
+    Record<string, { url: string; alt: string } | null>
+  >({});
+
+  // Resolve thumbnails for gallery ids (existing product or newly added).
+  const mediaIdsKey = draft.mediaIds.join(",");
+  useEffect(() => {
+    const missing = draft.mediaIds.filter((id) => !(id in mediaMap));
+    if (!missing.length) return;
+    let alive = true;
+    for (const id of missing) {
+      getMediaLibraryItem(id)
+        .then((res) => {
+          if (!alive || !res.ok) return;
+          setMediaMap((m) => ({
+            ...m,
+            [id]: res.data ? { url: res.data.url, alt: res.data.alt } : null,
+          }));
+        })
+        .catch(() => undefined);
+    }
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mediaIdsKey]);
 
   const dirty = isDirty(draft, saved);
   useUnsavedGuard(dirty);
@@ -115,13 +143,12 @@ export function ProductForm({
   }));
   const mediaItems = draft.mediaIds.map((id) => ({
     id,
-    row: media.find((m) => m.id === id),
+    row: mediaMap[id] ?? undefined,
   }));
   const addableShapes = shapes.filter((s) => !draft.shapeIds.includes(s.id));
   const addableSizes = sizes.filter(
     (s) => !draft.sizes.some((x) => x.sizeId === s.id),
   );
-  const addableMedia = media.filter((m) => !draft.mediaIds.includes(m.id));
   const errCount = Object.keys(live).length + Object.keys(errors).length;
 
   return (
@@ -250,7 +277,6 @@ export function ProductForm({
                 id="p-desc"
                 value={draft.description}
                 onChange={(v) => set("description", v)}
-                media={media}
                 invalid={!!err("description")}
               />
               {err("description") ? (
@@ -374,8 +400,8 @@ export function ProductForm({
 
         <TabsContent value="galeri" className="flex flex-col gap-3 pt-5">
           <p className="text-sm text-muted-foreground">
-            Foto pertama menjadi foto utama. Pustaka media lengkap (unggah)
-            hadir di menu Media.
+            Foto pertama menjadi foto utama. Pilih dari pustaka atau unggah
+            foto baru.
           </p>
           <SortableList
             items={mediaItems}
@@ -416,14 +442,36 @@ export function ProductForm({
               </Button>
             )}
           />
-          <AddSelect
-            label="Tambah foto"
-            options={addableMedia.map((m) => ({
-              id: m.id,
-              label: m.alt || m.id.slice(0, 8),
-            }))}
-            onPick={(id) => set("mediaIds", [...draft.mediaIds, id])}
-          />
+          <div>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              aria-haspopup="dialog"
+              onClick={() => setGalleryOpen(true)}
+            >
+              <Plus /> Tambah foto
+            </Button>
+          </div>
+          {galleryOpen ? (
+            <MediaPickerDialog
+              open={galleryOpen}
+              onOpenChange={setGalleryOpen}
+              title="Tambah foto ke galeri"
+              onSelect={(item) => {
+                if (draft.mediaIds.includes(item.id)) {
+                  setGalleryOpen(false);
+                  return;
+                }
+                setMediaMap((prev) => ({
+                  ...prev,
+                  [item.id]: { url: item.url, alt: item.alt },
+                }));
+                set("mediaIds", [...draft.mediaIds, item.id]);
+                setGalleryOpen(false);
+              }}
+            />
+          ) : null}
         </TabsContent>
 
         <TabsContent value="seo" className="pt-5">
@@ -461,30 +509,12 @@ export function ProductForm({
             </Field>
             <Field>
               <FieldLabel htmlFor="s-og">Gambar berbagi (OG)</FieldLabel>
-              <Select
-                value={draft.seoOgImageId ?? NONE}
-                onValueChange={(v) =>
-                  set("seoOgImageId", v === NONE ? null : v)
-                }
-              >
-                <SelectTrigger id="s-og" className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NONE}>Default situs</SelectItem>
-                  {draft.seoOgImageId &&
-                  !media.some((m) => m.id === draft.seoOgImageId) ? (
-                    <SelectItem value={draft.seoOgImageId}>
-                      ID {draft.seoOgImageId.slice(0, 8)}… (tidak ditemukan)
-                    </SelectItem>
-                  ) : null}
-                  {media.map((m) => (
-                    <SelectItem key={m.id} value={m.id}>
-                      {m.alt || m.id.slice(0, 8)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <MediaPicker
+                id="s-og"
+                value={draft.seoOgImageId}
+                noneLabel="Default situs"
+                onChange={(v) => set("seoOgImageId", v)}
+              />
             </Field>
             <Field orientation="horizontal">
               <Switch

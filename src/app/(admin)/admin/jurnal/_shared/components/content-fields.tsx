@@ -6,6 +6,7 @@
  */
 import { useId } from "react";
 
+import { MediaPicker } from "@/components/admin/media-picker";
 import {
   Field,
   FieldDescription,
@@ -32,7 +33,7 @@ import {
   type ContentStatus,
 } from "../lib/publish";
 import { cleanSlugInput, slugify } from "../lib/slug";
-import type { MediaOption, Option } from "./types";
+import type { Option } from "./types";
 
 const NONE = "__none__";
 
@@ -308,14 +309,10 @@ export function OptionSelect({
   );
 }
 
-export const mediaOptions = (media: readonly MediaOption[]): Option[] =>
-  media.map((m) => ({ value: m.id, label: m.alt || m.id.slice(0, 8) }));
-
-/** Cover image picker (existing media by id) with preview. */
+/** Cover image picker (media library by id) with preview, search and upload. */
 export function MediaSelect({
   label,
   value,
-  media,
   errors,
   errorKey,
   noneLabel = "Tanpa gambar",
@@ -324,51 +321,44 @@ export function MediaSelect({
 }: {
   label: string;
   value: string | null;
-  media: readonly MediaOption[];
   errors: FieldErrors;
   errorKey: string;
   noneLabel?: string;
   description?: React.ReactNode;
   onChange: (v: string | null) => void;
 }) {
-  const picked = media.find((m) => m.id === value);
+  const id = useId();
   return (
-    <div className="flex flex-col gap-3">
-      <OptionSelect
-        label={label}
+    <Field data-invalid={errors[errorKey] ? true : undefined}>
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <MediaPicker
+        id={id}
         value={value}
-        options={mediaOptions(media)}
         noneLabel={noneLabel}
-        errorKey={errorKey}
-        errors={errors}
-        description={
-          description ??
-          (media.length ? undefined : "Belum ada media — unggah di menu Media.")
+        invalid={!!errors[errorKey]}
+        ariaDescribedBy={
+          [description ? `${id}-desc` : null, errors[errorKey] ? `${id}-err` : null]
+            .filter(Boolean)
+            .join(" ") || undefined
         }
-        onChange={onChange}
+        onChange={(v) => onChange(v)}
       />
-      {picked ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={picked.url}
-          alt={`Pratinjau: ${picked.alt}`}
-          className="aspect-video w-full max-w-sm rounded-md border border-input object-cover"
-        />
+      {description ? (
+        <FieldDescription id={`${id}-desc`}>{description}</FieldDescription>
       ) : null}
-    </div>
+      <Err errors={errors} k={errorKey} id={id} />
+    </Field>
   );
 }
 
 export function SeoFields({
   seo,
   errors,
-  media,
   fallbackTitle,
   onChange,
 }: {
   seo: SeoDraft;
   errors: FieldErrors;
-  media: readonly MediaOption[];
   fallbackTitle: string;
   onChange: (next: SeoDraft) => void;
 }) {
@@ -412,7 +402,6 @@ export function SeoFields({
       <MediaSelect
         label="Gambar berbagi (OG)"
         value={seo.ogImageId}
-        media={media}
         errors={errors}
         errorKey="seo.ogImageId"
         noneLabel="Pakai gambar sampul / default situs"

@@ -3,6 +3,7 @@
 import { LoaderCircle } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { MediaPicker } from "@/components/admin/media-picker";
 import { useHasRole } from "@/components/admin/shell";
 import { Button } from "@/components/ui/button";
 import {
@@ -120,6 +121,24 @@ export function SettingsForm({ tab, settings }: { tab: TabDef; settings: Setting
                         aria-describedby={hintId}
                       />
                       <FieldLabel htmlFor={id}>{d.label}</FieldLabel>
+                    </Field>
+                  );
+                }
+                if (d.kind === "media") {
+                  const v = String(values[d.key] ?? "");
+                  return (
+                    <Field key={d.key} data-invalid={!!err}>
+                      <FieldLabel htmlFor={id}>{d.label}</FieldLabel>
+                      <MediaPicker
+                        id={id}
+                        value={v || null}
+                        invalid={!!err}
+                        ariaDescribedBy={hintId}
+                        noneLabel="Belum ada gambar default"
+                        onChange={(m) => set(d.key, m ?? "")}
+                      />
+                      {d.hint ? <FieldDescription id={hintId}>{d.hint}</FieldDescription> : null}
+                      <FieldError>{err}</FieldError>
                     </Field>
                   );
                 }

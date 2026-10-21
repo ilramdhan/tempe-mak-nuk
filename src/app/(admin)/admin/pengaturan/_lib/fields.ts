@@ -15,7 +15,8 @@ export type FieldKind =
   | "lines"
   | "ints"
   | "hours"
-  | "json";
+  | "json"
+  | "media";
 
 export type FieldDef = {
   key: SettingKey;
@@ -182,7 +183,7 @@ export const TABS: TabDef[] = [
           f("seo.defaultTitle", "Judul default", "text"),
           f("seo.titleTemplate", "Template judul", "text", { hint: "%s diganti judul halaman." }),
           f("seo.defaultDescription", "Deskripsi default", "textarea", { hint: "Idealnya ≤ 160 karakter." }),
-          f("seo.defaultOgImageId", "ID gambar OG (media)", "text", { hint: "UUID dari Pustaka Media, atau kosong." }),
+          f("seo.defaultOgImageId", "Gambar OG default", "media", { hint: "Dipakai saat halaman tidak punya gambar berbagi sendiri." }),
         ],
       },
       {

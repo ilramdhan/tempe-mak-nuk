@@ -4,7 +4,6 @@ export type Choice = { value: string; label: string };
 
 /** Option lists the block forms pick from (serialisable; built server-side). */
 export type BuilderOptions = {
-  media: { id: string; url: string; alt: string }[];
   products: Choice[];
   recipes: Choice[];
   posts: Choice[];

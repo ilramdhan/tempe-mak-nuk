@@ -1,6 +1,5 @@
 import "server-only";
 
-import { listMediaForAdmin } from "@/features/media/queries.admin";
 import {
   getProductForAdmin,
   listProductsForAdmin,
@@ -10,7 +9,6 @@ import {
 
 import type { ProductDraft } from "./form-state";
 
-export type MediaOption = { id: string; url: string; alt: string };
 export type ShapeRow = {
   id: string;
   slug: string;
@@ -74,10 +72,9 @@ export async function loadProductList(): Promise<ProductListItem[]> {
 }
 
 export async function loadOptions() {
-  const [shapes, sizes, media] = await Promise.all([
+  const [shapes, sizes] = await Promise.all([
     safe("shapes", listShapesForAdmin),
     safe("sizes", listSizesForAdmin),
-    safe("media", () => listMediaForAdmin({ limit: 200 })),
   ]);
   return {
     shapes: shapes.map<ShapeRow>((s) => ({
@@ -96,11 +93,6 @@ export async function loadOptions() {
       price: s.price,
       sort: s.sort,
       active: s.active,
-    })),
-    media: media.map<MediaOption>((m) => ({
-      id: m.id,
-      url: m.url,
-      alt: m.alt,
     })),
   };
 }

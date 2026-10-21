@@ -26,6 +26,7 @@ import {
   CtaField,
   ImageField,
   ListField,
+  MediaField,
   NumberField,
   PickListField,
   RichTextField,
@@ -642,11 +643,6 @@ function TrustStripForm() {
 }
 
 function LogoStripForm() {
-  const { options } = useBlockForm();
-  const media: Choice[] = options.media.map((m) => ({
-    value: m.id,
-    label: m.alt || m.id.slice(0, 8),
-  }));
   return (
     <>
       <HeadingFields />
@@ -671,11 +667,10 @@ function LogoStripForm() {
               label="Tautan (opsional)"
               placeholder="https://"
             />
-            <SelectField
+            <MediaField
               path={[...p, "mediaId"]}
               label="Logo dari Media"
               noneLabel="Tanpa logo (teks saja)"
-              choices={media}
               className="sm:col-span-2"
             />
           </div>

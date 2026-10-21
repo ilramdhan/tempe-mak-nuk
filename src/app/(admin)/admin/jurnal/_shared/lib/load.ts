@@ -1,7 +1,6 @@
 import "server-only";
 
 import type { CategoryKind } from "@/db/schema";
-import { listMediaForAdmin } from "@/features/media/queries.admin";
 import { listPostsForAdmin } from "@/features/posts/queries.admin";
 import { listProductsForAdmin } from "@/features/products/queries.admin";
 import { listRecipesForAdmin } from "@/features/recipes/queries.admin";
@@ -11,7 +10,7 @@ import {
 } from "@/features/taxonomy/queries.admin";
 
 import type { ContentRow } from "../components/content-table";
-import type { MediaOption, Option } from "../components/types";
+import type { Option } from "../components/types";
 import { visibilityOf } from "./publish";
 
 /** Run a loader, falling back to `[]` (e.g. no DB in CI builds). */
@@ -37,11 +36,6 @@ export async function loadCategoryOptions(
 export async function loadTagOptions(): Promise<Option[]> {
   const rows = await safe("tags", listTagsForAdmin);
   return rows.map((t) => ({ value: t.id, label: t.name }));
-}
-
-export async function loadMediaOptions(): Promise<MediaOption[]> {
-  const rows = await safe("media", () => listMediaForAdmin({ limit: 200 }));
-  return rows.map((m) => ({ id: m.id, url: m.url, alt: m.alt }));
 }
 
 export async function loadProductOptions(): Promise<Option[]> {

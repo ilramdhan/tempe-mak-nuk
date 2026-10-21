@@ -3,7 +3,6 @@ import "server-only";
 import { SETTING_KEY_LIST } from "@/db/schema/settings";
 import { BLOCK_TYPES, type BlockType } from "@/features/pages/blocks";
 import { listFaqsForAdmin } from "@/features/faqs/queries.admin";
-import { listMediaForAdmin } from "@/features/media/queries.admin";
 import {
   getPageForAdmin,
   listPagesForAdmin,
@@ -80,9 +79,8 @@ export async function loadEditorPage(id: string): Promise<EditorPage | null> {
 }
 
 export async function loadBuilderOptions(): Promise<BuilderOptions> {
-  const [media, products, recipes, posts, categories, faqs, testimonials] =
+  const [products, recipes, posts, categories, faqs, testimonials] =
     await Promise.all([
-      safe("media", () => listMediaForAdmin({ limit: 200 })),
       safe("products", listProductsForAdmin),
       safe("recipes", () => listRecipesForAdmin()),
       safe("posts", () => listPostsForAdmin()),
@@ -91,7 +89,6 @@ export async function loadBuilderOptions(): Promise<BuilderOptions> {
       safe("testimonials", listTestimonialsForAdmin),
     ]);
   return {
-    media: media.map((m) => ({ id: m.id, url: m.url, alt: m.alt })),
     products: products.map((p) => ({
       value: p.slug,
       label: `${p.name}${p.isActive ? "" : " (nonaktif)"}`,

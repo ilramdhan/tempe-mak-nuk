@@ -24,7 +24,7 @@ import {
   TitleSlugFields,
 } from "../_shared/components/content-fields";
 import { EditorFrame, Panel } from "../_shared/components/editor-frame";
-import type { MediaOption, Option } from "../_shared/components/types";
+import type { Option } from "../_shared/components/types";
 import { useContentEditor } from "../_shared/components/use-content-editor";
 import {
   postSnapshot,
@@ -35,7 +35,6 @@ import {
 } from "../_lib/post-draft";
 
 export type PostEditorOptions = {
-  media: MediaOption[];
   categories: Option[];
   tags: Option[];
 };
@@ -110,7 +109,6 @@ export function PostEditor({
             <RichTextEditor
               id={contentId}
               value={draft.content}
-              media={options.media}
               invalid={!!errors.content}
               ariaDescribedBy={`${contentId}-desc`}
               placeholder="Mulai menulis… gunakan Subjudul (H2) untuk membagi bagian."
@@ -130,7 +128,6 @@ export function PostEditor({
             <SeoFields
               seo={draft.seo}
               errors={errors}
-              media={options.media}
               fallbackTitle={draft.title}
               onChange={(v) => set("seo", v)}
             />
@@ -152,7 +149,6 @@ export function PostEditor({
             <MediaSelect
               label="Gambar sampul"
               value={draft.coverMediaId}
-              media={options.media}
               errors={errors}
               errorKey="coverMediaId"
               onChange={(v) => set("coverMediaId", v)}
