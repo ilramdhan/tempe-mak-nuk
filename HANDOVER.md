@@ -1,4 +1,4 @@
-# HANDOVER — Tempe Mak Nuk (sesi 3 → sesi 4)
+# HANDOVER — Tempe Mak Nuk (sesi 4 → sesi 5)
 
 > Paste blok di bawah ini apa adanya ke sesi Claude Code baru, di root project
 > `/Users/ilhamramadhan/WebstormProjects/tempe-mak-nuk`.
@@ -6,104 +6,171 @@
 ---
 
 ````markdown
-Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen tempe handmade sejak 2001, Klaten). Fase 0–3 selesai, Fase 4 tinggal **P4.5**, Fase 5 sudah separuh. Semua sudah diverifikasi & di-commit. Jangan analisa ulang dari nol; baca file berikut, lalu lanjut **gelombang 3**.
+Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, produsen tempe handmade sejak 2001, Klaten). **Fase 0–6 selesai**: situs publik, admin CMS lengkap, SEO/OG, dan performa. Semua sudah diverifikasi dan di-commit. Tinggal **Fase 7 (QA & rilis)**. Jangan analisa ulang dari nol. Baca file berikut, lalu lanjut ke §9.
 
 ## 1. Baca dulu (urut, jangan skip)
-1. `STATE.md` — ledger status per task (sumber kebenaran progres) + log sesi.
-2. `PLAN.md` — task Fase 4–7: ID, model, dependensi, file ownership, acceptance, template "Protokol Sub-agent".
-3. `PROMPT.md` — spesifikasi lengkap (IA §4, fitur §5, cookie/legal §5.4, design §6, motion §7, SEO §9, security §12).
-4. `docs/brand.md`, `docs/business.md` (data dummy = seed settings), `docs/seo.md`, `docs/photo-brief.md`.
-5. `AGENTS.md` — WAJIB baca docs Next.js bawaan di `node_modules/next/dist/docs` sebelum menulis kode Next.
+1. `STATE.md`: ledger status per task (sumber kebenaran progres) dan log sesi.
+2. `PLAN.md`: Fase 7 (P7.1–P7.5) beserta model, dependensi, ownership, dan template "Protokol Sub-agent".
+3. `PROMPT.md`: spesifikasi (IA §4, fitur §5, cookie/legal §5.4, design §6, motion §7, SEO §9, security §12).
+4. `docs/brand.md`, `docs/business.md`, `docs/seo.md`, `docs/performance.md` (baseline Lighthouse P6.4).
+5. `AGENTS.md`: WAJIB baca docs Next.js bawaan di `node_modules/next/dist/docs` sebelum menulis kode Next.
 
 ## 2. Cara kerja (wajib)
-- Kamu = orkestrator. Kerjakan via sub-agent (Agent tool, `run_in_background`), paralel bila dependensi `done` dan ownership tidak bertumpuk.
-- **Model dinamis:** `model: "opus"` untuk task O (berat/sedang: media, editor, review, audit performa), `model: "sonnet"` untuk task S (ringan: halaman konten, CRUD sederhana, SEO helper, OG, test, docs).
-- **Maks 3 agent bersamaan.** Sesi 3 berulang kali kena `ECONNREFUSED` dan rate limit 429 dengan 5 agent. Bila agent gagal karena API error → `SendMessage` ke agent yang sama ("lanjutkan dari titik terakhir, cek file yang ada dulu") — konteksnya tetap ada. Di setiap prompt minta: **tulis file satu per satu ke disk segera, respons pendek, path absolut untuk Write**.
-- Sub-agent: hanya file ownership-nya + baris task-nya di `STATE.md`; tidak commit; tidak `pnpm add` (orkestrator pasang & commit dulu); tidak `pnpm format` global; **jangan prettier file `src/features/**` yang sudah ada** (repo itu tidak di-prettier — sesi 3 harus revert diff format massal di `pages/actions.ts`).
-- **Dev server:** Next 16 menolak dua `next dev` per repo dan dua `next build` bersamaan. Di prompt: "cek `curl localhost:3101/3103/3104` dulu, pakai yang ada; jangan matikan milik agent lain". Admin: agent tidak punya kredensial login → typecheck/lint/test/build + unit test; route `/dev/*` sementara boleh, hapus sebelum selesai.
-- Setelah agent selesai: orkestrator verifikasi sendiri `pnpm typecheck && pnpm lint && pnpm test && pnpm build` (tunggu `pgrep -f "next build"` kosong), review file yang disentuh di luar ownership (terutama Server Action baru: role, Zod, cakupan id), lalu commit per task dengan trailer `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
-- Jangan percaya klaim sub-agent mentah-mentah. Contoh sesi 3: agent menulis renderer rich-text sendiri (ganti ke `@/lib/rich-text`), hard-code nama produk di form (ganti ke `getProducts()`), import barrel server dari komponen client (build gagal).
+- Kamu orkestrator. Semua pekerjaan lewat sub-agent (Agent tool, `run_in_background`), paralel bila dependensinya `done` dan ownership tidak bertumpuk.
+- **Model hemat:** `model: "sonnet"` untuk semua yang masih sanggup dikerjakan sonnet, yaitu task S (test E2E, docs, README, checklist deploy, CRUD, wiring). `model: "opus"` hanya untuk task berat O: review visual P7.2, security review P7.3, audit lintas file.
+- **Maks 3 agent bersamaan.** Sesi 3 dan 4 berulang kali kena `ECONNREFUSED` atau 429. Bila agent gagal karena API error, kirim `SendMessage` ke agent yang sama: "lanjutkan dari titik terakhir, cek file yang ada di disk dulu". Konteksnya tetap ada dan progresnya ada di disk. Di setiap prompt minta: **tulis file satu per satu ke disk segera, respons akhir pendek, path absolut untuk Write**.
+- Aturan sub-agent:
+  - Hanya menyentuh file ownership-nya dan baris task-nya di `STATE.md`.
+  - Tidak commit.
+  - Tidak `pnpm add`; orkestrator yang memasang paket dan meng-commit dulu.
+  - Tidak `pnpm format` global, dan tidak menjalankan prettier pada file yang sudah ada. Repo ini tidak seluruhnya di-prettier, misalnya `src/app/(site)/page.tsx` dan `src/features/**`.
+- **Dev server / build:** Next 16 menolak dua `next dev` per repo dan dua `next build` bersamaan. Tulis di prompt: "jangan `next build` bila `pgrep -f "next build"` ada (tunggu); uji dengan `next start -p <port bebas 31xx>` dan matikan sesudahnya; jangan matikan server agent lain". Agent tidak punya login admin, jadi admin cukup diverifikasi lewat typecheck/lint/test/build dan unit test.
+- Setelah agent selesai, orkestrator:
+  1. Verifikasi sendiri `pnpm typecheck && pnpm lint && pnpm test && pnpm build`.
+  2. Review file yang disentuh di luar ownership. Untuk Server Action baru, cek role, Zod, dan cakupan id.
+  3. Cek ulang baris ledger. Agent bisa menimpa baris yang sudah diubah orkestrator; di sesi 4, baris P5.7 kembali ke `doing`.
+  4. Set status `done`, lalu commit per task dengan trailer `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
+- Jangan percaya klaim sub-agent mentah-mentah; uji sendiri hasil yang penting. Contoh sesi 4: fallback OG `/opengraph-image` ternyata 404 karena file route OG mendapat hash, dan metadata halaman menimpa file OG per route. Keduanya baru ketahuan lewat `curl` ke `next start`.
 - Laporan ke user dalam Bahasa Indonesia, ringkas.
 
-## 3. Status (per 2026-10-17, HEAD `88ae09c` + update STATE/HANDOVER)
-- **Done:** P0.1–P0.5, P1.1–P1.3, P1.5, P2.*, P3.*, P4.1–P4.4, P4.6–P4.11, P5.1–P5.6.
+## 3. Status (per 2026-10-21, HEAD = commit "docs: session 4 handover")
+- **Done:** P0.1–P0.5, P1.1–P1.3, P1.5, P2.*, P3.*, P4.1–P4.11, P5.1–P5.10, P6.1–P6.4.
 - **Review:** P1.4 (CI siap; link Vercel menunggu akun user).
-- **Todo:** P0.6 (opsional), **P4.5**, **P5.7, P5.8, P5.9, P5.10**, Fase 6 (P6.1–P6.4), Fase 7 (P7.1–P7.5).
-- **Gelombang 3 (maks 3 paralel):**
-  1. P4.5 (S) `/cara-pesan` + kalender slot publik — pakai ulang `SlotCalendar`/`SlotLegend` dari `@/features/orders/components/slot-calendar` (jangan buat kalender baru); ownership `src/app/(site)/cara-pesan/**`, `src/features/slots/components/*`. Setelah selesai, orkestrator ganti `SlotWeek` di `src/components/site/home/slot-teaser.tsx` (ada TODO P4.5).
-  2. P5.7 (S) FAQ (dnd), Testimoni, Navigasi/Footer/Announcement/CTA.
-  3. P5.9 (S) Pengaturan bisnis/SEO/redirect + manajemen pengguna (owner).
-  4. P5.8 (O) Media library — **orkestrator pasang `sharp` dulu** (cek `pnpm view sharp version`, approve build di `pnpm-workspace.yaml` `allowBuilds`), ownership `.../admin/media/**`, `src/app/api/upload/*`. Bucket Supabase Storage perlu dibuat (cek dulu via service role; jika belum ada, buat bucket `media` public-read lewat migrasi/script & laporkan).
-  5. P5.10 (S) Admin Legal & Privasi (owner-only).
-  Lalu Fase 6 (P6.1–P6.3 S, P6.4 O) → Fase 7.
-- **Tugas kecil orkestrator (belum dikerjakan):**
-  - Ganti `RichTextField` di `src/app/(admin)/admin/halaman/_components/fields.tsx` ke `RichTextEditor` (snippet di bawah), lalu hapus `halaman/_lib/rich-text-markdown.ts` (+ test-nya) bila tak dipakai lagi:
-    ```tsx
-    const f = useField<TiptapDoc | null>(path);
-    <Wrap id={f.id} label={label} error={f.error} description={description}>
-      <RichTextEditor id={f.id} value={f.value ?? null} media={f.ctx.options.media}
-        invalid={!!f.error} ariaDescribedBy={describedBy(f.id, !!description, f.error)}
-        onChange={(v) => f.set(nullable ? v : (v ?? emptyDoc()))} />
-    </Wrap>
-    ```
-  - **Keputusan untuk user:** hapus artikel/resep saat ini boleh oleh editor (`deletePost`/`deleteRecipe` tanpa owner check), sedangkan hapus halaman/produk owner-only. Tanyakan apakah perlu diseragamkan ke owner-only.
-  - Dasbor P5.2 menautkan ke `/admin/jurnal/[id]` dan `/admin/resep/[id]` — pastikan cocok dengan rute P5.6.
+- **Todo:** P0.6 (opsional), **P7.1–P7.5**.
+- **Rencana Fase 7 (maks 3 paralel):**
+  1. **P7.1 (S, sonnet): Playwright.**
+     - Orkestrator memasang paket dulu. Cek versi stabil dengan `pnpm view @playwright/test version` dan `pnpm view @axe-core/playwright version`. Lalu `pnpm add -D @playwright/test @axe-core/playwright` dan `pnpm exec playwright install chromium`. Atur `allowBuilds` bila diminta. Commit.
+     - Ownership: `tests/e2e/**`, `playwright.config.ts`, script `test:e2e` di package.json.
+     - Isi: smoke semua route publik, Order Builder sampai URL WA, axe a11y, dan screenshot 375/768/1440 × light/dark.
+     - Admin CRUD butuh login. Pakai env `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD` dengan `test.skip` bila env kosong. Minta user mengisi env itu (akun editor khusus test).
+  2. **P7.3 (O, opus): security review** → `docs/security.md`. Bisa paralel dengan P7.1. Fokus:
+     - RLS vs Drizzle (Drizzle bypass RLS).
+     - Semua `adminAction`/`requireRole`, `POST /api/upload` (same-origin, editor+, sharp, 5 MB), dan redirect di `src/proxy.ts`.
+     - CSP/headers di `next.config.ts`, service role hanya server-only, `inviteUser`, dan public sign-up.
+     - Perbaikan kecil boleh langsung dikerjakan; yang besar dilaporkan.
+  3. **P7.2 (O, opus): visual consistency review** setelah P7.1 (memakai screenshot P7.1) → `docs/qa.md` + perbaikan kecil.
+  4. **P7.4 (S, sonnet):** `README.md` + `docs/admin-guide.md`. Bahasa Indonesia non-teknis untuk pemilik: login, Pengaturan, Halaman, Produk, Media, Jurnal/Resep, Slot, FAQ/Testimoni/Navigasi, Legal, Pengguna.
+  5. **P7.5 (S, sonnet):** checklist deploy Vercel + domain + Search Console + Google Business Profile. Butuh akun user. Siapkan dokumen dan langkahnya, jangan memblokir.
+- **Sisa rekomendasi performa (opsional, dari P6.4):**
+  - TBT beranda ±135 ms. Jalankan animasi below-the-fold (SplitText, ScrollTrigger, PinnedStory) saat idle.
+  - Chunk react-day-picker ±22 kB ter-prefetch dari link `/custom-order` dan `/cara-pesan`. Pakai `prefetch={false}` atau dynamic import `SlotCalendar`.
+  - Atur `browserslist` modern (±14 kB polyfill).
+  - Ukur ulang di Vercel.
+- **Gap fitur kecil (opsional):**
+  - Kelola kategori FAQ/jurnal dari UI belum ada. Action-nya sudah ada di `features/taxonomy`; perlu halaman `/admin/kategori`.
+  - Sitemap belum mengecualikan item `seo.noindex`, karena query slug tidak mengembalikan flag itu.
+  - Halaman CMS di tabel `pages` tanpa route statis tidak punya route publik.
 
 ## 4. Keputusan terkunci
 - **Tagline hero:** "Tiga bahan, tanpa jalan pintas." · Slot/PO: "Tempe yang layak ditunggu." · /tentang: "Dari dapur Mak, tanpa jalan pintas."
-- **Stack terpasang:** Next 16.4.2 (App Router, Turbopack, `cacheComponents: true`, `partialPrefetching: true`), React 19.3, TS 5.9 strict, Tailwind 4.3.3 via `@tailwindcss/turbopack`, shadcn (radix-nova), lucide-react, next-themes, GSAP 3.15 + @gsap/react, Lenis 1.3, Motion 14, Zod 4, Drizzle 0.45 + postgres-js, @supabase/ssr 0.12, react-hook-form, sonner, cmdk, react-day-picker, Vitest 5, pnpm 12.8, **@tanstack/react-table 9.3 (API v9!), @dnd-kit core 6.3/sortable 10/utilities 3.2 (tanpa modifiers), Tiptap 3.32 (react, pm, core, starter-kit — sudah termasuk Link & Underline, extension-image, extension-placeholder), @vercel/analytics 2.0 + speed-insights 2.0**.
-- **Belum terpasang:** sharp (P5.8), Playwright + @axe-core/playwright (P7.1), TanStack Query (belum dibutuhkan).
-- Tidak ada nilai bisnis di-hard-code — selalu `getSettings()` / query DB.
-- Testimoni placeholder wajib berlabel. Gizi TKPI sama untuk 2 varian (perlu verifikasi owner). Legal = "Dokumen contoh — perlu ditinjau ahli hukum".
-- Cookie consent: `settings["consent.config"]`, cookie `tmn_consent`; analytics hanya setelah consent.
+- **Stack terpasang:**
+  - Next 16.4.2 (App Router, Turbopack, `cacheComponents: true`, `partialPrefetching: true`), React 19.3, TS 5.9 strict, Tailwind 4.3.3, shadcn (radix-nova).
+  - lucide-react, next-themes, GSAP 3.15 + @gsap/react, Lenis 1.3, Motion 14.
+  - Zod 4, Drizzle 0.45 + postgres-js, @supabase/ssr 0.12, react-hook-form, sonner, cmdk, react-day-picker, Vitest 5, pnpm 12.8.
+  - @tanstack/react-table 9.3 (API v9!), @dnd-kit (core 6.3 / sortable 10 / utilities 3.2), Tiptap 3.32, @vercel/analytics 2.0 + speed-insights 2.0.
+  - **sharp 0.35.5** (sesi 4).
+- **Belum terpasang:** Playwright + @axe-core/playwright (P7.1).
+- Tidak ada nilai bisnis yang di-hard-code; selalu lewat `getSettings()` atau query DB.
+- Testimoni placeholder wajib berlabel. Legal ditandai "Dokumen contoh — perlu ditinjau ahli hukum".
+- Cookie consent di `settings["consent.config"]`, cookie `tmn_consent`. Analytics (dynamic import) hanya dimuat setelah consent. Banner consent ada di HTML statis: skrip pra-paint menyembunyikannya bila keputusan sudah ada (fix LCP P6.4); jangan dijadikan client-only lagi.
+- Role:
+  - **Owner-only:** hapus halaman/produk/media/FAQ/testimoni/navigasi, Legal, Pengguna, Redirect, serta grup settings business/legal/halal/order/consent/private/site.
+  - **Editor:** grup contact/social/seo/cta dan CRUD konten.
+  - **Hapus artikel/resep masih boleh oleh editor.** Ini menunggu keputusan user (§8).
 
 ## 5. API yang sudah ada (pakai, jangan duplikasi)
-- **Design tokens / primitives / UI / brand / theme / motion:** sama seperti sesi 2 — `@/components/site/primitives` (Container, Section, Heading, Eyebrow, Lead, Prose, Grid, Stack, Divider; gap hanya skala token), `@/components/ui/*` (pakai `field`, bukan `form`), `@/components/brand/{logo,textures}`, `@/components/motion` (import gsap dari sini). `cn()` sudah kenal token custom; token baru di `@theme` → tambahkan di `src/lib/utils.ts`.
-- **Data (server-only, cached):** `src/features/<domain>/queries.ts` — settings, pages (+`<BlockRenderer>`, 17 blok), navigation, products, posts, recipes, taxonomy, faqs, testimonials, slots (`getAvailability({now,days})`), legal (`getLegalDocument`, `LEGAL_ROUTES`), media (`getMediaByIds`). Pure: `features/slots/availability.ts`, `lib/dates` (+ `dateKeyToLocalDate/localDateToDateKey`), `lib/wa-link`, `lib/rich-text` (`RichText`, `renderRichText`, `extractHeadings`, `richTextToPlainText`, `TiptapDoc`), `features/_shared/format`.
-- **Situs publik:** layout `(site)` sudah render `<main id="main">`, header, footer, FloatingWhatsApp, **ConsentManager** → halaman tidak render `<main>`. `<Breadcrumb>` + `serializeJsonLd` dari barrel `@/components/site/layout` **hanya di server component**; di client impor langsung `@/components/site/layout/wa-link` (barrel menarik kode server-only → build gagal). Semua CTA WA via `<WaLink source kind variant?>`.
-- **Order (P4.4)** `@/features/orders`: `SlotCalendar({days, today?, selected?, onSelect?, numberOfMonths?})` (tanpa `onSelect` = read-only) + `SlotLegend` di `components/slot-calendar`; `checkUseDate`, `leadTimeMessage`, `orderWindowEnd`, `ORDER_WINDOW_DAYS`; katalog/skema/pesan (`buildOrderWaLink`), draft localStorage.
-- **Consent (P4.11)** `@/features/consent`: `ConsentManager` (sudah di layout), `ConsentSettingsButton` (sudah di footer), `useConsent(category)`.
-- **Admin shell:** `<PageHeader>` (satu h1), `<RoleGate role="owner">` (UI saja), `useAdminUser/useHasRole`, `adminAction({role, schema, input, entity, action, run})`. Owner-only di server WAJIB lewat action.
-- **Pola admin yang sudah jadi (ikuti, jangan tulis ulang):**
-  - `admin/halaman/**` — editor dengan `_components/use-unsaved-guard`, `fields.tsx` (useField, Wrap, describedBy), error mapping server → field, sortable list dnd + keyboard, preview, `savePageContent` (transaksi + optimistic lock `updatedAt`).
-  - `admin/slot/_components/use-action.ts` — `useAdminMutation`.
-  - `admin/produk/_components/sortable-list.tsx` — list dnd reusable.
-  - `admin/jurnal/_shared/*` — editor konten bersama (slug otomatis, status + jadwal WIB, SEO fields, cover dari media).
-  - `@/components/admin/editor` — `RichTextEditor({value, onChange, media?, invalid?, ariaDescribedBy?})` (mount client-only; Tiptap `useEditor` memanggil `Math.random()` saat render yang ditolak cacheComponents).
-  - Media dipilih via select dari media yang ada (maks 200) → P5.8 menggantinya dengan media picker penuh (buat komponen picker reusable dan laporkan titik penggantian di produk/jurnal/resep/halaman).
+- **UI:**
+  - `@/components/site/primitives` (Container, Section, Heading, Eyebrow, Lead, Prose, Grid, Stack, Divider).
+  - `@/components/ui/*` (pakai `field`, bukan `form`).
+  - `@/components/brand/*`.
+  - `@/components/motion` (import gsap dari sini; Lenis/GSAP di-load lazy di `lenis-provider.tsx`).
+  - `cn()` sudah mengenal token custom.
+- **Data (server-only, cached):** `src/features/<domain>/queries.ts` untuk settings, pages (+`<BlockRenderer>`), navigation, products, posts, recipes, taxonomy, faqs, testimonials, slots (`getAvailability`), legal, media (`getMediaByIds`), dan `getRedirects`.
+  - Admin: `queries.admin.ts`.
+  - Domain baru sesi 4: `features/redirects` (`saveRedirect`/`removeRedirect` owner, `match.ts`, `logic.ts`) dan `features/users` (`setUserRole`/`inviteUser` owner, `listUsersForAdmin`).
+- **SEO (P6.1):** `@/lib/seo`.
+  - Metadata: `buildMetadata` (pure), `pageMetadata` dan `rootMetadata` (server).
+  - JSON-LD builders: organization, foodEstablishment, webSite, breadcrumbList, product (tanpa rating palsu), article, recipe (`isoDuration`), faqPage, howTo, webPage, itemList.
+  - Komponen `<JsonLd>`, plus `siteBaseUrl`/`absoluteUrl`.
+  - Route yang punya file `opengraph-image` sendiri (beranda, produk/jurnal/resep `[slug]`) memanggil `pageMetadata({ ogImageFile: true, ... })`. Route lain otomatis memakai `/og-default.png` (`src/app/og-default.png/route.tsx`). **Route baru yang punya file OG wajib `ogImageFile: true`**, karena `openGraph.images` dari metadata menimpa file OG.
+- **OG (P6.3):** `@/lib/og` (`renderOg`, `truncate`, `OG_TAGLINE`). Font Fraunces 600 ada di `src/lib/og/fonts`. Cover WebP/AVIF dikonversi sharp ke JPEG.
+- **SEO files (P6.2):** `src/app/{sitemap,robots,manifest}.ts`.
+  - Robots mengizinkan semua kecuali saat `VERCEL_ENV` ada dan bukan production.
+  - **`NEXT_PUBLIC_SITE_URL` wajib di produksi**; kalau kosong, canonical/sitemap memakai localhost.
+  - Redirect DB dibaca `src/proxy.ts` dengan cache memori TTL 60 s per instance. Perubahan di admin berlaku ≤60 s.
+- **Slot:** `@/features/slots/components/public-slot-calendar` (`PublicSlotCalendar({days})`) dan `slot-week-strip` (`SlotWeekStrip({days})`). Keduanya server component yang sudah membungkus Suspense + `connection()` sendiri. `SlotCalendar`/`SlotLegend` ada di `@/features/orders/components/slot-calendar`.
+- **Media (P5.8):**
+  - `POST /api/upload` (multipart `file` + `alt`; editor+, same-origin; sharp: rotate, strip, ≤2400 px WebP q80, blurDataUrl; maks 5 MB; path `uploads/YYYY/MM/<uuid>.webp`).
+  - Actions di `features/media/library-actions.ts`: `searchMediaLibrary`, `getMediaLibraryItem`, `getMediaUsageAction` (editor) dan `deleteMediaAndFile` (owner, cek pemakaian).
+  - **Picker:** `MediaPicker` / `MediaPickerDialog` dari `@/components/admin/media-picker`. Sudah dipasang di semua form admin; loader `listMediaForAdmin({limit:200})` lama sudah dihapus.
+  - Bucket Storage `media` (public-read) dibuat dengan `pnpm tsx --env-file=.env scripts/dev/ensure-media-bucket.mts`. Skripnya idempoten; **jalankan lagi di setiap project Supabase baru**.
+- **Admin shell / pola:**
+  - `<PageHeader>`, `<RoleGate role="owner">` (UI saja), `adminAction({role, schema, input, entity, action, run})`, `requireRole(role, {onFail:"redirect"})`, `useAdminMutation` (`admin/slot/_components/use-action.ts`), `use-unsaved-guard` (halaman), `sortable-list` (produk).
+  - Editor konten bersama ada di `admin/jurnal/_shared/*`. `RichTextEditor({id?, value, onChange, invalid?, ariaDescribedBy?})` dari `@/components/admin/editor`; prop `media` sudah dihapus dan gambar dipilih lewat picker.
+- **Situs publik:**
+  - Layout `(site)` sudah me-render `<main id="main">`, header, footer, FloatingWhatsApp, dan ConsentManager, jadi halaman tidak boleh me-render `<main>` sendiri.
+  - Barrel `@/components/site/layout` hanya untuk server component. Dari client, impor langsung `.../wa-link`.
+  - Semua CTA WhatsApp lewat `<WaLink source kind>`.
 
 ## 6. Gotcha teknis (sudah pernah kena)
-- `cacheComponents`: baca DB di page butuh `"use cache"` atau `await connection()` dalam `<Suspense>`. `generateStaticParams` WAJIB mengembalikan ≥1 hasil → kalau query gagal saat build (fallback `[]`), build gagal "must return at least one result".
-- **Build & DB (sesi 3):** `next build` = 14 worker paralel. `src/db/client.ts` memakai `max: 1` koneksi saat `NEXT_PHASE=phase-production-build` (tanpanya query `use cache` legal timeout). Build tetap via `DATABASE_URL` pooler 6543: host direct `db.<ref>.supabase.co` **IPv6-only** (ENOTFOUND di mesin ini) dan port session pooler 5432 **diblokir** jaringan ini. Jangan ubah tanpa uji `pnpm build` 2×.
-- Next 16: middleware = `src/proxy.ts`; Server Action `updateTag`; route handler `revalidateTag(tag, "max")`; `error.tsx` prop = `retry` (bukan `reset`).
-- Jangan import db top-level; `getDb()` dalam fungsi. Drizzle bypass RLS → setiap action cek role.
-- `pnpm typecheck` = `next typegen && tsc --noEmit`. pnpm 12 `allowBuilds` di `pnpm-workspace.yaml` untuk paket dengan build script.
-- CSP `next.config.ts`: `'unsafe-inline'` script; `frame-src` sudah Google Maps; host gambar dari `NEXT_PUBLIC_SUPABASE_URL` saat build.
-- shadcn CLI menimpa `globals.css`/`layout.tsx`/`lib/utils.ts` → cek `git diff` setelah `shadcn add`.
-- jsonb parser raw text (oid 114/3802) sudah di `src/db/client.ts`; skrip yang membuat `postgres()` sendiri perlu override yang sama bila membaca jsonb via drizzle.
-- `usePathname`/`useSearchParams` di client island → bungkus `<Suspense>`. `new Date()` di komponen statis → fungsi `"use cache"`.
-- Koordinasi STATE.md: agent yang lama berjalan bisa menimpa baris yang sudah diubah orkestrator (P5.2 sempat kembali ke `doing`). Cek ulang ledger sebelum commit.
-- Port 54321 di mesin ini = SSH tunnel (bukan Supabase lokal). Proses lain `next-server v16.3.4` (9router) bukan milik project.
-- Headless Chrome `--window-size` min ~500px; 375px via CDP `Emulation.setDeviceMetricsOverride` (Playwright setelah P7.1).
+- `cacheComponents`:
+  - Baca DB di page butuh `"use cache"` atau `await connection()` di dalam `<Suspense>`.
+  - `generateStaticParams` wajib mengembalikan ≥1 hasil (OG `[slug]` memakai fallback `_`).
+  - `new Date()` hanya boleh di fungsi `"use cache"` atau setelah `connection()`.
+- **Build & DB:**
+  - `next build` jalan dengan 14 worker. `src/db/client.ts` memakai `max: 1` koneksi saat `NEXT_PHASE=phase-production-build`.
+  - `DATABASE_URL` memakai pooler port 6543. Host direct IPv6-only dan port 5432 diblokir di jaringan ini.
+  - Jangan ubah konfigurasi ini tanpa menguji `pnpm build` 2×.
+- Next 16:
+  - Middleware ada di `src/proxy.ts`; `"use cache"` tidak berlaku di proxy.
+  - Server Action memakai `updateTag`; route handler memakai `revalidateTag(tag, "max")`.
+  - Prop `error.tsx` bernama `retry`.
+  - `next/image` memakai `preload` (`priority` sudah deprecated).
+  - File route `opengraph-image` mendapat hash pada URL-nya.
+- `experimental.inlineCss` sudah dicoba dan memperburuk hasil (HTML 1.16 MB). Jangan dipakai.
+- Jangan import db di top-level; panggil `getDb()` di dalam fungsi. Drizzle bypass RLS, jadi setiap action wajib cek role.
+- `pnpm typecheck` = `next typegen && tsc --noEmit`. Paket dengan build script perlu didaftarkan di `allowBuilds` (`pnpm-workspace.yaml`).
+- CSP di `next.config.ts`: script `'unsafe-inline'`; `frame-src` Google Maps; host gambar diambil dari `NEXT_PUBLIC_SUPABASE_URL` saat build.
+- shadcn CLI menimpa `globals.css`/`layout.tsx`/`lib/utils.ts`, jadi cek `git diff` setelah `shadcn add`.
+- Parser jsonb raw text ada di `src/db/client.ts`. Skrip yang membuat koneksi `postgres()` sendiri perlu override yang sama.
+- `usePathname`/`useSearchParams` di client island harus dibungkus `<Suspense>`.
+- Lingkungan lokal:
+  - Port 54321 adalah SSH tunnel.
+  - `next-server v16.3.4` (9router) bukan milik project.
+  - Lighthouse 13.5 tersedia di cache npx.
+  - Headless Chrome 375px lewat CDP `Emulation.setDeviceMetricsOverride`.
 
 ## 7. Lingkungan lokal
-- **DB = Supabase remote** (project `mzzktbvkdpwxufaipbla`, region ap-northeast-1). Sudah dimigrasi (3 migrasi tercatat di `drizzle.__drizzle_migrations`) dan di-seed (50 settings, 2 produk, 11 halaman/63 section, 27 FAQ, 8 artikel, 6 resep, legal 4, slot). Latensi ±700 ms/koneksi.
-- `.env` (tidak di-commit) berisi kredensial Supabase + secrets. `.env.local` sekarang hanya `SKIP_ENV_VALIDATION=1`, `NEXT_PUBLIC_SITE_URL`, secrets (baris DB Docker dikomentari). Backup versi Docker: `.env.local.docker.bak` (untracked; jangan commit). Container `tmn-dev` (port 54329) masih ada sebagai cadangan offline.
-- **Auth:** akun owner sudah dibuat user (profiles.role = owner, terkonfirmasi). **Public sign-up masih aktif** (`disable_signup: false`) → ingatkan user mematikannya.
-- Perintah: `pnpm dev`, `pnpm db:migrate`, `pnpm db:seed` (idempotent), `pnpm db:generate`, validasi seed: `pnpm tsx --tsconfig tsconfig.json scripts/dev/validate-sections.mts`. Cek DB cepat: skrip node kecil `postgres(process.env.DATABASE_URL)` dengan `node --env-file=.env` (hapus skrip setelahnya).
-- Chrome: `/Applications/Google Chrome.app` (Playwright belum terpasang).
+- **DB = Supabase remote** (project `mzzktbvkdpwxufaipbla`, ap-northeast-1).
+  - Sudah dimigrasi dan di-seed: 50 settings, 2 produk, 11 halaman, 27 FAQ, 8 artikel, 6 resep, 4 legal, slot.
+  - Bucket `media` sudah ada.
+  - Latensi ±700 ms per koneksi.
+- `.env` (tidak di-commit) berisi kredensial Supabase dan secrets. `.env.local` berisi `SKIP_ENV_VALIDATION=1`, `NEXT_PUBLIC_SITE_URL`, dan secrets.
+- `.env.local.docker.bak` untracked; **jangan di-commit**. Container `tmn-dev` (port 54329) dipertahankan sebagai cadangan offline.
+- **Auth:** akun owner sudah ada. **Public sign-up masih aktif.** Ingatkan user untuk mematikannya.
+- Perintah:
+  - `pnpm dev`, `pnpm build`, `pnpm test`, `pnpm lint`, `pnpm typecheck`.
+  - `pnpm db:migrate`, `pnpm db:seed` (idempoten), `pnpm db:generate`.
+  - Validasi seed: `pnpm tsx --tsconfig tsconfig.json scripts/dev/validate-sections.mts`.
+- Status sesi 4 terakhir: lint ✓, typecheck ✓, 316 test ✓ (17 skip), build ✓.
 
 ## 8. Menunggu dari user (jangan memblokir)
 - Matikan "Allow new users to sign up" di Supabase Auth.
-- Uji manual admin setelah login (belum ada yang verifikasi visual dengan sesi nyata): `/admin`, `/admin/halaman` (simpan/hapus/pratinjau), `/admin/slot`, `/admin/produk`, `/admin/jurnal`, `/admin/resep`.
-- Keputusan: hapus artikel/resep owner-only atau tidak (§3).
-- Akun/Project Vercel + domain → env Vercel (termasuk `DATABASE_URL` pooler 6543, `DIRECT_URL`, Supabase keys, secrets), push repo ke GitHub (belum ada remote).
-- Data asli (WA, alamat, nomor halal, foto) → lewat Admin → Pengaturan setelah P5.9.
+- **Uji manual admin setelah login** (belum pernah diuji dengan sesi nyata): semua modul `/admin/*`, terutama upload media, MediaPicker, Pengaturan, Pengguna (undang butuh SMTP Supabase dan redirect URL), Redirect, Legal, dan consent.
+- Keputusan: hapus artikel/resep dijadikan owner-only atau tidak.
+- Akun/project Vercel dan domain:
+  - Env Vercel: `DATABASE_URL` pooler 6543, `DIRECT_URL`, Supabase keys, `SUPABASE_SERVICE_ROLE_KEY`, secrets, **`NEXT_PUBLIC_SITE_URL`**.
+  - Push repo ke GitHub (belum ada remote).
+- Akun editor khusus E2E (`E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`) untuk P7.1.
+- Data asli (WA, alamat, nomor halal, foto) diisi lewat Admin → Pengaturan / Media.
 
 ## 9. Mulai sekarang
-1. `git log --oneline | head`, `git status` (hanya `.env.local.docker.bak` untracked), lalu `pnpm typecheck && pnpm test`.
-2. Tambah baris log sesi 4 di `STATE.md`; ubah task yang diluncurkan ke `doing`.
-3. Luncurkan P4.5, P5.7, P5.9 (3 Agent call dalam satu pesan, sonnet). Sambil menunggu: kerjakan tugas kecil orkestrator (§3: RichTextEditor di page builder). Saat slot kosong: pasang `sharp` → P5.8 (opus), lalu P5.10.
-4. Setelah Fase 5 selesai → Fase 6 (P6.1/P6.2/P6.3 sonnet paralel, lalu P6.4 opus) → Fase 7.
-5. Setiap task: verifikasi sendiri (typecheck/lint/test/build), review kode di luar ownership, set `done`, commit per task.
+1. Cek awal:
+   - `git log --oneline | head` dan `git status`; yang untracked seharusnya hanya `.env.local.docker.bak`.
+   - `pnpm typecheck && pnpm test`.
+2. Tambah baris log sesi 5 di `STATE.md`, lalu ubah status task yang diluncurkan ke `doing`.
+3. Pasang Playwright dan axe (§3 P7.1), lalu commit.
+4. Luncurkan P7.1 (sonnet) dan P7.3 (opus) paralel, plus P7.4 (sonnet) bila slot cukup. Maks 3 agent.
+5. Setelah P7.1 selesai, luncurkan P7.2 (opus). P7.5 (sonnet) terakhir.
+6. Setiap task: verifikasi sendiri, review, set `done`, commit per task. Di akhir sesi, perbarui `HANDOVER.md` dan `STATE.md`.
 ````

@@ -6,8 +6,8 @@
 
 ## Ringkasan
 
-- **Fase aktif:** 5 (Fase 0–3 selesai; Fase 4 tinggal P4.5)
-- **Terakhir diperbarui:** 2026-10-17
+- **Fase aktif:** 7 (Fase 0–6 selesai; tinggal P0.6 opsional, P1.4 menunggu Vercel)
+- **Terakhir diperbarui:** 2026-10-21
 - **Branch / commit terakhir:** main / lihat `git log`
 - **Preview URL:** —
 
@@ -94,4 +94,4 @@
 | 2026-10-16 | sesi 2 | P4.1 + P5.1 done (diverifikasi orkestrator). Fix: drizzle jsonb double-parse (`src/db/client.ts` parser raw text utk oid 114/3802 → string angka spt nomor WA tidak lagi jadi number), `cn()` extendTailwindMerge utk token custom (text-h1…eyebrow, spacing, container), placeholder `/` tanpa `<main>` ganda. HANDOVER.md diperbarui | Gelombang 2: P4.2–P4.11 + P5.2–P5.10 |
 | 2026-10-16 | sesi 3 | DB Supabase (remote) di-seed + tabel jejak drizzle dibuat; `.env.local` diarahkan ke Supabase; dep tanstack-table + dnd-kit. Gelombang 2 prio 1 diluncurkan: P4.2, P4.3, P4.4, P5.3, P5.5 | P4.5–P4.11, P5.2–P5.10 |
 | 2026-10-17 | sesi 3 (lanjutan) | Done: P4.2, P4.3, P4.4, P4.6–P4.11, P5.2, P5.3, P5.4, P5.5, P5.6. Fix build: `src/db/client.ts` 1 koneksi/worker saat `next build` (pooler 6543 + 14 worker → timeout `use cache`). Consent dipasang di layout (site) + tombol footer. Dep: tanstack-table, dnd-kit, tiptap 3.32 (+core), vercel analytics/speed-insights. API/agent error berulang (ECONNREFUSED/429) → maks 3 agent paralel | P4.5, P5.7–P5.10, Fase 6–7 |
-| 2026-10-17 | sesi 4 | Gelombang 3 diluncurkan: P4.5, P5.7, P5.9 (sonnet) | P5.8, P5.10, Fase 6–7 |
+| 2026-10-21 | sesi 4 | Done: P4.5, P5.7–P5.10 (+ MediaPicker dipasang di semua form admin), P6.1–P6.4. Bucket Storage `media` dibuat (skrip `scripts/dev/ensure-media-bucket.mts`). Dep: sharp 0.35.5. Fix orkestrator: page builder pakai RichTextEditor; ikon PNG manifest; OG fallback stabil `/og-default.png` (route file OG ber-hash). LCP mobile <2 s (docs/performance.md). Agent putus ECONNREFUSED 3× → dilanjutkan via SendMessage | Fase 7 (P7.1–P7.5) |
