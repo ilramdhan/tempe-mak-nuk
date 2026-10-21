@@ -126,3 +126,71 @@ NAP (Name, Address, Phone) harus **identik** dengan yang tampil di situs dan di 
 `/api/cron/publish` (harian 17:07 UTC = 00:07 WIB, `vercel.json`) meng-expire tag cache `posts`/`recipes`/`legal` (+ slug terkait) bila ada konten yang `publishedAt`/`effectiveAt`-nya terlewati dalam 25 jam terakhir (`?window=1500`; default tanpa parameter 20 menit, maks 7 hari). Auth: `Authorization: Bearer $CRON_SECRET` (401 bila salah, 500 bila secret tidak diset).
 
 **Vercel Hobby hanya mengizinkan cron harian** (dan waktu eksekusinya bisa meleset dalam jam yang sama), karena itu jadwalnya harian dengan jendela 25 jam yang saling tumpang-tindih. Konten berjadwal tampil paling lambat sekitar pukul 00:07 WIB setelah waktu terbitnya, atau lebih cepat bila cache `hours` kedaluwarsa. Menerbitkan konten **tanpa** tanggal masa depan selalu langsung tampil. Bila suatu saat butuh tepat waktu: pindah ke Pro (`*/15 * * * *`, hapus `?window`) atau panggil endpoint ini dari scheduler eksternal dengan header `Authorization: Bearer $CRON_SECRET`.
+
+## Self-host dengan Docker
+
+Alternatif Vercel: image container dari `Dockerfile` (Next.js `output: "standalone"`, `node:22-alpine`, user non-root `nextjs` uid 1001, port 3000, `HEALTHCHECK` ke `/robots.txt`). Vercel tidak terpengaruh: `output: "standalone"` diabaikan oleh builder Vercel, dan `next start` lokal/CI tetap jalan (hanya mencetak peringatan).
+
+Pembagian variabel:
+
+| Jenis | Variabel | Cara masuk |
+| --- | --- | --- |
+| Publik, **ter-bake saat build** | `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL` (juga host CSP + `images.remotePatterns`), `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `--build-arg`. Mengubahnya = build ulang image. |
+| DB saat build | `DATABASE_URL` (pooler 6543) | BuildKit secret `id=database_url`, hanya ter-mount di langkah `pnpm build`; tidak tersimpan di layer, history, maupun provenance. Wajib: `next build` prerender halaman `"use cache"` dari DB dan `generateStaticParams` harus mengembalikan ≥1 slug (tanpa DB build gagal). |
+| Secret runtime | `DATABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `CRON_SECRET`, `REVALIDATE_SECRET` (+ ketiga `NEXT_PUBLIC_*` agar validasi env server lolos) | `--env-file` / env orchestrator saat `docker run`. **Jangan** set `SKIP_ENV_VALIDATION` di runtime. |
+
+### Build lokal
+
+```bash
+set -a; . ./.env; set +a    # memuat nilai ke shell, tidak mencetak
+docker buildx build --load \
+  --build-arg NEXT_PUBLIC_SITE_URL="$NEXT_PUBLIC_SITE_URL" \
+  --build-arg NEXT_PUBLIC_SUPABASE_URL="$NEXT_PUBLIC_SUPABASE_URL" \
+  --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="$NEXT_PUBLIC_SUPABASE_ANON_KEY" \
+  --secret id=database_url,env=DATABASE_URL \
+  -t tempe-mak-nuk:local .
+```
+
+Atau `make docker-build`. Multi-arch: tambah `--platform linux/amd64,linux/arm64` (butuh QEMU/binfmt; pakai `--push` ke registry, bukan `--load`).
+
+Bila build lokal gagal dengan `A "use cache" function took too long during prerendering` saat memakai pooler Supabase remote, build terhadap Postgres lokal yang sudah di-seed (lihat `ci.yml`: `scripts/ci/bootstrap.sql` → `scripts/dev/migrate.mts` → `pnpm db:seed`, set `DATABASE_URL` **dan** `DIRECT_URL` ke DB lokal) lalu jalankan dengan `--network host` agar BuildKit bisa menjangkau `127.0.0.1`. Konten statis di-render ulang dari DB produksi saat cache kedaluwarsa / tag di-revalidate.
+
+### Run
+
+```bash
+docker run -d --name tempe -p 3000:3000 --env-file .env --restart unless-stopped tempe-mak-nuk:local
+docker inspect --format '{{.State.Health.Status}}' tempe   # healthy setelah ±20 detik
+```
+
+Atau `make docker-run`. Catatan:
+
+- Taruh reverse proxy (Caddy/nginx/Traefik) dengan TLS di depan container; header keamanan (CSP, HSTS, dll.) sudah dikirim aplikasi.
+- Cache Next (`"use cache"`, ISR, gambar teroptimasi) disimpan di `/app/.next/cache` dalam container; hilang saat container diganti. Untuk >1 replika butuh cache handler bersama (lihat docs Next "Self-Hosting").
+- Cron Vercel (`vercel.json`) tidak jalan di Docker. Jadwalkan sendiri: `curl -fsS -H "Authorization: Bearer $CRON_SECRET" https://<domain>/api/cron/keepalive` (harian) dan `/api/cron/publish?window=1500` (harian).
+- Vercel Analytics/Speed Insights tidak mengirim data di luar Vercel.
+
+### Image GHCR (CI)
+
+`.github/workflows/docker.yml`:
+
+- **Pull request** yang menyentuh `Dockerfile`, `.dockerignore`, `next.config.ts`, `package.json`, lockfile: build amd64 tanpa push terhadap Postgres service ber-seed (data dummy, nilai `NEXT_PUBLIC_*` dummy) + Trivy.
+- **Rilis** (job `docker` di `release-please.yml`, saat `release_created`) atau **manual** (`workflow_dispatch`, input `tag`/`version`): build amd64 → Trivy (gagal bila ada CRITICAL/HIGH yang punya perbaikan; SARIF diunggah ke Code scanning kategori `trivy-image`) → build + push `linux/amd64,linux/arm64` ke `ghcr.io/ilramdhan/tempe-mak-nuk` dengan SBOM + provenance `mode=max` → tanda tangan cosign keyless by digest.
+- Tag: `X.Y.Z`, `X.Y`, `latest` (hanya rilis/`version` diisi), dan `sha-<7>`.
+
+Yang harus dibuat sekali di GitHub (*Settings → Secrets and variables → Actions*):
+
+- [ ] **Variables**: `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (nilai produksi; ikut ter-bake di image publik, jadi hanya nilai yang memang publik).
+- [ ] **Secret**: `DOCKER_BUILD_DATABASE_URL` (pooler 6543 produksi; idealnya role read-only). Tanpa ini job publish berhenti dengan error yang jelas.
+- [ ] Setelah push pertama: *Profile/Org → Packages → tempe-mak-nuk → Package settings → Change visibility → Public* (sekali saja; paket GHCR baru selalu private), dan pastikan repo tertaut ke paket.
+
+Image GHCR berisi nilai `NEXT_PUBLIC_*` produksi dari repo vars. Untuk domain/project Supabase lain, build sendiri dengan build-arg Anda.
+
+### Verifikasi tanda tangan
+
+```bash
+cosign verify ghcr.io/ilramdhan/tempe-mak-nuk:<tag> \
+  --certificate-identity-regexp '^https://github\.com/ilramdhan/tempe-mak-nuk/\.github/workflows/(docker|release-please)\.yml@' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+```
+
+Untuk rilis, identitas sertifikat adalah workflow pemanggil (`release-please.yml@refs/heads/main`); untuk `workflow_dispatch` adalah `docker.yml@<ref>`. SBOM & provenance: `docker buildx imagetools inspect ghcr.io/ilramdhan/tempe-mak-nuk:<tag> --format '{{ json .Provenance }}'` (atau `.SBOM`).
