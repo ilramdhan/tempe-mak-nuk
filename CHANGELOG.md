@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.3](https://github.com/ilramdhan/tempe-mak-nuk/compare/v0.1.2...v0.1.3) (2026-10-22)
+
+
+### Perbaikan
+
+* **data:** log the driver cause behind failed public queries ([#20](https://github.com/ilramdhan/tempe-mak-nuk/issues/20)) ([b7638ba](https://github.com/ilramdhan/tempe-mak-nuk/commit/b7638bad5fd6db0dee9ec3cb6c713d03a8d84d9e))
+* **db:** disable postgres-js pipelining for Supabase transaction pooler ([#21](https://github.com/ilramdhan/tempe-mak-nuk/issues/21)) ([5188a88](https://github.com/ilramdhan/tempe-mak-nuk/commit/5188a8873ac10db3f8ee7812d704cdbd0217c73a))
+
+
+### Dokumentasi
+
+* session 8 handover and ledger update ([#19](https://github.com/ilramdhan/tempe-mak-nuk/issues/19)) ([d7fb66b](https://github.com/ilramdhan/tempe-mak-nuk/commit/d7fb66bf802fa41e34f2e62c70da8078bf71d617))
+
 ## [0.1.2](https://github.com/ilramdhan/tempe-mak-nuk/compare/v0.1.1...v0.1.2) (2026-10-21)
 
 
