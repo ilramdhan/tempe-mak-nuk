@@ -58,7 +58,7 @@ make bucket            # buat bucket media di Supabase Storage
 pnpm dev               # http://localhost:3000
 ```
 
-Gunakan `make db-migrate`, bukan `pnpm db:migrate`: yang kedua memakai `DIRECT_URL` port 5432 yang sering diblokir dan gagal tanpa pesan.
+Gunakan `make db-migrate`, bukan `pnpm db:migrate`: yang kedua memakai `DIRECT_URL` (host direct Supabase hanya IPv6) yang sering tak terjangkau dan gagal tanpa pesan.
 
 Pengguna pertama yang dibuat di Supabase Auth otomatis menjadi `owner` (trigger `on_auth_user_created`, lihat `src/db/schema/profiles.ts`).
 
@@ -78,7 +78,7 @@ Pintasan via `Makefile`: jalankan `make` untuk daftar lengkap. Yang paling serin
 | `make db-status` / `db-migrate`                         | Status / terapkan migrasi lewat pooler 6543 (`scripts/dev/migrate.mts`) |
 | `make db-seed` / `bucket`                               | Seed / bucket Storage `media`                                           |
 
-`pnpm db:migrate` (drizzle-kit) memakai `DIRECT_URL` port 5432 yang sering diblokir dan gagal tanpa pesan; pakai `make db-migrate`.
+`pnpm db:migrate` (drizzle-kit) memakai `DIRECT_URL` (host direct Supabase hanya IPv6) yang sering tak terjangkau dan gagal tanpa pesan; pakai `make db-migrate`.
 
 Script pnpm:
 

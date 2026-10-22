@@ -18,11 +18,12 @@ Acuan: `README.md`, `docs/security.md`, `docs/seo.md`, `docs/performance.md`, `d
 Ambil nilai dari Dashboard: *Project Settings → API* (URL, anon key, service role key) dan *Connect* (string koneksi).
 
 - [ ] Isi `.env` lokal: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL` (pooler transaksi, port **6543**), `DIRECT_URL` (port 5432), `NEXT_PUBLIC_SITE_URL`, `CRON_SECRET`, `REVALIDATE_SECRET` (dua terakhir min. 16 karakter acak, mis. `openssl rand -hex 32`).
-- [ ] **Migrasi** (`drizzle/0000`–`0003`):
-  - `pnpm db:migrate` memakai `DIRECT_URL` (5432). Jika jaringan memblokir 5432, pakai `make db-migrate` (`scripts/dev/migrate.mts`, lewat pooler 6543 / `DATABASE_URL`).
+- [ ] **Migrasi** (`drizzle/0000`–`0004`):
+  - `pnpm db:migrate` memakai `DIRECT_URL`. Host direct `db.<ref>.supabase.co` hanya IPv6, jadi sering tak terjangkau; pakai `make db-migrate` (`scripts/dev/migrate.mts`, lewat `DATABASE_URL`).
+  - Pooler Supabase: **runtime wajib pooler transaksi 6543** (session pooler 5432 dibatasi `pool_size` 15 klien → `EMAXCONNSESSION`). `src/db/client.ts` mematikan pipelining postgres-js (`max_pipeline: 0`) karena pooler transaksi macet bila satu koneksi menerima query kedua. Saat `next build`, `src/db/build-url.ts` otomatis memakai session pooler 5432 di host yang sama (IPv4) agar prerender `"use cache"` tidak timeout.
   - Migrasi 0003 wajib terpasang (menutup akses admin lewat sign-up publik, lihat `docs/security.md` temuan #1).
 - [ ] `make db-status`: semua migrasi bertanda ✓ (tidak ada `·`).
-- [ ] **Seed**: `pnpm db:seed` (idempoten, aman diulang). Seed berisi **data placeholder/dummy** (nomor WA, alamat, nomor halal, NIB, PIRT, email, sosmed, `site.url`). Ganti semuanya lewat **Admin → Pengaturan** sebelum go-live (lihat bagian 7 dan 9).
+- [ ] **Seed**: `pnpm db:seed` (idempoten, aman diulang). **Pengaman**: seed menolak host DB non-lokal (hanya localhost/127.0.0.1/::1/host.docker.internal/nama service tanpa titik) karena upsert menimpa data asli; untuk sengaja seed DB remote set `SEED_ALLOW_REMOTE=1`. Seed berisi **data placeholder/dummy** (nomor WA, alamat, nomor halal, NIB, PIRT, email, sosmed, `site.url`). Ganti semuanya lewat **Admin → Pengaturan** sebelum go-live (lihat bagian 7 dan 9).
 - [ ] **Bucket media**: `pnpm tsx --env-file=.env scripts/dev/ensure-media-bucket.mts` (atau `make bucket`). Jalankan di **setiap project Supabase baru**; tanpa ini upload gambar gagal. `make setup` menjalankan migrasi + seed + bucket sekaligus.
 - [ ] **Authentication → Sign In / Providers → Email**: "Allow new users to sign up" = **OFF** (publik tidak boleh mendaftar). Pengguna ditambah lewat Admin → Pengguna → Undang.
 - [ ] **Authentication → URL Configuration**: Site URL sementara = URL Vercel produksi (nanti diganti domain, bagian 4). Redirect URLs: `https://<domain>/auth/callback`; tambahkan pola preview Vercel (mis. `https://*-<tim>.vercel.app/auth/callback`) hanya bila ingin login di preview.
@@ -136,7 +137,7 @@ Pembagian variabel:
 | Jenis | Variabel | Cara masuk |
 | --- | --- | --- |
 | Publik, **ter-bake saat build** | `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL` (juga host CSP + `images.remotePatterns`), `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `--build-arg`. Mengubahnya = build ulang image. |
-| DB saat build | `DATABASE_URL` (pooler 6543) | BuildKit secret `id=database_url`, hanya ter-mount di langkah `pnpm build`; tidak tersimpan di layer, history, maupun provenance. Wajib: `next build` prerender halaman `"use cache"` dari DB dan `generateStaticParams` harus mengembalikan ≥1 slug (tanpa DB build gagal). |
+| DB saat build | `DATABASE_URL` (pooler 6543; dialihkan otomatis ke session 5432 oleh `src/db/build-url.ts`) | BuildKit secret `id=database_url`, hanya ter-mount di langkah `pnpm build`; tidak tersimpan di layer, history, maupun provenance. Wajib: `next build` prerender halaman `"use cache"` dari DB dan `generateStaticParams` harus mengembalikan ≥1 slug (tanpa DB build gagal). |
 | Secret runtime | `DATABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `CRON_SECRET`, `REVALIDATE_SECRET` (+ ketiga `NEXT_PUBLIC_*` agar validasi env server lolos) | `--env-file` / env orchestrator saat `docker run`. **Jangan** set `SKIP_ENV_VALIDATION` di runtime. |
 
 ### Build lokal
