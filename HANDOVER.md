@@ -37,11 +37,19 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, tempe han
    - Langkah: (a) jalankan ulang lokal persis seperti CI: build image dengan build-arg nilai asli lalu `docker run aquasec/trivy:0.70.0 image --severity CRITICAL,HIGH --ignore-unfixed --format table` (vuln **dan** secret); atau ubah langkah CI jadi dua: tabel (exit-code 1) + SARIF (exit-code 0) agar temuan terlihat di log. (b) Bila secret anon key: `scanners: vuln` untuk gate (secret scanning sudah dilakukan GitHub push protection), atau `.trivyignore`/`trivy-secret.yaml` allow rule `jwt-token` untuk path `.next/`. Bila CVE: naikkan dep/base image atau `.trivyignore` dengan alasan + tanggal tinjau.
    - Setelah hijau: `gh workflow run docker.yml -f tag=v0.1.2 -f version=0.1.2`, cek `cosign verify`, lalu user set paket GHCR **Public** sekali.
    - Juga ada alert Code scanning `CVE-2026-85091` (medium) — tinjau.
-2. **Performa: halaman/bagian kadang lama hanya skeleton** (landing & admin; dasbor admin sangat lama). Laporan user 2026-10-22, belum diselidiki. Dugaan kuat (terkait temuan #3 di bawah): **pooler transaksi Supabase (6543) macet bila satu koneksi menerima query kedua sebelum yang pertama selesai** (postgres-js pipelining). Runtime memakai `max: 5` (`src/db/client.ts`); setiap `Promise.all` berisi >5 query atau render paralel beberapa `"use cache"`/Suspense (mis. dasbor `features/dashboard/warnings.ts:44` + kartu lain; landing banyak section) membuat query ke-6 dst. di-pipeline ke koneksi sibuk → menggantung sampai timeout/`connect_timeout`, skeleton bertahan. Uji lokal: `max=5` + 6 query paralel lolos, `max=5` + 20 paralel = HANG >20 s; `max=1` + 2 paralel = HANG; `max=10` + 10 = 653 ms.
-   - Opsi perbaikan (uji di preview Vercel, bukan hanya lokal): (a) **batasi query in-flight di aplikasi**: semaphore di sekitar eksekusi query agar per instance tidak pernah lebih dari `max` query bersamaan (opsi postgres-js `max_pipeline: 1` sudah diuji dan **tidak** cukup, tetap HANG); (b) runtime lewat **session pooler 5432** dengan `max` kecil — ukur batas klien session pooler Supabase Free terhadap jumlah instance serverless; (c) driver tanpa pipelining (mis. `pg`). Lalu ukur ulang TTFB/LCP (`docs/performance.md`) dan dasbor admin.
-   - Faktor lain yang juga perlu dicek: cold start fungsi Vercel Hobby (region fungsi vs DB ap-northeast-1 — log build Vercel menunjukkan `iad1` Washington; DB di ap-northeast-1 Tokyo → **set Function Region ke `hnd1`** di Vercel Settings → Functions bila paket mengizinkan, atau `regions` di `vercel.json`; tiap query lintas Pasifik ±150 ms RTT), cache `"use cache"` in-memory per instance (miss di instance baru), dan query admin tanpa cache.
-3. **Fix sesi 8 (#17): build lewat session pooler.** Saat `NEXT_PHASE=phase-production-build`, `src/db/build-url.ts` mengganti `*.pooler.supabase.com:6543` → `:5432` (host sama, IPv4). Penyebab deploy gagal sebelumnya: `"use cache" function took too long during prerendering`. Runtime tetap 6543. Ini membatalkan catatan lama "port 5432 diblokir" — **session pooler 5432 bisa dijangkau**; yang IPv6-only hanya host direct `db.<ref>.supabase.co`.
-4. **Insiden sesi 8:** agent P9.5 tidak sengaja menjalankan `pnpm db:seed` ke DB **remote** (2026-10-21 13:56 UTC) karena `seed.ts` memakai `DIRECT_URL` dari `.env`. Seed upsert menimpa nilai settings/produk/halaman/artikel ke nilai contoh. `audit_log` kosong (belum ada editan admin) → kemungkinan tidak ada data asli hilang. **Pencegahan (todo):** seed menolak jalan ke host non-lokal tanpa `SEED_ALLOW_REMOTE=1`; aturan sub-agent: jangan jalankan seed/migrasi kecuali diminta.
+2. **Performa: dasbor admin lama / menu lain hanya judul+sidebar** — **akar masalah ditemukan, fix di PR #21 (menunggu merge + verifikasi di Vercel).**
+   - Gejala (user, Vercel prod, setelah pindah ke Supabase Singapura + region Vercel Singapura): dasbor admin loading tak selesai; setelah itu pindah menu → konten tidak muncul (hanya `<PageHeader>` + sidebar). Membuka menu lain **langsung** (mis. Pengaturan) tanpa dasbor dulu = normal. Region bukan penyebab.
+   - Akar: pooler transaksi Supabase (6543) **macet bila satu koneksi menerima query kedua saat query pertama masih berjalan**. postgres-js mem-*pipeline* hingga 100 query/koneksi begitu pool (`max: 5`) penuh → dasbor (banyak kartu, masing-masing `Promise.all`) menggantung koneksi instance → request berikutnya di instance yang sama ikut menunggu.
+   - Fix #21: `max_pipeline: 0` di `src/db/client.ts` (opsi runtime postgres-js 3.x yang tidak ada di typings → spread `as Record<string, unknown>`). Uji ke 6543: 30 query paralel HANG >25 dtk → 1,5 dtk; request berikutnya 79 ms. (`max_pipeline: 1` TIDAK cukup — tetap pipeline 1 query.)
+   - **Sesi 9:** setelah user merge #21 + redeploy, minta user uji: buka dasbor → tunggu → pindah ke 3–4 menu. Bila masih lambat: cek Vercel Logs, ukur per kartu dasbor (`src/app/(admin)/admin/_dashboard/*`, `features/dashboard/warnings.ts`), pertimbangkan Suspense per kartu + query admin yang di-cache singkat. Perbarui `docs/performance.md`.
+   - Juga: halaman publik sempat "kadang skeleton" — kemungkinan akar yang sama; verifikasi setelah #21.
+3. **Supabase dipindah user ke project baru (Singapura, `ap-southeast-1`)** pada 2026-10-22: backup → import penuh; migrasi 0000–0004 ✓, data ✓, owner ✓, bucket `media` ✓. Env Vercel & `.env` lokal sudah diganti. Region fungsi Vercel = Singapura.
+   - Env Vercel `DATABASE_URL` = **pooler transaksi 6543** `aws-0-ap-southeast-1.pooler.supabase.com` (IPv4 OK). **Jangan pakai session pooler 5432 di runtime**: batas `pool_size: 15` klien (`EMAXCONNSESSION`) → admin 500. `.env` lokal masih 5432 (cukup untuk skrip/migrasi lokal).
+   - Auth Supabase baru: pastikan *URL Configuration* (Site URL + `/auth/callback`) sudah diisi user. Login sudah berhasil di prod.
+   - Ref project lama di dokumen/insiden = `mzzktbvkdpwxufaipbla` (sudah dihapus user).
+4. **Fix sesi 8 (#17): build lewat session pooler.** Saat `NEXT_PHASE=phase-production-build`, `src/db/build-url.ts` mengganti `*.pooler.supabase.com:6543` → `:5432` (host sama, IPv4). Penyebab deploy gagal sebelumnya: `"use cache" function took too long during prerendering`. Runtime tetap 6543. Ini membatalkan catatan lama "port 5432 diblokir" — **session pooler 5432 bisa dijangkau**; yang IPv6-only hanya host direct `db.<ref>.supabase.co`.
+5. **Insiden sesi 8:** agent P9.5 tidak sengaja menjalankan `pnpm db:seed` ke DB **remote** (2026-10-21 13:56 UTC) karena `seed.ts` memakai `DIRECT_URL` dari `.env`. Seed upsert menimpa nilai settings/produk/halaman/artikel ke nilai contoh. `audit_log` kosong (belum ada editan admin) → kemungkinan tidak ada data asli hilang. **Pencegahan (todo):** seed menolak jalan ke host non-lokal tanpa `SEED_ALLOW_REMOTE=1`; aturan sub-agent: jangan jalankan seed/migrasi kecuali diminta.
+6. **PR terbuka akhir sesi 8:** #19 (handover ini), #20 (log `error.cause` di fallback data publik), #21 (fix pipelining). Minta user merge urut #21 → #20 → #19.
 
 ## 3a. Catatan teknis baru sesi 7
 - `ensureStatic = "navigation"` (Next 16.4) di 4 route `[slug]` + catch-all: unknown slug → 404 asli; halaman itu hanya boleh data `"use cache"` (tanpa cookies/headers/connection/new Date di luar cache), jika tidak build gagal.
@@ -133,7 +141,7 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, tempe han
   - Headless Chrome 375px lewat CDP `Emulation.setDeviceMetricsOverride`.
 
 ## 7. Lingkungan lokal
-- **DB = Supabase remote** (project `<ref di .env>`, ap-northeast-1).
+- **DB = Supabase remote** (project baru `<ref di .env>`, **ap-southeast-1 Singapura** sejak 2026-10-22; `.env` lokal `DATABASE_URL` = session pooler 5432).
   - Sudah dimigrasi dan di-seed: 50 settings, 2 produk, 11 halaman, 27 FAQ, 8 artikel, 6 resep, 4 legal, slot.
   - Bucket `media` sudah ada.
   - Latensi ±700 ms per koneksi.
@@ -145,7 +153,7 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, tempe han
   - `pnpm dev`, `pnpm build`, `pnpm test`, `pnpm lint`, `pnpm typecheck`.
   - `pnpm db:migrate`, `pnpm db:seed` (idempoten), `pnpm db:generate`.
   - Validasi seed: `pnpm tsx --tsconfig tsconfig.json scripts/dev/validate-sections.mts`.
-- Status akhir sesi 8: lint ✓, typecheck ✓, 418 test ✓, build ✓ (lokal ke DB remote 2×), CI `main` hijau; Vercel production live; job Docker rilis merah di Trivy (§3b-1). TypeScript kini 6.0.3 (#5).
+- Status akhir sesi 8: lint ✓, typecheck ✓, 418 test ✓, build ✓ (lokal ke DB Supabase baru, juga via 6543), CI `main` hijau; Vercel production live + login ✓; dasbor admin lambat → fix #21 (§3b-2); job Docker rilis merah di Trivy (§3b-1). TypeScript kini 6.0.3 (#5).
 - `pnpm lint` mengabaikan `playwright-report/` dan `test-results/`.
 
 ## 8. Menunggu dari user (jangan memblokir)
@@ -164,8 +172,8 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, tempe han
 ## 9. Mulai sekarang
 1. Cek awal: `git status`, `git fetch && git log --oneline origin/main | head`, `gh pr list`, `gh run list -L 8`, `pnpm typecheck && pnpm test`.
 2. **§3b-1 Trivy** (sonnet; ownership `.github/workflows/docker.yml`, `.trivyignore`): temukan temuan nyata, perbaiki gate, jalankan ulang `docker.yml` untuk v0.1.2, verifikasi cosign + minta user set GHCR Public.
-3. **§3b-2 Performa skeleton** (opus; ownership `src/db/client.ts`, `src/features/_shared/db.ts`, query dasbor): reproduksi (lokal `next start` + DB remote, dan preview Vercel), ukur, perbaiki pool/pipelining, cek region fungsi Vercel; perbarui `docs/performance.md`.
-4. §3b-4 pencegahan seed remote (sonnet; `src/db/seed/index.ts`).
+3. **§3b-2 Performa**: pastikan #21 di-merge, minta user uji dasbor → menu lain di prod; bila masih lambat, opus agent mengukur per kartu dasbor; perbarui `docs/performance.md`.
+4. §3b-5 pencegahan seed remote (sonnet; `src/db/seed/index.ts`).
 5. P9.7 audit akhir (opus) → `docs/audit/phase-9.md`.
 6. Akhir sesi: perbarui `HANDOVER.md` + `STATE.md` lewat PR.
 ````
