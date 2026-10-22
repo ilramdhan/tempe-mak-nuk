@@ -129,6 +129,7 @@ jobs:
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: tempe-mak-nuk:pr-${{ github.event.pull_request.number }}
+          scanners: vuln
           format: table
           exit-code: "1"
           ignore-unfixed: true
@@ -206,12 +207,29 @@ jobs:
           cache-from: type=gha,scope=docker-amd64
           cache-to: type=gha,mode=max,scope=docker-amd64
 
-      - name: Trivy (CRITICAL/HIGH with a fix → fail)
+      # Vulnerabilities only: the secret scanner flags NEXT_PUBLIC_SUPABASE_ANON_KEY, a public
+      # JWT that is baked into the client bundle by design (secrets are covered by GitHub
+      # secret scanning + push protection on the repo).
+      - name: Trivy report (SARIF → code scanning)
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           image-ref: tempe-mak-nuk:scan
+          scanners: vuln
           format: sarif
           output: trivy-image.sarif
+          exit-code: "0"
+          ignore-unfixed: true
+          vuln-type: os,library
+
+      - name: Trivy (CRITICAL/HIGH with a fix → fail)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        env:
+          TRIVY_SKIP_DB_UPDATE: "true"
+          TRIVY_SKIP_JAVA_DB_UPDATE: "true"
+        with:
+          image-ref: tempe-mak-nuk:scan
+          scanners: vuln
+          format: table
           exit-code: "1"
           ignore-unfixed: true
           severity: CRITICAL,HIGH
