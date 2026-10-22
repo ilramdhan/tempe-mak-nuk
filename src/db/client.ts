@@ -25,6 +25,12 @@ function connect() {
   const sql = postgres(url, {
     prepare: false,
     max: isBuild ? 1 : 5,
+    // Never pipeline: Supabase's transaction pooler (6543) stalls when a connection receives a
+    // second query while one is in flight, which hung the admin dashboard's parallel reads and
+    // then every later request on that instance. 0 = one query per connection at a time; extra
+    // queries wait in postgres-js's own queue for a free connection. (Runtime option of
+    // postgres-js 3.x that its typings omit.)
+    ...({ max_pipeline: 0 } as Record<string, unknown>),
     idle_timeout: 20,
     connect_timeout: 10,
   });
