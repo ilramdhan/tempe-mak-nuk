@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/ilramdhan/tempe-mak-nuk/compare/v0.1.3...v0.1.4) (2026-10-22)
+
+
+### Perbaikan
+
+* **docker:** patch Alpine CVEs and scope Trivy to vulnerabilities ([#23](https://github.com/ilramdhan/tempe-mak-nuk/issues/23)) ([1ee35b6](https://github.com/ilramdhan/tempe-mak-nuk/commit/1ee35b6ebed75a21e9442ffca1d4d0eefda68ff6))
+
 ## [0.1.3](https://github.com/ilramdhan/tempe-mak-nuk/compare/v0.1.2...v0.1.3) (2026-10-22)
 
 
