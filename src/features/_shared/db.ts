@@ -24,6 +24,20 @@ function warnOnce(label: string, message: string) {
   console.warn(`[data] ${label}: ${message} — using fallback.`);
 }
 
+/** Drizzle wraps driver errors as "Failed query: …"; the real reason lives in `cause`. */
+export function describeError(error: unknown): string {
+  if (!(error instanceof Error)) return String(error);
+  const cause = error.cause;
+  if (!cause) return error.message;
+  const reason =
+    cause instanceof Error
+      ? [(cause as { code?: string }).code, cause.message]
+          .filter(Boolean)
+          .join(" ")
+      : String(cause);
+  return `${error.message.split("\n")[0]} — cause: ${reason}`;
+}
+
 export async function withDb<T>(
   label: string,
   fallback: T,
@@ -36,7 +50,7 @@ export async function withDb<T>(
   try {
     return { data: await run(getDb()), degraded: false };
   } catch (error) {
-    warnOnce(label, error instanceof Error ? error.message : String(error));
+    warnOnce(label, describeError(error));
     return { data: fallback, degraded: true };
   }
 }
