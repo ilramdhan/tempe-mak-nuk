@@ -30,7 +30,7 @@ const meta={};
 // ---- emit TSX ----
 const parse=f=>{const s=fs.readFileSync(`${OUT}/${f}`,'utf8');const vb=s.match(/viewBox="([^"]+)"/)[1];const body=s.replace(/^[\s\S]*?<svg[^>]*>\n?/,'').replace(/\n?<\/svg>\s*$/,'');return {vb,body};};
 function toJsx(body,idName){return body.replace(/id="[^"]+"/g,'id={maskId}').replace(/url\(#[^)]+\)/g,'MASK').replace(/mask="MASK"/g,'mask={`url(#${maskId})`}')
- .replace(/stroke-width=/g,'strokeWidth=').replace(/maskUnits=/g,'maskUnits=');}
+ .replace(/stroke-width=/g,'strokeWidth=');}
 const V={horizontal:parse('logo-horizontal.svg'),stacked:parse('logo-stacked.svg'),monogram:parse('monogram.svg'),favicon:parse('favicon.svg')};
 let tsx=`/**
  * Tempe Mak Nuk — logo system.
