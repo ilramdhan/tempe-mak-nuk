@@ -8,6 +8,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
 import * as schema from "./schema";
+import { assertSeedTarget } from "./seed-guard";
 import { runSeed } from "./seed/index";
 
 config({ path: [".env.local", ".env"], quiet: true });
@@ -15,6 +16,8 @@ config({ path: [".env.local", ".env"], quiet: true });
 async function main() {
   const url = process.env.DIRECT_URL || process.env.DATABASE_URL;
   if (!url) throw new Error("Set DIRECT_URL or DATABASE_URL to run the seed.");
+
+  assertSeedTarget(url, process.env);
 
   const sql = postgres(url, { prepare: false, max: 1 });
   try {

@@ -99,14 +99,13 @@
 | P9.3 | Workflows: ci (+e2e), codeql, dependency-review, pr-title, labeler; dependabot grup | O | P8.0, P9.2 | done | opus | `.github/workflows/{ci,codeql,dependency-review,pr-title,labeler,labels-sync,stale}.yml`, `.github/dependabot.yml` — SHA-pinned via gh api, actionlint clean; e2e lokal (pg16 + dummy Supabase) 47 pass/2 skip (admin); screenshots di-skip di CI; docker ecosystem menunggu Dockerfile P9.5 |
 | P9.4 | release-please (0.1.0) + deskripsi/topics repo | S | P9.3 | done | sonnet | config release-please |
 | P9.5 | Dockerfile standalone + docker.yml GHCR publik (multi-arch, SBOM, Trivy, cosign) | O | P9.3, P9.4 | done | opus | `Dockerfile`, `.dockerignore`, `docker.yml`, `next.config.ts` standalone (#14); job rilis merah di Trivy → HANDOVER §3b-1 |
-| P9.6 | Setting repo: ruleset main, secret scanning, Dependabot, PVR, squash-only; PR Dependabot #1 | S | P9.1–P9.5 | doing | orchestrator | ruleset/secret scanning/PVR oleh user; Dependabot #3,#5 merge, #4,#16 ignore major; sisa: verifikasi akhir |
-| P9.7 | Audit akhir Fase 9 | O | P9.6 | todo |  | `docs/audit/phase-9.md` |
+| P9.6 | Setting repo: ruleset main, secret scanning, Dependabot, PVR, squash-only; PR Dependabot #1 | S | P9.1–P9.5 | doing | orchestrator | ruleset/secret scanning oleh user; Dependabot #3,#5 merge, #4,#16 ignore major; sisa user: aktifkan PVR (API enabled:false), repo squash-only + auto-delete branch (audit P9.7) |
+| P9.7 | Audit akhir Fase 9 | O | P9.6 | done | opus | `docs/audit/phase-9.md` (34 item: 22 ✅, 11 ⚠️, 1 ❌ PVR). Rilis v0.1.4: image GHCR publik multi-arch, cosign verify ✓, code scanning 0 open |
 
 ## Blocker
 
 | Tanggal | Task | Masalah | Butuh dari |
 |---|---|---|---|
-| 2026-10-22 | P9.5/P9.7 | Job Docker rilis v0.1.2 gagal di Trivy (temuan belum terlihat; dugaan secret `jwt-token` anon key di bundle) | sesi 9 (HANDOVER §3b-1) |
 | 2026-10-22 | perf | Dasbor admin lama, menu lain kosong setelahnya; akar: pipelining postgres-js di pooler 6543 → fix PR #21 (verifikasi prod) | user merge #21 + uji (HANDOVER §3b-2) |
 
 ## Log Sesi
@@ -126,3 +125,4 @@
 | 2026-10-21 | sesi 7 (lanjutan) | Done: P8.0–P8.3, P8.5, P8.6, P8.9–P8.14 (RBAC dinamis, migrasi 0004 remote), P0.6, P9.1–P9.3. CI GitHub hijau (verify + build-e2e Postgres/Playwright/axe). PR terbuka: #6 (P9.4 release-please, hapus codeql.yml advanced), #7 (P8.4). P8.7 di working tree (agent berjalan). Mulai sesi ini: semua perubahan lewat branch+PR, merge oleh user. HANDOVER.md → sesi 8 | P8.7 → P8.8, P9.5, P9.6 (Dependabot), P9.7 |
 | 2026-10-22 | sesi 8 | CI `main` diperbaiki (#11: manifest release-please di .prettierignore, PR title Dependabot). Done: P8.8 (#12), cron harian Hobby (#13), P9.5 Docker (#14), fix build Vercel lewat session pooler (#17, akar: pooler 6543 macet saat >1 query per koneksi). Rilis v0.1.1, v0.1.2. Dependabot #3/#5 merge, #4/#16 ignore major. Vercel production live. Insiden: seed tak sengaja ke DB remote oleh agent (audit_log kosong). Terbuka: Trivy job Docker, performa skeleton | HANDOVER §3b → P9.7 |
 | 2026-10-22 | sesi 8 (lanjutan) | User pindah Supabase ke project baru Singapura (import penuh ✓) + region Vercel Singapura; runtime `DATABASE_URL` 6543 (session 5432 limit 15 klien → admin 500). Login prod ✓. Fix: log `error.cause` (#20), nonaktifkan pipelining postgres-js (#21; dasbor HANG → 1,5 dtk). HANDOVER diperbarui | merge #21→#20→#19, verifikasi dasbor prod, Trivy (§3b-1), P9.7 |
+| 2026-10-22 | sesi 9 | v0.1.3 docker gagal: vars/secret Actions masih Supabase lama (diganti user) lalu Trivy CVE musl CVE-2026-107891 + zlib → fix #23 (`apk upgrade`, Trivy `scanners: vuln`, gate tabel+SARIF, hapus identity-replace CodeQL). Rilis v0.1.4: image GHCR publik amd64+arm64, cosign ✓, 7/7 alert code scanning fixed. Seed guard (`src/db/seed-guard.ts`, `SEED_ALLOW_REMOTE=1`). P9.7 audit done. Docs pooler 5432/6543 diperbarui | user: PVR, squash-only/auto-delete, PAT 2026-11-20, uji dasbor prod, env Preview Vercel |
