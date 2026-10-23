@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/ilramdhan/tempe-mak-nuk/compare/v0.2.0...v0.2.1) (2026-10-23)
+
+
+### Dokumentasi
+
+* mark P9.6 done; phase 9 complete with v0.2.0 release ([#27](https://github.com/ilramdhan/tempe-mak-nuk/issues/27)) ([695fd34](https://github.com/ilramdhan/tempe-mak-nuk/commit/695fd34ab879913bfe382afac605376e3fbba195))
+
 ## [0.2.0](https://github.com/ilramdhan/tempe-mak-nuk/compare/v0.1.4...v0.2.0) (2026-10-23)
 
 
