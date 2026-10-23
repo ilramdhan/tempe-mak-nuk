@@ -6,7 +6,7 @@
 ---
 
 ````markdown
-Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, tempe handmade sejak 2001, Klaten). Repo GitHub `ilramdhan/tempe-mak-nuk` (publik). **Fase 0–9 done kecuali sisa setting repo P9.6 (oleh user). Rilis terakhir v0.1.4 (image GHCR publik, ter-sign). Sisa: verifikasi performa dasbor prod (§3b-2) + daftar user (§8).** Situs sudah live di Vercel Hobby. Jangan analisa ulang dari nol; baca file berikut, lalu lanjut ke §9.
+Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, tempe handmade sejak 2001, Klaten). Repo GitHub `ilramdhan/tempe-mak-nuk` (publik). **Fase 0–9 SELESAI. Rilis terakhir v0.2.0 (image GHCR publik, ter-sign). Sisa: verifikasi performa dasbor prod (§3b-2) + daftar user (§8).** Situs sudah live di Vercel Hobby. Jangan analisa ulang dari nol; baca file berikut, lalu lanjut ke §9.
 
 ## 1. Baca dulu (urut)
 1. `STATE.md` — ledger status per task (sumber kebenaran) + log sesi.
@@ -24,7 +24,7 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, tempe han
 - Laporan ke user dalam Bahasa Indonesia, ringkas.
 
 ## 3. Status (2026-10-22, akhir sesi 9)
-**Fase 8: done.** **Fase 9:** P9.1–P9.5, **P9.7 done** (`docs/audit/phase-9.md`: 34 item, 22 ✅, 11 ⚠️, 1 ❌). P9.6 `doing` — sisa hanya oleh user (lihat §8).
+**Fase 8: done.** **Fase 9:** P9.1–P9.5, **P9.7 done** (`docs/audit/phase-9.md`: 34 item, 22 ✅, 11 ⚠️, 1 ❌). **P9.6 done** (2026-10-23: PVR aktif, squash-only, auto-delete branch — diverifikasi API). Rilis **v0.2.0** (#26) + image `0.2.0`/`latest` cosign ✓.
 - Sesi 9: v0.1.3 job Docker gagal → (1) vars/secret Actions masih Supabase lama (diganti user), (2) gate Trivy: musl CVE-2026-107891 + zlib CVE-2026-85091 di base Alpine → **#23** (`apk upgrade` di runner, Trivy `scanners: vuln` [anon key publik terdeteksi jwt-token], gate tabel exit 1 + SARIF exit 0). **v0.1.4** (#24): image `ghcr.io/ilramdhan/tempe-mak-nuk:0.1.4` amd64+arm64, pull anonim ✓ (publik), `cosign verify` ✓. Code scanning 0 open (7/7 fixed).
 - Seed guard: `src/db/seed-guard.ts` — `pnpm db:seed` menolak host non-lokal kecuali `SEED_ALLOW_REMOTE=1`.
 - Docs pooler (README, docs/deploy.md) diperbarui: runtime 6543 + `max_pipeline: 0`, build otomatis session 5432.
@@ -150,15 +150,13 @@ Kamu melanjutkan project **Tempe Mak Nuk** (website brand + CMS admin, tempe han
 - Keputusan desain: bar sticky "Lanjut" `/custom-order` di 375 px & tombol WA mengambang (P8.12).
 - Keputusan Fase 9: lisensi (default usulan: **proprietary / All rights reserved** karena brand komersial; alternatif MIT untuk kode saja), apakah repo tetap publik, image container dipublikasikan ke GHCR publik/privat.
 - Secrets GitHub Actions bila diperlukan (mis. `E2E_ADMIN_*`, Vercel token bila deploy via Actions).
-- Vercel Hobby sudah live, env lengkap (sesi 8). Sisa: domain sendiri (bila ada) + cek Function Region dekat DB (§3b-2). Repo vars/secret Docker sudah diisi. **Perpanjang `RELEASE_PLEASE_TOKEN` sebelum 2026-11-20** (tanpa PAT, PR rilis tidak memicu CI → ruleset memblokir merge). Paket GHCR sudah publik.
-- **Setting repo (audit P9.7):** aktifkan Private vulnerability reporting (API `enabled:false`, padahal SECURITY.md menautkannya); matikan merge commit + rebase di level repo (squash-only) dan nyalakan auto-delete head branch.
+- Vercel Hobby sudah live, env lengkap (sesi 8). Sisa: domain sendiri (bila ada) + cek Function Region dekat DB (§3b-2). Repo vars/secret Docker sudah diisi. `RELEASE_PLEASE_TOKEN` sudah diperpanjang user (2026-10-23); cek tanggal kedaluwarsa barunya di GitHub.
 - Akun editor khusus E2E (`E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`, undang via Admin → Pengguna) supaya `tests/e2e/admin.spec.ts` jalan.
 - Data asli (WA, alamat, nomor halal, foto) diisi lewat Admin → Pengaturan / Media.
 
 ## 9. Mulai sekarang
 1. Cek awal: `git status`, `git fetch && git log --oneline origin/main | head`, `gh pr list`, `gh run list -L 8`, `pnpm typecheck && pnpm test`.
 2. Tanyakan hasil uji dasbor prod (§3b-2); bila lambat → opus agent ukur per kartu.
-3. Cek setting repo §8 (PVR, squash-only, auto-delete) via `gh api`; bila sudah, set P9.6 `done`.
-4. Tinjau ⚠️ di `docs/audit/phase-9.md` yang bisa dikerjakan orkestrator (mis. env Preview Vercel, E2E admin bila user memberi akun).
-5. Akhir sesi: perbarui `HANDOVER.md` + `STATE.md` lewat PR.
+3. Tinjau ⚠️ di `docs/audit/phase-9.md` yang bisa dikerjakan orkestrator (mis. env Preview Vercel, E2E admin bila user memberi akun).
+4. Akhir sesi: perbarui `HANDOVER.md` + `STATE.md` lewat PR.
 ````
