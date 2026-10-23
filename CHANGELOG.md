@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/ilramdhan/tempe-mak-nuk/compare/v0.1.4...v0.2.0) (2026-10-23)
+
+
+### Fitur
+
+* **db:** guard seed against remote databases; phase 9 audit and session 9 handover ([#25](https://github.com/ilramdhan/tempe-mak-nuk/issues/25)) ([8807386](https://github.com/ilramdhan/tempe-mak-nuk/commit/88073868038bbe14abf674e7162d3dae228b1fde))
+
 ## [0.1.4](https://github.com/ilramdhan/tempe-mak-nuk/compare/v0.1.3...v0.1.4) (2026-10-22)
 
 
